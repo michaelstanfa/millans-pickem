@@ -12,7 +12,7 @@
 
   <script src="scripts/main.js"></script>
   <script type = "text/javascript">
-	window.onload = loadSpecificWeekMatchups(4);
+	window.onload = loadData();
 </script>
 </head>
 
@@ -40,7 +40,8 @@ table {
   <p id ="updated_on"></p>
   
   <label>week</label>
-  <select onchange = loadSpecificWeekMatchups()>
+  <select onchange = "loadSpecificWeekMatchups(this.value)">
+    <option value='select'>Select Week</option>
     <option value='1'>1</option>
     <option value='2'>2</option>
     <option value='3'>3</option>
