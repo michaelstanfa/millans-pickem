@@ -21,11 +21,13 @@ function Week(week, games) {
 	this.games = games;
 }
 
-function Game(awayTeam, homeTeam, date, time) {
+function Game(awayTeam, homeTeam, date, time, awayLine, homeLine) {
 	this.awayTeam = awayTeam,
 	this.homeTeam = homeTeam,
 	this.date = date,
-	this.time = time;
+	this.time = time,
+	this.awayLine = awayLine,
+	this.homeLine = homeLine;
 }
 
 async function getSchedule() {
@@ -38,7 +40,7 @@ async function getSchedule() {
 }
 
 async function retrieveSched() {
-	console.log("during");
+
 	response = $.ajax
 	({
 		type: "GET",
@@ -69,7 +71,7 @@ async function loadSpecificWeekMatchups(week) {
 		let games = [];
 		let i = 0;
 		weekGames.forEach(g => {
-			games[i] = new Game(g.awayTeam, g.homeTeam, g.date, g.time);
+			games[i] = new Game(g.awayTeam, g.homeTeam, g.date, g.time, getLine(week, g.awayTeam), getLine(week, g.homeTeam));
 			i++;
 		})
 		thisWeek = new Week(week, games);
@@ -77,6 +79,8 @@ async function loadSpecificWeekMatchups(week) {
 		populateWeeklySchedule(thisWeek);
 	}
 }
+
+
 
 const populateWeeklySchedule = (thisWeek) => {
 
@@ -93,9 +97,9 @@ const populateWeeklySchedule = (thisWeek) => {
 
 	thisWeek.games.forEach(g => {
 		data += TR_OPEN + 
-			TD_OPEN + g.awayTeam.Name + TD_CLOSE +
+			TD_OPEN + g.awayTeam.Name + g.awayLine + TD_CLOSE +
 			TD_OPEN + "@" + TD_CLOSE + 
-			TD_OPEN + g.homeTeam.Name + TD_CLOSE + 
+			TD_OPEN + g.homeTeam.Name + g.homeLine + TD_CLOSE + 
 			TD_OPEN + g.date + TD_CLOSE +
 			TD_OPEN + g.time + TD_CLOSE + 
 			TR_CLOSE
@@ -108,6 +112,10 @@ const populateWeeklySchedule = (thisWeek) => {
 
 	$("#this_week_games").html(table);
 
+}
+
+const getLine = (week, team) => {
+	return " (+1.5)";
 }
 
 function loadData() {
