@@ -40,7 +40,7 @@ async function getSchedule() {
 }
 
 async function retrieveSched() {
-
+	
 	response = $.ajax
 	({
 		type: "GET",
@@ -77,10 +77,10 @@ async function loadSpecificWeekMatchups(week) {
 		thisWeek = new Week(week, games);
 
 		populateWeeklySchedule(thisWeek);
+	} else {
+		$("#this_week_games").html("");
 	}
 }
-
-
 
 const populateWeeklySchedule = (thisWeek) => {
 
@@ -118,8 +118,12 @@ const getLine = (week, team) => {
 	return " (+1.5)";
 }
 
-function loadData() {
+const loadData = () => {
+
 	console.log("loading data");
+
 	getSchedule();
+	let currentWeek = getGameWeek();
 	loadSpecificWeekMatchups("select");
+
 }
