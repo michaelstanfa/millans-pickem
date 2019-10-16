@@ -12,8 +12,5 @@ const getGameWeek = () => {
 
 	let days_since_start = (now.getTime() - final_day_of_week_zero.getTime()) / (1000 * 60 * 60 *24);
 
-	let week_placeholder = Math.ceil(days_since_start / 7);
-
-
-	return "success";
+	return Math.ceil(days_since_start / 7);
 }

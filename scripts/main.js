@@ -124,6 +124,6 @@ const loadData = () => {
 
 	getSchedule();
 	let currentWeek = getGameWeek();
-	loadSpecificWeekMatchups("select");
+	loadSpecificWeekMatchups(currentWeek);
 
 }
