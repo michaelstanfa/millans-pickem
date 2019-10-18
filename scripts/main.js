@@ -102,9 +102,10 @@ const populateWeeklySchedule = (thisWeek) => {
 			TD_OPEN + g.date + TD_CLOSE +
 			TD_OPEN + g.time + TD_CLOSE + 
 			TD_OPEN + "|" + TD_CLOSE + 
-			TD_OPEN + '<input name = "' + g.id + '" value = ' + g.awayTeam.Abbreviation + ' type="radio"> ' + g.awayTeam.Abbreviation + TD_CLOSE +
-			TD_OPEN + '<input name = "' + g.id + '" value = ' + g.homeTeam.Abbreviation + ' type="radio"> ' + g.homeTeam.Abbreviation + TD_CLOSE +
-			TD_OPEN + '<input name = "' + g.id + '" value = "NONE" type="radio" checked> None' + TD_CLOSE
+			TD_OPEN + '<input class = "radio_choice" name = "' + g.id + '" value = ' + g.awayTeam.Abbreviation + ' type="radio"> ' + g.awayTeam.Abbreviation + TD_CLOSE +
+			TD_OPEN + '<input class = "radio_choice" name = "' + g.id + '" value = ' + g.homeTeam.Abbreviation + ' type="radio"> ' + g.homeTeam.Abbreviation + TD_CLOSE +
+			TD_OPEN + '<input class = "radio_choice" name = "' + g.id + '" value = "NONE" type="radio" checked> None' + TD_CLOSE +
+		TR_CLOSE
 	})
 
 	table += data;
@@ -147,3 +148,19 @@ const loadData = async () => {
 		}
 	)
 }  
+
+const submitPicks = () => {
+
+	let choices = [ ...$(".radio_choice:checked")];
+	
+	console.log(choices);
+	choices = choices.map(c => c.value);
+	let picks = choices.filter(c => c != "NONE");
+
+	if(picks.length != 3) {
+		alert("You must choose three and only three games, idiot");
+	} else {
+		alert("Are you sure you want to make these picks?\n\n" + picks.join(", "));
+	}
+
+}
