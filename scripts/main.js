@@ -21,7 +21,8 @@ function Week(week, games) {
 	this.games = games;
 }
 
-function Game(awayTeam, homeTeam, date, time, awayLine, homeLine) {
+function Game(id, awayTeam, homeTeam, date, time, awayLine, homeLine) {
+	this.id = id,
 	this.awayTeam = awayTeam,
 	this.homeTeam = homeTeam,
 	this.date = date,
@@ -68,7 +69,7 @@ async function loadSpecificWeekMatchups(week) {
 		let games = [];
 		let i = 0;
 		weekGames.forEach(g => {
-			games[i] = new Game(g.awayTeam, g.homeTeam, g.date, g.time, getLine(week, g.awayTeam), getLine(week, g.homeTeam));
+			games[i] = new Game(g.id, g.awayTeam, g.homeTeam, g.date, g.time, getLine(week, g.awayTeam), getLine(week, g.homeTeam));
 			i++;
 		})
 		thisWeek = new Week(week, games);
@@ -93,6 +94,7 @@ const populateWeeklySchedule = (thisWeek) => {
 	let data = "";
 
 	thisWeek.games.forEach(g => {
+		console.log(g);
 		data += TR_OPEN + 
 			TD_OPEN + g.awayTeam.Name + g.awayLine + TD_CLOSE +
 			TD_OPEN + "@" + TD_CLOSE + 
@@ -100,10 +102,9 @@ const populateWeeklySchedule = (thisWeek) => {
 			TD_OPEN + g.date + TD_CLOSE +
 			TD_OPEN + g.time + TD_CLOSE + 
 			TD_OPEN + "|" + TD_CLOSE + 
-			TD_OPEN + g.awayTeam.Abbreviation + TD_CLOSE + 
-			TD_OPEN + '<input type="range" min="1" max="3" value="2" class="slider">' + TD_CLOSE + 
-			TD_OPEN + g.homeTeam.Abbreviation + TD_CLOSE + 
-			TR_CLOSE
+			TD_OPEN + '<input name = "' + g.id + '" value = ' + g.awayTeam.Abbreviation + ' type="radio"> ' + g.awayTeam.Abbreviation + TD_CLOSE +
+			TD_OPEN + '<input name = "' + g.id + '" value = ' + g.homeTeam.Abbreviation + ' type="radio"> ' + g.homeTeam.Abbreviation + TD_CLOSE +
+			TD_OPEN + '<input name = "' + g.id + '" value = "NONE" type="radio" checked> None' + TD_CLOSE
 	})
 
 	table += data;
