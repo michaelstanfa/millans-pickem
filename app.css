@@ -1,1 +1,5 @@
 body {cursor: pointer};
+
+.slider {
+	width: 50%;
+}

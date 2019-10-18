@@ -38,14 +38,9 @@ const getSchedule = async () => {
 			resolve(schedule);
 		}	
 	})
-	
-	
 }
 
 async function retrieveSched() {
-	if(schedule != null) {
-		return schedule;
-	}
 
 	return $.ajax
 	({
@@ -104,11 +99,13 @@ const populateWeeklySchedule = (thisWeek) => {
 			TD_OPEN + g.homeTeam.Name + g.homeLine + TD_CLOSE + 
 			TD_OPEN + g.date + TD_CLOSE +
 			TD_OPEN + g.time + TD_CLOSE + 
+			TD_OPEN + "|" + TD_CLOSE + 
+			TD_OPEN + g.awayTeam.Abbreviation + TD_CLOSE + 
+			TD_OPEN + '<input type="range" min="1" max="3" value="2" class="slider">' + TD_CLOSE + 
+			TD_OPEN + g.homeTeam.Abbreviation + TD_CLOSE + 
 			TR_CLOSE
 	})
 
-
-	//table += header;
 	table += data;
 	table += TABLE_CLOSE;
 
