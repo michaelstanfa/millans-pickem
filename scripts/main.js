@@ -30,18 +30,24 @@ function Game(awayTeam, homeTeam, date, time, awayLine, homeLine) {
 	this.homeLine = homeLine;
 }
 
-async function getSchedule() {
-
-	if(null == schedule) {
-		schedule = retrieveSched();
-	} else {
-		return schedule;
-	}
+const getSchedule = async () => {
+	return new Promise(function(resolve, reject){
+		if(null == schedule) {
+			resolve(retrieveSched());
+		} else {
+			resolve(schedule);
+		}	
+	})
+	
+	
 }
 
 async function retrieveSched() {
-	
-	response = $.ajax
+	if(schedule != null) {
+		return schedule;
+	}
+
+	return $.ajax
 	({
 		type: "GET",
 		url: "https://api.mysportsfeeds.com/v1.2/pull/nfl/2019-regular/full_game_schedule.json",
@@ -50,11 +56,6 @@ async function retrieveSched() {
 		headers: {
 	      "Authorization": "Basic " + btoa(creds.id + ":" + creds.secret)
 	    },
-	    success: function (){
-	    	schedule = JSON.parse(response.responseText);
-	    	console.log(schedule);
-	    	return schedule;
-	   	},
 	   	error: function(XMLHttpRequest, textStatus, errorThrown) {
 	   		console.log("Failed to make call to endpoint");
 	   		console.error("Status: " + textStatus);
@@ -66,6 +67,7 @@ async function retrieveSched() {
 }
 
 async function loadSpecificWeekMatchups(week) {
+
 	if(week != "select") {
 		let weekGames = schedule.fullgameschedule.gameentry.filter(e => e.week == week);
 		let games = [];
@@ -118,12 +120,32 @@ const getLine = (week, team) => {
 	return " (+1.5)";
 }
 
-const loadData = () => {
+const loadData = async () => {
 
 	console.log("loading data");
 
-	getSchedule();
-	let currentWeek = getGameWeek();
-	loadSpecificWeekMatchups(currentWeek);
+	let promiseSchedule = getSchedule();
 
-}
+	promiseSchedule.then(
+		result => {
+			schedule = result;
+
+			let promise = new Promise(function(resolve, reject) {
+			 	resolve(getGameWeek());
+			});
+
+			promise.then(
+				result => {
+					$("#select_week_dropdown").val(result);	
+					console.log(result);
+					loadSpecificWeekMatchups(result);
+				},
+				error => {
+					console.log(error);
+				})
+		},
+		error => {
+			console.log(error);
+		}
+	)
+}  
