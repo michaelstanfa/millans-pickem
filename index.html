@@ -63,7 +63,9 @@ table {
   <div id = "this_week_games"></div>
 
   <div class = "footer-container">
-    <input type = "submit" onclick = "submitPicks()">
+
+    <button value = "submit" onclick = "validatePicks()" class="btn btn-submit btn-primary" data-toggle="modal" data-target="#submit-modal">Submit</button>
+    <!-- <input type = "submit" onclick = "submitPicks()"> -->
   </div>
   
   <div class="container">
@@ -71,17 +73,17 @@ table {
     <!-- Trigger the modal with a button -->
 
     <!-- Modal -->
-    <div class="modal fade" id="magicModal" role="dialog">
+    <div class="modal fade" id="submit-modal" role="dialog">
       <div class="modal-dialog">
       
         <!-- Modal content-->
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal">&times;</button>
-            <h4 class="modal-title">Magic Number</h4>
+            <h4 class="modal-title">Submit</h4>
           </div>
           <div class="modal-body">
-            <p>MODAL_BODY</p>
+            <p>Ready to submit your picks?</p>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

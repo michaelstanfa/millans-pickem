@@ -149,7 +149,7 @@ const loadData = async () => {
 	)
 }  
 
-const submitPicks = () => {
+const validatePicks = () => {
 
 	let choices = [ ...$(".radio_choice:checked")];
 	
