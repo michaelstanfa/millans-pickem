@@ -1,6 +1,7 @@
 let schedule = null;
 let thisWeek = null;
 let picks = null;
+let choices = null;
 let weekGames = null;
 let games = [];
 let submittingPicks = {};
@@ -179,7 +180,7 @@ const getPickInfoFromAbbr = (abbr) => {
 
 const validatePicks = () => {
 
-	let choices = [ ...$(".radio_choice:checked")];
+	choices = [ ...$(".radio_choice:checked")];
 
 	choices = choices.map(c => c.value);
 	picks = choices.filter(c => c != "NONE");
@@ -190,6 +191,7 @@ const validatePicks = () => {
 		var options = {
 			'show':'true'
 		};
+		submittingPicks = [];
 		picks.forEach(p => {
 			submittingPicks[p] = getPickInfoFromAbbr(p);
 		})
