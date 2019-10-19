@@ -1,5 +1,9 @@
 let schedule = null;
 let thisWeek = null;
+let picks = null;
+let weekGames = null;
+let games = [];
+let submittingPicks = {};
 
 var TABLE_OPEN = "<table class='table'>";
 var TABLE_CLOSE = "</table>";
@@ -29,6 +33,12 @@ function Game(id, awayTeam, homeTeam, date, time, awayLine, homeLine) {
 	this.time = time,
 	this.awayLine = awayLine,
 	this.homeLine = homeLine;
+}
+
+function Pick(team, against, line) {
+	this.team = team;
+	this.against = against;
+	this.line = line;
 }
 
 const getSchedule = async () => {
@@ -65,8 +75,7 @@ async function retrieveSched() {
 async function loadSpecificWeekMatchups(week) {
 
 	if(week != "select") {
-		let weekGames = schedule.fullgameschedule.gameentry.filter(e => e.week == week);
-		let games = [];
+		weekGames = schedule.fullgameschedule.gameentry.filter(e => e.week == week);
 		let i = 0;
 		weekGames.forEach(g => {
 			games[i] = new Game(g.id, g.awayTeam, g.homeTeam, g.date, g.time, getLine(week, g.awayTeam), getLine(week, g.homeTeam));
@@ -96,9 +105,9 @@ const populateWeeklySchedule = (thisWeek) => {
 	thisWeek.games.forEach(g => {
 		console.log(g);
 		data += TR_OPEN + 
-			TD_OPEN + g.awayTeam.Name + g.awayLine + TD_CLOSE +
+			TD_OPEN + g.awayTeam.Name + prettyPrintTheLine(g.awayLine) + TD_CLOSE +
 			TD_OPEN + "@" + TD_CLOSE + 
-			TD_OPEN + g.homeTeam.Name + g.homeLine + TD_CLOSE + 
+			TD_OPEN + g.homeTeam.Name + prettyPrintTheLine(g.homeLine) + TD_CLOSE + 
 			TD_OPEN + g.date + TD_CLOSE +
 			TD_OPEN + g.time + TD_CLOSE + 
 			TD_OPEN + "|" + TD_CLOSE + 
@@ -116,7 +125,15 @@ const populateWeeklySchedule = (thisWeek) => {
 }
 
 const getLine = (week, team) => {
-	return " (+1.5)";
+	return 1.5;
+}
+
+const prettyPrintTheLine = (line) => {
+	if(line > 0) {
+		return " +" + line;
+	} else {
+		return " -" + line;
+	}
 }
 
 const loadData = async () => {
@@ -147,20 +164,45 @@ const loadData = async () => {
 			console.log(error);
 		}
 	)
-}  
+}
+
+const getPickInfoFromAbbr = (abbr) => {
+
+	let val = null;
+	let game = games.filter(g => g.homeTeam.Abbreviation == abbr || g.awayTeam.Abbreviation == abbr); 
+	if(game[0].homeTeam.Abbreviation == abbr) {
+		return new Pick(game[0].homeTeam.Abbreviation, game[0].awayTeam.Abbreviation, game[0].homeLine);
+	} else {
+		return new Pick(game[0].awayTeam.Abbreviation, game[0].homeTeam.Abbreviation, game[0].awayLine);
+	}
+}
 
 const validatePicks = () => {
 
 	let choices = [ ...$(".radio_choice:checked")];
-	
-	console.log(choices);
+
 	choices = choices.map(c => c.value);
-	let picks = choices.filter(c => c != "NONE");
+	picks = choices.filter(c => c != "NONE");
 
 	if(picks.length != 3) {
-		alert("You must choose three and only three games, idiot");
+		alert("Pick 3 and only 3 games.");
 	} else {
-		alert("Are you sure you want to make these picks?\n\n" + picks.join(", "));
+		var options = {
+			'show':'true'
+		};
+		picks.forEach(p => {
+			submittingPicks[p] = getPickInfoFromAbbr(p);
+		})
+
+		let display = [];
+		for (let [k, v] of Object.entries(submittingPicks)) {
+			display.push(v.team + " " + prettyPrintTheLine(v.line) + " against " + v.against);
+		}
+
+		console.log(display);
+
+		$("#modal-picks").html(display.join("</br>"));
+		$("#submit-modal").modal(options);
 	}
 
 }

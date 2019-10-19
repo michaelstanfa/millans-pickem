@@ -3,7 +3,7 @@
 <head>
   <title>Millan Pickem</title>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
   <link rel="stylesheet" src="/app.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -64,8 +64,8 @@ table {
 
   <div class = "footer-container">
 
-    <button value = "submit" onclick = "validatePicks()" class="btn btn-submit btn-primary" data-toggle="modal" data-target="#submit-modal">Submit</button>
-    <!-- <input type = "submit" onclick = "submitPicks()"> -->
+<!--     <button value = "submit" onclick = "validatePicks()" class="btn btn-submit btn-primary" data-toggle="modal" data-target="#submit-modal">Submit</button> -->
+    <button value = "submit" onclick = "validatePicks()" class="btn btn-submit btn-primary">Submit</button>
   </div>
   
   <div class="container">
@@ -84,6 +84,7 @@ table {
           </div>
           <div class="modal-body">
             <p>Ready to submit your picks?</p>
+            <div id = "modal-picks"></div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
