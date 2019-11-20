@@ -98,7 +98,7 @@ async function loadMatchupsForLineSetting(week) {
 const changeThisLine = (gameId, idToChange, line) => {
 
 	let game = thisWeek.games.filter(g => g.id == gameId);
-	console.log(game);
+
 }
 
 const populateWeeklyScheduleForLines = (thisWeek) => {
@@ -108,7 +108,7 @@ const populateWeeklyScheduleForLines = (thisWeek) => {
 	let data = "";
 
 	thisWeek.games.forEach(g => {
-		console.log(g);
+
 		data += TR_OPEN + 
 			getTeamCard(g.awayTeam, g.id) +
 			TD_OPEN + "<input class = 'line' id='" + g.id + "_" + g.awayTeam.Abbreviation + "' oninput='changeThisLine(" + g.id + "," + "\"" + g.id + "_" + g.homeTeam.Abbreviation + "\"" + ", this.value)' type='number' step='1' size='4' value='0.5'>" + TD_CLOSE +
