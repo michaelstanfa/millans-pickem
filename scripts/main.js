@@ -52,6 +52,24 @@ const getSchedule = async () => {
 	})
 }
 
+const selectThisCard = (card) => {
+
+	if(card.hasAttribute("selected")) {
+
+		card.removeAttribute("selected");
+		card.setAttribute("bgcolor", "");
+	} else {
+
+		card.setAttribute("selected", "");
+		card.setAttribute("bgcolor", "#C0C0C0");
+	}
+}
+
+const getTeamCard = (team, line) => {
+	return '<td class="team_option" abbr=' + team.Abbreviation + ' onclick=selectThisCard(this)>' + team.Name + prettyPrintTheLine(line) + TD_CLOSE;
+
+}
+
 async function retrieveSched() {
 
 	return $.ajax
@@ -104,17 +122,14 @@ const populateWeeklySchedule = (thisWeek) => {
 	let data = "";
 
 	thisWeek.games.forEach(g => {
+		console.log(getTeamCard(g.awayTeam, g.awayLine));
 		console.log(g);
 		data += TR_OPEN + 
-			TD_OPEN + g.awayTeam.Name + prettyPrintTheLine(g.awayLine) + TD_CLOSE +
+			getTeamCard(g.awayTeam, g.awayLine) + //TD_OPEN + g.awayTeam.Name + prettyPrintTheLine(g.awayLine) + TD_CLOSE +
 			TD_OPEN + "@" + TD_CLOSE + 
-			TD_OPEN + g.homeTeam.Name + prettyPrintTheLine(g.homeLine) + TD_CLOSE + 
+			getTeamCard(g.homeTeam, g.homeLine) +
 			TD_OPEN + g.date + TD_CLOSE +
-			TD_OPEN + g.time + TD_CLOSE + 
-			TD_OPEN + "|" + TD_CLOSE + 
-			TD_OPEN + '<input class = "radio_choice" name = "' + g.id + '" value = ' + g.awayTeam.Abbreviation + ' type="radio"> ' + g.awayTeam.Abbreviation + TD_CLOSE +
-			TD_OPEN + '<input class = "radio_choice" name = "' + g.id + '" value = ' + g.homeTeam.Abbreviation + ' type="radio"> ' + g.homeTeam.Abbreviation + TD_CLOSE +
-			TD_OPEN + '<input class = "radio_choice" name = "' + g.id + '" value = "NONE" type="radio" checked> None' + TD_CLOSE +
+			TD_OPEN + g.time + TD_CLOSE +
 		TR_CLOSE
 	})
 
@@ -180,12 +195,15 @@ const getPickInfoFromAbbr = (abbr) => {
 
 const validatePicks = () => {
 
-	choices = [ ...$(".radio_choice:checked")];
+	cardChoices = [ ...$(".team_option")];
 
-	choices = choices.map(c => c.value);
+	cardPicks = cardChoices.filter(c => c.hasAttribute("selected"));
+	console.log(cardPicks);
+	choices = cardPicks.map(c => c.abbr);
+	console.log(choices);
 	picks = choices.filter(c => c != "NONE");
 
-	if(picks.length != 3) {
+	if(cardPicks.length != 3) {
 		alert("Pick 3 and only 3 games.");
 	} else {
 		var options = {

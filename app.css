@@ -1,5 +1,18 @@
 body {cursor: pointer};
 
-.slider {
-	width: 50%;
+.footer-container {
+	position: fixed;
+	left: 10%;
+	padding-bottom: 2px;
+	width: 100%;
+	background-color: red;
+	color: white;
+	text-align: center;
+	height: 10px;
+}
+
+.main {
+  overflow: auto;
+  padding-bottom: 10px; /* must be same height as the footer */
+  background-color:red;
 }
