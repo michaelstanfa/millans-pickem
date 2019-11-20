@@ -106,10 +106,10 @@ const populateWeeklyScheduleForLines = (thisWeek) => {
 		console.log(g);
 		data += TR_OPEN + 
 			getTeamCard(g.awayTeam, g.id) +
-			TD_OPEN + "<input type='number' step='1' value='0.5'>" + TD_CLOSE +
+			TD_OPEN + "<input type='number' pattern='[0-9]*' step='1' size='4' value='0.5'>" + TD_CLOSE +
 			TD_OPEN + "@" + TD_CLOSE + 
 			getTeamCard(g.homeTeam, g.id) +
-			TD_OPEN + "<input type='number' step='1' value='-0.5'>" + TD_CLOSE +
+			TD_OPEN + "<input type='number' pattern='[0-9]*' step='1' size='4' value='-0.5'>" + TD_CLOSE +
 			TD_OPEN + g.date + TD_CLOSE +
 			TD_OPEN + g.time + TD_CLOSE +
 		TR_CLOSE
