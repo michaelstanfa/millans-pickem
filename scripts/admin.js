@@ -37,8 +37,8 @@ function Game(id, awayTeam, homeTeam, date, time, awayLine, homeLine) {
 }
 
 function Pick(team, against, line) {
-	this.team = team;
-	this.against = against;
+	this.team = team,
+	this.against = against,
 	this.line = line;
 }
 
@@ -95,8 +95,10 @@ async function loadMatchupsForLineSetting(week) {
 	}
 }
 
-const changeThisLine = (idToChange, line) => {
-	$("#" + idToChange).val(-line);
+const changeThisLine = (gameId, idToChange, line) => {
+
+	let game = thisWeek.games.filter(g => g.id == gameId);
+	console.log(game);
 }
 
 const populateWeeklyScheduleForLines = (thisWeek) => {
@@ -109,10 +111,10 @@ const populateWeeklyScheduleForLines = (thisWeek) => {
 		console.log(g);
 		data += TR_OPEN + 
 			getTeamCard(g.awayTeam, g.id) +
-			TD_OPEN + "<input id='" + g.id + "_" + g.awayTeam.Abbreviation + "' oninput='changeThisLine(\"" + g.id + "_" + g.homeTeam.Abbreviation + "\"" + ", this.value)' type='number' step='1' size='4' value='0.5'>" + TD_CLOSE +
+			TD_OPEN + "<input class = 'line' id='" + g.id + "_" + g.awayTeam.Abbreviation + "' oninput='changeThisLine(" + g.id + "," + "\"" + g.id + "_" + g.homeTeam.Abbreviation + "\"" + ", this.value)' type='number' step='1' size='4' value='0.5'>" + TD_CLOSE +
 			TD_OPEN + "@" + TD_CLOSE + 
 			getTeamCard(g.homeTeam, g.id) +
-			TD_OPEN + "<input id='" + g.id + "_" + g.homeTeam.Abbreviation + "' oninput='changeThisLine(\"" + g.id + "_" + g.awayTeam.Abbreviation + "\"" + ", this.value)' type='number' step='1' size='4' value='-0.5'>" + TD_CLOSE +
+			TD_OPEN + "<input class = 'line' id='" + g.id + "_" + g.homeTeam.Abbreviation + "' oninput='changeThisLine(" + g.id + "," + "\"" + g.id + "_" + g.awayTeam.Abbreviation + "\"" + ", this.value)' type='number' step='1' size='4' value='-0.5'>" + TD_CLOSE +
 			TD_OPEN + g.date + TD_CLOSE +
 			TD_OPEN + g.time + TD_CLOSE +
 		TR_CLOSE
@@ -177,14 +179,13 @@ const getPickInfoFromAbbr = (abbr) => {
 	}
 }
 
-const validatePicks = () => {
+const reviewLines = () => {
 
-	cardChoices = [ ...$(".team_option")];
-
-	cardPicks = cardChoices.filter(c => c.hasAttribute("selected"));
-
-	choices = cardPicks.map(c => c.abbr);
-
+	lines = [ ...$(".line")];
+	console.log(thisWeek);
+	console.log(lines);
+	linesMap = new Map(lines.map(l => [l.id, l.value]));
+	console.log(linesMap);
 	picks = choices.filter(c => c != "NONE");
 
 	if(cardPicks.length != 3) {
