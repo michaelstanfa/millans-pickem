@@ -95,9 +95,20 @@ async function loadMatchupsForLineSetting(week) {
 	}
 }
 
-const changeThisLine = (gameId, idToChange, line) => {
+const changeThisLine = (gameId, idToChange, line, side) => {
 
 	let game = thisWeek.games.filter(g => g.id == gameId);
+	$("#" + idToChange).val(-line);
+
+	if(side=='away') {
+		game[0].awayLine = line / 1;
+		game[0].homeLine = -line / 1;
+	} else {
+		game[0].awayLine = -line / 1;
+		game[0].homeLine = line / 1;
+	}
+
+	console.log(game);
 
 }
 
@@ -111,10 +122,10 @@ const populateWeeklyScheduleForLines = (thisWeek) => {
 
 		data += TR_OPEN + 
 			getTeamCard(g.awayTeam, g.id) +
-			TD_OPEN + "<input class = 'line' id='" + g.id + "_" + g.awayTeam.Abbreviation + "' oninput='changeThisLine(" + g.id + "," + "\"" + g.id + "_" + g.homeTeam.Abbreviation + "\"" + ", this.value)' type='number' step='1' size='4' value='0.5'>" + TD_CLOSE +
+			TD_OPEN + "<input class = 'line' id='" + g.id + "_" + g.awayTeam.Abbreviation + "' oninput='changeThisLine(" + g.id + "," + "\"" + g.id + "_" + g.homeTeam.Abbreviation + "\"" + ", this.value, \"away\")' type='number' step='1' size='4' value='0.5'>" + TD_CLOSE +
 			TD_OPEN + "@" + TD_CLOSE + 
 			getTeamCard(g.homeTeam, g.id) +
-			TD_OPEN + "<input class = 'line' id='" + g.id + "_" + g.homeTeam.Abbreviation + "' oninput='changeThisLine(" + g.id + "," + "\"" + g.id + "_" + g.awayTeam.Abbreviation + "\"" + ", this.value)' type='number' step='1' size='4' value='-0.5'>" + TD_CLOSE +
+			TD_OPEN + "<input class = 'line' id='" + g.id + "_" + g.homeTeam.Abbreviation + "' oninput='changeThisLine(" + g.id + "," + "\"" + g.id + "_" + g.awayTeam.Abbreviation + "\"" + ", this.value, \"home\")' type='number' step='1' size='4' value='-0.5'>" + TD_CLOSE +
 			TD_OPEN + g.date + TD_CLOSE +
 			TD_OPEN + g.time + TD_CLOSE +
 		TR_CLOSE
