@@ -52,21 +52,8 @@ const getSchedule = async () => {
 	})
 }
 
-const selectThisCard = (card) => {
-
-	if(card.hasAttribute("selected")) {
-
-		card.removeAttribute("selected");
-		card.setAttribute("bgcolor", "");
-	} else {
-
-		card.setAttribute("selected", "");
-		card.setAttribute("bgcolor", "#C0C0C0");
-	}
-}
-
-const getTeamCard = (team, line) => {
-	return '<td class="team_option" abbr=' + team.Abbreviation + ' onclick=selectThisCard(this)>' + team.Name + prettyPrintTheLine(line) + TD_CLOSE;
+const getTeamCard = (team, gameIndex) => {
+	return '<td class="team_option" index=' + gameIndex + ' abbr=' + team.Abbreviation + ' onclick=selectThisCard(this)>' + team.Name + TD_CLOSE;
 
 }
 
@@ -91,41 +78,38 @@ async function retrieveSched() {
 
 }
 
-async function loadSpecificWeekMatchups(week) {
-
+async function loadMatchupsForLineSetting(week) {
 	if(week != "select") {
+		console.log(week);
 		weekGames = schedule.fullgameschedule.gameentry.filter(e => e.week == week);
 		let i = 0;
 		weekGames.forEach(g => {
 			games[i] = new Game(g.id, g.awayTeam, g.homeTeam, g.date, g.time, getLine(week, g.awayTeam), getLine(week, g.homeTeam));
 			i++;
 		})
+		console.log(weekGames);
 		thisWeek = new Week(week, games);
-
-		populateWeeklySchedule(thisWeek);
+		populateWeeklyScheduleForLines(thisWeek);
 	} else {
-		$("#this_week_games").html("");
+		$("#this_week_games_admin").html("");
 	}
 }
 
-const populateWeeklySchedule = (thisWeek) => {
+const populateWeeklyScheduleForLines = (thisWeek) => {
 
 	let table = TABLE_OPEN;
-	
-	let header = "<h3>Week " +thisWeek.week + "</h3>" +
-				"<th>Away</th>" +
-				"<th>Home</th>" +
-				"<th>Day</th>" +
-				"<th>Time</th>";
 
 
 	let data = "";
 
 	thisWeek.games.forEach(g => {
+		console.log(g);
 		data += TR_OPEN + 
-			getTeamCard(g.awayTeam, g.awayLine) +
+			getTeamCard(g.awayTeam, g.id) +
+			TD_OPEN + "<input type='number' step='1' value='0.5'>" + TD_CLOSE +
 			TD_OPEN + "@" + TD_CLOSE + 
-			getTeamCard(g.homeTeam, g.homeLine) +
+			getTeamCard(g.homeTeam, g.id) +
+			TD_OPEN + "<input type='number' step='1' value='-0.5'>" + TD_CLOSE +
 			TD_OPEN + g.date + TD_CLOSE +
 			TD_OPEN + g.time + TD_CLOSE +
 		TR_CLOSE
@@ -134,7 +118,7 @@ const populateWeeklySchedule = (thisWeek) => {
 	table += data;
 	table += TABLE_CLOSE;
 
-	$("#this_week_games").html(table);
+	$("#this_week_games_admin").html(table);
 
 }
 
@@ -166,8 +150,8 @@ const loadData = async () => {
 
 			promise.then(
 				result => {
-					$("#select_week_dropdown").val(result);	
-					loadSpecificWeekMatchups(result);
+					$("#select_week_dropdown_admin").val(result);	
+					loadMatchupsForLineSetting(result);
 				},
 				error => {
 					console.log(error);
@@ -204,7 +188,7 @@ const validatePicks = () => {
 		alert("Pick 3 and only 3 games.");
 	} else {
 		var options = {
-			'show':true
+			'show': true
 		};
 		submittingPicks = [];
 		picks.forEach(p => {
