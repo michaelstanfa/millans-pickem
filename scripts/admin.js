@@ -5,6 +5,7 @@ let choices = null;
 let weekGames = null;
 let games = [];
 let submittingPicks = {};
+let weeks = null;
 
 var TABLE_OPEN = "<table class='table'>";
 var TABLE_CLOSE = "</table>";
@@ -108,34 +109,68 @@ const changeThisLine = (gameId, idToChange, line, side) => {
 		game[0].homeLine = line / 1;
 	}
 
-	console.log(game);
-
 }
 
-const populateWeeklyScheduleForLines = (thisWeek) => {
+/*const getThisYearLinesFromFirebase = async () => {
+//gotta check to see if the lines for this week have been loaded yet
+	let fs = firebase.firestore();
+	
+	let lines = fs.collection('lines');//('lines/201920/week/1/game/51461/away_team/line');
+	
+	let year = lines.doc('201920');
 
-	let table = TABLE_OPEN;
+	return new Promise(function(resolve, reject) {
+		resolve(year.get().then(doc => doc.data()));
+	});
 
-	let data = "";
+}*/
 
-	thisWeek.games.forEach(g => {
+const populateWeeklyScheduleForLines = async (thisWeek) => {
 
-		data += TR_OPEN + 
-			getTeamCard(g.awayTeam, g.id) +
-			TD_OPEN + "<input class = 'line' id='" + g.id + "_" + g.awayTeam.Abbreviation + "' oninput='changeThisLine(" + g.id + "," + "\"" + g.id + "_" + g.homeTeam.Abbreviation + "\"" + ", this.value, \"away\")' type='number' step='1' size='4' value='0.5'>" + TD_CLOSE +
-			TD_OPEN + "@" + TD_CLOSE + 
-			getTeamCard(g.homeTeam, g.id) +
-			TD_OPEN + "<input class = 'line' id='" + g.id + "_" + g.homeTeam.Abbreviation + "' oninput='changeThisLine(" + g.id + "," + "\"" + g.id + "_" + g.awayTeam.Abbreviation + "\"" + ", this.value, \"home\")' type='number' step='1' size='4' value='-0.5'>" + TD_CLOSE +
-			TD_OPEN + g.date + TD_CLOSE +
-			TD_OPEN + g.time + TD_CLOSE +
-		TR_CLOSE
-	})
+	
+	let promise = getThisYearLinesFromFirebase();
 
-	table += data;
-	table += TABLE_CLOSE;
+	promise.then(
+		result => {
 
-	$("#this_week_games_admin").html(table);
+			let table = TABLE_OPEN;
+			weeks = result;
 
+			let data = "";
+
+			thisWeek.games.forEach(g => {
+
+				if(weeks.week[thisWeek.week].game[g.id] != null ) {
+					
+					g.awayLine = weeks.week[thisWeek.week].game[g.id].away_team.line;
+					g.homeLine = weeks.week[thisWeek.week].game[g.id].home_team.line;
+		
+				} else {
+					g.awayLine = 1.5;
+					g.homeLine = -1.5;
+				}
+				
+
+				data += TR_OPEN + 
+					getTeamCard(g.awayTeam, g.id) +
+					TD_OPEN + "<input class = 'line' id='" + g.id + "_" + g.awayTeam.Abbreviation + "' oninput='changeThisLine(" + g.id + "," + "\"" + g.id + "_" + g.homeTeam.Abbreviation + "\"" + ", this.value, \"away\")' type='number' step='1' size='4' value='" + g.awayLine + "'>" + TD_CLOSE +
+					TD_OPEN + "@" + TD_CLOSE + 
+					getTeamCard(g.homeTeam, g.id) +
+					TD_OPEN + "<input class = 'line' id='" + g.id + "_" + g.homeTeam.Abbreviation + "' oninput='changeThisLine(" + g.id + "," + "\"" + g.id + "_" + g.awayTeam.Abbreviation + "\"" + ", this.value, \"home\")' type='number' step='1' size='4' value='" + g.homeLine + "'>" + TD_CLOSE +
+					TD_OPEN + g.date + TD_CLOSE +
+					TD_OPEN + g.time + TD_CLOSE +
+				TR_CLOSE
+			})
+
+			table += data;
+			table += TABLE_CLOSE;
+
+			$("#this_week_games_admin").html(table);
+		},
+		error => {
+			console.log(error);
+		});
+	
 }
 
 const getLine = (week, team) => {
@@ -193,10 +228,9 @@ const getPickInfoFromAbbr = (abbr) => {
 const reviewLines = () => {
 
 	lines = [ ...$(".line")];
-	console.log(thisWeek);
-	console.log(lines);
+
 	linesMap = new Map(lines.map(l => [l.id, l.value]));
-	console.log(linesMap);
+
 	picks = choices.filter(c => c != "NONE");
 
 	if(cardPicks.length != 3) {
