@@ -83,7 +83,7 @@ async function retrieveSched() {
 
 async function loadMatchupsForLineSetting(week) {
 	if(week != "select") {
-		console.log(week);
+		games = [];
 		weekGames = schedule.fullgameschedule.gameentry.filter(e => e.week == week);
 		let i = 0;
 		weekGames.forEach(g => {
@@ -115,16 +115,9 @@ const changeThisLine = (gameId, idToChange, line, side) => {
 
 const populateWeeklyScheduleForLines = async (thisWeek) => {
 
-	console.log(thisWeek);
-	
-	// let promise = getThisYearLinesFromFirebase();
-	console.log(thisWeek.week);
 	let thisWeekLines = getThisWeekLines(thisWeek.week);
 
-	thisWeekLines.then(
-		result => {
-			console.log(result);
-		})
+	$("#this_week_games_admin").html("");
 
 	thisWeekLines.then(
 		result => {
@@ -261,7 +254,7 @@ const reviewLines = () => {
 	})
 
 	let weekUpdate = {}
-	
+
 	let game = {
 		game:data
 	}
