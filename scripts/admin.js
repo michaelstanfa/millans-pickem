@@ -18,6 +18,8 @@ var TD_CLOSE = "</td>";
 var DIV_OPEN = "<div>";
 var DIV_CLOSE = "</div>";
 
+// var List = require("collections/list");
+
 function Schedule(fullgameschedule) {
 	this.fullgameschedule = fullgameschedule;
 }
@@ -88,7 +90,7 @@ async function loadMatchupsForLineSetting(week) {
 			games[i] = new Game(g.id, g.awayTeam, g.homeTeam, g.date, g.time, getLine(week, g.awayTeam), getLine(week, g.homeTeam));
 			i++;
 		})
-		console.log(weekGames);
+
 		thisWeek = new Week(week, games);
 		populateWeeklyScheduleForLines(thisWeek);
 	} else {
@@ -111,52 +113,52 @@ const changeThisLine = (gameId, idToChange, line, side) => {
 
 }
 
-/*const getThisYearLinesFromFirebase = async () => {
-//gotta check to see if the lines for this week have been loaded yet
-	let fs = firebase.firestore();
-	
-	let lines = fs.collection('lines');//('lines/201920/week/1/game/51461/away_team/line');
-	
-	let year = lines.doc('201920');
-
-	return new Promise(function(resolve, reject) {
-		resolve(year.get().then(doc => doc.data()));
-	});
-
-}*/
-
 const populateWeeklyScheduleForLines = async (thisWeek) => {
 
+	console.log(thisWeek);
 	
-	let promise = getThisYearLinesFromFirebase();
+	// let promise = getThisYearLinesFromFirebase();
+	console.log(thisWeek.week);
+	let thisWeekLines = getThisWeekLines(thisWeek.week);
 
-	promise.then(
+	thisWeekLines.then(
+		result => {
+			console.log(result);
+		})
+
+	thisWeekLines.then(
 		result => {
 
 			let table = TABLE_OPEN;
-			weeks = result;
 
 			let data = "";
 
+			let week = result;
+
 			thisWeek.games.forEach(g => {
 
-				if(weeks.week[thisWeek.week].game[g.id] != null ) {
-					
-					g.awayLine = weeks.week[thisWeek.week].game[g.id].away_team.line;
-					g.homeLine = weeks.week[thisWeek.week].game[g.id].home_team.line;
-		
-				} else {
-					g.awayLine = 1.5;
-					g.homeLine = -1.5;
-				}
+				try {
+
+					if(week.game[g.id] != null ) {
+						
+						g.awayLine = week.game[g.id].away_team.line;
+						g.homeLine = week.game[g.id].home_team.line;
+			
+					} else {
+						g.awayLine = 1.5;
+						g.homeLine = -1.5;
+					}
 				
+				} catch {
+					console.log('Lines not yet set for this week: ' + thisWeek.week);
+				}
 
 				data += TR_OPEN + 
 					getTeamCard(g.awayTeam, g.id) +
-					TD_OPEN + "<input class = 'line' id='" + g.id + "_" + g.awayTeam.Abbreviation + "' oninput='changeThisLine(" + g.id + "," + "\"" + g.id + "_" + g.homeTeam.Abbreviation + "\"" + ", this.value, \"away\")' type='number' step='1' size='4' value='" + g.awayLine + "'>" + TD_CLOSE +
+					TD_OPEN + "<input class = 'line' id='" + g.id + "_" + g.awayTeam.Abbreviation + "' gameId='" + g.id + "' abbr='" + g.awayTeam.Abbreviation + "' nickname='" + g.awayTeam.Name + "' homeAway='AWAY' oninput='changeThisLine(" + g.id + "," + "\"" + g.id + "_" + g.homeTeam.Abbreviation + "\"" + ", this.value, \"away\")' type='number' step='1' size='4' value='" + g.awayLine + "'>" + TD_CLOSE +
 					TD_OPEN + "@" + TD_CLOSE + 
 					getTeamCard(g.homeTeam, g.id) +
-					TD_OPEN + "<input class = 'line' id='" + g.id + "_" + g.homeTeam.Abbreviation + "' oninput='changeThisLine(" + g.id + "," + "\"" + g.id + "_" + g.awayTeam.Abbreviation + "\"" + ", this.value, \"home\")' type='number' step='1' size='4' value='" + g.homeLine + "'>" + TD_CLOSE +
+					TD_OPEN + "<input class = 'line' id='" + g.id + "_" + g.homeTeam.Abbreviation + "' gameId='" + g.id + "' abbr='" + g.homeTeam.Abbreviation + "' nickname='" + g.homeTeam.Name + "' homeAway='HOME' oninput='changeThisLine(" + g.id + "," + "\"" + g.id + "_" + g.awayTeam.Abbreviation + "\"" + ", this.value, \"home\")' type='number' step='1' size='4' value='" + g.homeLine + "'>" + TD_CLOSE +
 					TD_OPEN + g.date + TD_CLOSE +
 					TD_OPEN + g.time + TD_CLOSE +
 				TR_CLOSE
@@ -216,7 +218,6 @@ const loadData = async () => {
 
 const getPickInfoFromAbbr = (abbr) => {
 
-	let val = null;
 	let game = games.filter(g => g.homeTeam.Abbreviation == abbr || g.awayTeam.Abbreviation == abbr); 
 	if(game[0].homeTeam.Abbreviation == abbr) {
 		return new Pick(game[0].homeTeam.Abbreviation, game[0].awayTeam.Abbreviation, game[0].homeLine);
@@ -227,30 +228,54 @@ const getPickInfoFromAbbr = (abbr) => {
 
 const reviewLines = () => {
 
-	lines = [ ...$(".line")];
+	let lines = [ ...$(".line")];
+	
+	let allIds = new Set();
+	// let uniqueIds = new Set[...]
+	lines.forEach(l => {
+		allIds.add(l.getAttribute("gameId"));
 
-	linesMap = new Map(lines.map(l => [l.id, l.value]));
+	});
+	let pushLineUpdate = [];
 
-	picks = choices.filter(c => c != "NONE");
+	let data = {};
+	allIds.forEach(id => {
 
-	if(cardPicks.length != 3) {
-		alert("Pick 3 and only 3 games.");
-	} else {
-		var options = {
-			'show': true
-		};
-		submittingPicks = [];
-		picks.forEach(p => {
-			submittingPicks[p] = getPickInfoFromAbbr(p);
-		})
+		let idLines = lines.filter(l => l.getAttribute("gameId") == id);
 
-		let display = [];
-		for (let [k, v] of Object.entries(submittingPicks)) {
-			display.push(v.team + " " + prettyPrintTheLine(v.line) + " against " + v.against);
+		let away = idLines.filter(l => l.getAttribute('homeaway') == "AWAY");
+		let home = idLines.filter(l => l.getAttribute('homeaway') == "HOME")
+
+		data[id] = {
+			away_team: {
+				line: away[0].value,
+				name: away[0].getAttribute('nickname')
+			},
+			home_team: {
+				line: home[0].value,
+				name: home[0].getAttribute('nickname')
+			}
 		}
 
-		$("#modal-picks").html(display.join("<br />"));
-		$("#submit-modal").modal(options);
+	})
+
+	let weekUpdate = {}
+
+	weekUpdate[$("#select_week_dropdown_admin").val()] = {
+		game :
+			data
 	}
+
+	let fs = firebase.firestore();
+	
+	let linesCollection = fs.collection('lines');
+	
+	let year = linesCollection.doc('201920');
+
+	let week = year.collection('week');
+
+	let weekOne = week.doc($("#select_week_dropdown_admin").val());
+
+	let setDoc = weekOne.set(game);
 
 }

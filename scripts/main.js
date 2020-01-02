@@ -168,23 +168,24 @@ const getGuts = async (thisWeek) => {
 		TR_CLOSE;
 	});
 
-		return guts;
+	return guts;
 }
 
 const getLine = async (week, id, homeOrAway) => {
-	let lines = await getThisYearLinesFromFirebase();
+
+	let lines = await getThisWeekLines(week);
 
 	try {
-		if(!lines.week[week].game[id].home_team.line){
+		if(!lines.game[id].home_team.line){
 			return Promise.resolve(0);
 		}
 		if(homeOrAway == "home_team") {
 
-			return Promise.resolve(lines.week[week].game[id].home_team.line);
+			return Promise.resolve(lines.game[id].home_team.line);
 
 		} else if (homeOrAway == "away_team") {
 
-			return Promise.resolve(lines.week[week].game[id].away_team.line);
+			return Promise.resolve(lines.game[id].away_team.line);
 
 		} else {
 			return new Promise(function(resolve, reject) {
@@ -203,7 +204,7 @@ const prettyPrintTheLine = (line) => {
 	} else if (line < 0 ) {
 		return " " + line;
 	} else {
-		return " [line not set]"
+		return " [--]"
 	}
 }
 
