@@ -218,6 +218,7 @@ const loadData = async () => {
 
 const getPickInfoFromAbbr = (abbr) => {
 
+	// let val = null;
 	let game = games.filter(g => g.homeTeam.Abbreviation == abbr || g.awayTeam.Abbreviation == abbr); 
 	if(game[0].homeTeam.Abbreviation == abbr) {
 		return new Pick(game[0].homeTeam.Abbreviation, game[0].awayTeam.Abbreviation, game[0].homeLine);
@@ -260,6 +261,10 @@ const reviewLines = () => {
 	})
 
 	let weekUpdate = {}
+	
+	let game = {
+		game:data
+	}
 
 	weekUpdate[$("#select_week_dropdown_admin").val()] = {
 		game :
@@ -268,7 +273,7 @@ const reviewLines = () => {
 
 	let fs = firebase.firestore();
 	
-	let linesCollection = fs.collection('lines');
+	let linesCollection = fs.collection('lines');//('lines/201920/week/1/game/51461/away_team/line');
 	
 	let year = linesCollection.doc('201920');
 
