@@ -71,15 +71,16 @@ const getTeamCard = (team, line) => {
 }
 
 async function retrieveSched() {
-
+	year = "2020";
 	return $.ajax
 	({
 		type: "GET",
-		url: "https://api.mysportsfeeds.com/v1.2/pull/nfl/2019-regular/full_game_schedule.json",
+		url: "https://api.mysportsfeeds.com/v1.2/pull/nfl/"+ year+ "-regular/full_game_schedule.json",
 		dataType: 'json',
 		async: true,
 		headers: {
-	      "Authorization": "Basic " + btoa(creds.id + ":" + creds.secret)
+	      "Authorization": "Basic " + btoa(creds.id + ":" + creds.secret),
+	      "Access-Control-Allow-Origin" : "*"
 	    },
 	   	error: function(XMLHttpRequest, textStatus, errorThrown) {
 	   		console.log("Failed to make call to endpoint");

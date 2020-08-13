@@ -61,15 +61,16 @@ const getTeamCard = (team, gameIndex) => {
 }
 
 async function retrieveSched() {
-
+	let year = "2020";
 	return $.ajax
 	({
 		type: "GET",
-		url: "https://api.mysportsfeeds.com/v1.2/pull/nfl/2019-regular/full_game_schedule.json",
+		url: "https://api.mysportsfeeds.com/v1.2/pull/nfl/" + year + "-regular/full_game_schedule.json",
 		dataType: 'json',
 		async: true,
 		headers: {
-	      "Authorization": "Basic " + btoa(creds.id + ":" + creds.secret)
+	      "Authorization": "Basic " + btoa(creds.id + ":" + creds.secret),
+	      "Access-Control-Allow-Origin" : "*"
 	    },
 	   	error: function(XMLHttpRequest, textStatus, errorThrown) {
 	   		console.log("Failed to make call to endpoint");
@@ -268,12 +269,12 @@ const reviewLines = () => {
 	
 	let linesCollection = fs.collection('lines');//('lines/201920/week/1/game/51461/away_team/line');
 	
-	let year = linesCollection.doc('201920');
+	let year = linesCollection.doc('202021');
 
 	let week = year.collection('week');
 
-	let weekOne = week.doc($("#select_week_dropdown_admin").val());
+	let weekX = week.doc($("#select_week_dropdown_admin").val());
 
-	let setDoc = weekOne.set(game);
+	let setDoc = weekX.set(game);
 
 }

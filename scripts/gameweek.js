@@ -5,8 +5,12 @@ const getGameWeek = () => {
 	let month = today.getMonth();
 	let year = today.getFullYear();
 
-	let final_day_of_week_zero = new Date("09/02/2019");
-	let final_day = new Date("12/29/2019");
+
+	//the monday before the first thursday game
+	let final_day_of_week_zero = new Date("09/07/2020");
+
+	//last day of the season
+	let final_day = new Date("01/03/2021");
 	let now = new Date();
 	now.setHours(0,0,0,0);
 
@@ -14,8 +18,11 @@ const getGameWeek = () => {
 		
 	if(Math.ceil(days_since_start / 7) > 17) {
 		return 1;
+	} else if(days_since_start < 0) {
+		return 1;
 	}
 	
 	return Math.ceil(days_since_start / 7) > 17;
+
 	
 }
