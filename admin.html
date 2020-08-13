@@ -19,6 +19,13 @@
 
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
+  <script src="https://apis.google.com/js/api.js"></script>
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+ <!--  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script> -->
+  <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
+  <script src="https://apis.google.com/js/platform.js?onload=onLoadCallback" async defer></script>
+
+
   <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css"> -->
 
   <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script> -->
@@ -27,9 +34,21 @@
   <script src="scripts/admin.js"></script>
   <script src="scripts/gameweek.js"></script>
   <script src="scripts/util.js"></script>
+  <script src="scripts/auth.js"></script>
   <script type = "text/javascript">
-	window.onload = loadData();
-</script>
+  	
+  </script>
+  <script>
+
+    /*window.onLoadCallback = function(){
+      gapi.auth2.init({
+        client_id: '808572509568-qmp14sth1dk6tl3drrhq879b8rjk8a5p.apps.googleusercontent.com'
+      });
+    }*/
+    window.onload = loadData();
+  </script>
+
+
 </head>
 
 <style>
@@ -48,6 +67,21 @@ table {
 }
 
 </style>
+
+
+<div class = "login_html">
+    <div class="container">
+      <h1 class = "jumbotron">ADMIN ACCESS ONLY!</h1>
+      <h4>Please login with Google to continue.</h4>
+
+      <div>
+        <button class="left btn btn-default" onclick ='authenticate().then(loadClient).then(displayAdminHTML).then(loadAdminPage)'>
+          <img width="20px" alt="Google &quot;G&quot; Logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png"/>
+          Login with Google
+        </button>
+      </div>
+    </div>
+  </div>
 
 <body class="container main">
 
@@ -137,8 +171,11 @@ table {
       measurementId: "G-Z52LQX8T0B"
     };
     // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
+    pickem = firebase.initializeApp(firebaseConfig);
+    pickemStorage = pickem.storage();
     firebase.analytics();
+    // firebase.auth();
+    var provider = new firebase.auth.GoogleAuthProvider();
   </script>
 
 </html>

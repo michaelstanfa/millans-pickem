@@ -277,4 +277,6 @@ const reviewLines = () => {
 
 	let setDoc = weekX.set(game);
 
+	setDoc.then(window.alert("Lines saved"));
+
 }
