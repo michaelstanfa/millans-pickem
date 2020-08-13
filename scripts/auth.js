@@ -1,6 +1,6 @@
 function authenticate() {
     console.log(gapi.auth2);
-
+    console.log(gapi.auth2.getAuthInstance());
     if(gapi.auth2.getAuthInstance().isSignedIn.get()){
         return gapi.auth2.getAuthInstance();
     } else {

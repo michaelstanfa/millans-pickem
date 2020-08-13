@@ -10,7 +10,6 @@
 
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 
-
 <script src="https://cdn.firebase.com/libs/firebaseui/3.1.1/firebaseui.js"></script>
   <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.1.1/firebaseui.css" />
 
@@ -25,26 +24,29 @@
   <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
   <script src="https://apis.google.com/js/platform.js?onload=onLoadCallback" async defer></script>
 
-
-  <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css"> -->
-
-  <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script> -->
   <script src="props.js"></script>
 
   <script src="scripts/admin.js"></script>
   <script src="scripts/gameweek.js"></script>
   <script src="scripts/util.js"></script>
   <script src="scripts/auth.js"></script>
-  <script type = "text/javascript">
-  	
-  </script>
+  <script type = "text/javascript"></script>
+
   <script>
+
+    window.onLoadCallback = function(){
+      gapi.auth2.init({
+        client_id: '808572509568-qmp14sth1dk6tl3drrhq879b8rjk8a5p.apps.googleusercontent.com'
+      });
+    }
 
     /*window.onLoadCallback = function(){
       gapi.auth2.init({
         client_id: '808572509568-qmp14sth1dk6tl3drrhq879b8rjk8a5p.apps.googleusercontent.com'
       });
     }*/
+  </script>
+  <script>
     window.onload = loadData();
   </script>
 
