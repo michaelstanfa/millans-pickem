@@ -1,18 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>Sign up for Squares!</title>
+	<title>sign up for yapp</title>
 	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
-	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+	<meta name="google-signin-client_id" content="808572509568-qmp14sth1dk6tl3drrhq879b8rjk8a5p.apps.googleusercontent.com">
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 
-	<script src="scripts/main.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 
+<script src="https://cdn.firebase.com/libs/firebaseui/3.1.1/firebaseui.js"></script>
+<link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.1.1/firebaseui.css" />
+
+ <link rel="stylesheet" src="/app.css">
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<script src="https://apis.google.com/js/api.js"></script>
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+
+<script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
+<script src="https://apis.google.com/js/platform.js?onload=onLoadCallback" async defer></script>
+
+<script src="props.js"></script>
+<script src="scripts/admin.js"></script>
+<script src="scripts/gameweek.js"></script>
+<script src="scripts/util.js"></script>
+<script src="scripts/auth.js"></script>
+<script src="scripts/signup.js"></script>
+<script type = "text/javascript"></script>
+
+<!-- logging in to firebase i think -->
+<script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
+<link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" />
 
 </head>
+
+<script>
+
+  window.onLoadCallback = async function(){
+    await gapi.auth2.init({
+      client_id: '808572509568-qmp14sth1dk6tl3drrhq879b8rjk8a5p.apps.googleusercontent.com'
+    });
+
+  }
+
+</script>
+
+<style>
+
+table {
+	padding: 2px;
+	border: 2px;
+	border-top;
+	border-bottom;
+	text-align:outside;
+	display:block;
+}
+
+#header{
+	font-weight: bold;
+}
+
+</style>
+
+<script>
+$(function() {
+  $("#header").load("header.html");
+  $("#footer").load("footer.html");
+})
+</script>
 
 <style>
 
@@ -27,7 +85,6 @@
 
 </style>
 
-<body>
 <!-- onload = "retrieveCurrentUserCount()"> -->
 
 <!-- 	<div class="container">
@@ -41,7 +98,7 @@
 		<h4 id = "current-user-count" class = "current-user-count"></h4>
 	</div>
 	<br> -->
-	<div class = "container">
+<!-- 	<div class = "container">
 		<div id="newUserForm">
 			<div class="form-group">
 				<input type="text" class="form-control" id = "fname" placeholder="First Name">
@@ -57,16 +114,32 @@
 			</div>
 		</div>
 	</div>
-</div>
+</div> -->
+<div id = "header"></div>
+<body class="container main">
+<p>We use Google to set you up. You'll continue to use Google to access your picks throughout the season.</p>
+
+
+<div id = "signup_message"></div>
+
+<button style="background-color:white" class="left btn btn-default" onclick ='onSignUp()'>
+          <img width="20px" alt="Google &quot;G&quot; Logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png"/>
+          Sign Up with Google
+        </button>
+
+<a id = "sign_out" href="#" onclick="signOutFB();"><h5>sign out</h5></a>
+
+        <!-- <div style="display:inline-block"  class="g-signin2"  data-onsuccess="onSignUp"></div> -->
+
 
 </body>
 
 
 <!-- Modal -->
-<div id="registerModal" class="modal fade" role="dialog">
+<!-- <div id="registerModal" class="modal fade" role="dialog">
 	<div class="modal-dialog">
 
-		<!-- Modal content-->
+
 		<div class="modal-content">
 			<div class="modal-header">
 				<h4 id="info-modal-signup-almost-done" class = "inline">Almost Done!</h4>
@@ -82,19 +155,19 @@
 		</div>
 
 	</div>
-</div>
+</div> -->
+<div id = "footer"></div>
 
+<script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-app.js"></script>
 
-<!-- Firebase App is always required and must be first -->
-<script src="https://www.gstatic.com/firebasejs/5.8.1/firebase-app.js"></script>
-<!-- Add additional services that you want to use -->
-<script src="https://www.gstatic.com/firebasejs/5.8.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/5.8.1/firebase-database.js"></script>
-<!-- <script src="https://www.gstatic.com/firebasejs/5.8.1/firebase-firestore.js"></script> -->
-<!-- <script src="https://www.gstatic.com/firebasejs/5.8.1/firebase-messaging.js"></script> -->
-<script src="https://www.gstatic.com/firebasejs/5.8.1/firebase-functions.js"></script>
-<script src="https://www.gstatic.com/firebasejs/5.8.1/firebase.js"></script>
-<script>
+<script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-functions.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.5.0/firebase.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-analytics.js"></script>
+
+  <script>
     // Your web app's Firebase configuration
     var firebaseConfig = {
       apiKey: "AIzaSyCoxiaT7ekzVGZdHK58KvWjqEI6Ac4183U",
@@ -107,9 +180,11 @@
       measurementId: "G-Z52LQX8T0B"
     };
     // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
+    pickem = firebase.initializeApp(firebaseConfig);
+    pickemStorage = pickem.storage();
     firebase.analytics();
     firebase.auth();
+    var provider = new firebase.auth.GoogleAuthProvider();
   </script>
 
 </html>

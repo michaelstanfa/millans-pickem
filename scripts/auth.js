@@ -1,21 +1,188 @@
+let currentGoogleUser;
+
 function authenticate() {
-    console.log(gapi.auth2);
-    console.log(gapi.auth2.getAuthInstance());
     if(gapi.auth2.getAuthInstance().isSignedIn.get()){
         return gapi.auth2.getAuthInstance();
     } else {
       return gapi.auth2.getAuthInstance()
-          .signIn({scope: "profile https://mail.google.com/ https://www.googleapis.com/auth/gmail.compose https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/gmail.send"})
+          .signIn({scope: "profile"})
           .then(function() {
               console.log("Sign-in successful");
+
               },
-                function(err) { console.error("Error signing in", err); });   
+              function(err) { console.error("Error signing in", err); });   
   }
 }
+
+function getAuthenticatedUser() {
+  let user = authenticate();
+  return user;
+}
+
+function getSignedIn() {
+  return gapi.auth2.getAuthInstance();
+}
+
 function loadClient() {
   return gapi.client.load("https://content.googleapis.com/discovery/v1/apis/gmail/v1/rest")
       .then(function() { 
             console.log("GAPI client loaded for API");
             },
             function(err) { console.error("Error loading GAPI client for API", err); });
+}
+
+const displayAdminHTML = (userName) => {
+  
+  if(userName == "Michael Stanfa" || user == "Ryan Millan") {
+    $("#login_html").attr("hidden", true);
+    $("#admin_html").attr("hidden", false);
+  } else {
+    $("#login_html").attr("hidden", true);
+    $("#admin_access_only").attr("hidden", false);
+  }
+  
+}
+
+// function onSignIn(googleUser) {
+//   currentGoogleUser = googleUser;
+//   var profile = googleUser.getBasicProfile();
+//   console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+//   console.log('Name: ' + profile.getName());
+//   console.log('Image URL: ' + profile.getImageUrl());
+//   console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+//   console.log(profile);
+
+//   $("#sign_in").attr("hidden", true);
+//   $("#sign_out").attr("hidden", false);
+//   displayAdminHTML();
+//   $("#logged_in_user_first_name").text(" " + getCurrentUserName());
+//   $("#user_first_last").text(profile.getName());
+//   $("#picks_html").attr("hidden", false);
+//   $("#sign_in_or_sign_up_to_pick_html").attr("hidden", true);
+
+//   // location.reload();
+
+// }
+
+async function setUser() {
+  let user = firebase.auth().currentUser
+  if(null != user) {
+    $("#user_first_last").html(user.displayName);
+
+    displayAdminHTML(user.displayName);
+    displayPicksHTML(user);
+    hideLoginButton()
+
+  }
+}
+
+function displayPicksHTML(user) {
+  //will need to get individual user info. but for now, just load it.
+  console.log("showing picks");
+  $("#picks_html").attr("hidden", false);
+}
+
+function hideLoginButton() {
+
+  $("#sign_out").attr("hidden", false);
+  $("#login_signup_header").attr("hidden", true);
+
+}
+
+async function onSignUp(googleUser) {
+  // console.log("signing up user");
+  // currentGoogleUser = googleUser;
+  // var profile = googleUser.getBasicProfile();
+  // console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+  // console.log('Name: ' + profile.getName());
+  // console.log('Image URL: ' + profile.getImageUrl());
+  // console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+  // console.log(profile);
+  // setupSignupPage();
+
+
+// Using a popup.
+  var provider = new firebase.auth.GoogleAuthProvider();
+  provider.addScope('profile');
+  provider.addScope('email');
+  let user = await firebase.auth().signInWithPopup(provider).then(function(result) {
+   // This gives you a Google Access Token.
+   var token = result.credential.accessToken;
+   // The signed-in user info.
+   var user = result.user;
+   return user;
+  });
+
+  console.log(user);
+  //check to see if user is registered already. if so, show their picks and stuff. if not, re-direct to the sign up page. Or just 
+  $("#user_first_last").html(user.displayName);
+  $("#picks_html").attr("hidden", false);
+  $("#sign_in_or_sign_up_to_pick_html").attr("hidden", true);
+
+  hideLoginButton();
+
+
+/*
+  firebase.auth().signInWithPopup(provider).then(function(result) {
+    console.log("loggin in with firebase?");
+    // This gives you a Google Access Token. You can use it to access the Google API.
+    var token = result.credential.accessToken;
+    // The signed-in user info.
+    var user = result.user;
+    console.log(user);
+
+
+    //now set up the databases for this user
+
+
+    // ...
+  }).catch(function(error) {
+    // Handle Errors here.
+    var errorCode = error.code;
+    var errorMessage = error.message;
+    // The email of the user's account used.
+    var email = error.email;
+    // The firebase.auth.AuthCredential type that was used.
+    var credential = error.credential;
+    // ...
+  });
+*/  
+
+}
+
+
+
+async function getUserData() {
+  console.log(firebase.auth().currentUser);
+}
+
+function signOut() {
+  var auth2 = gapi.auth2.getAuthInstance();
+  auth2.signOut().then(function () {
+    console.log('User signed out.');
+  });
+
+  $("#sign_out").attr("hidden", true);
+  $("#sign_in").attr("hidden", false);
+  $("#user_first_last").text("");
+  $("#picks_html").attr("hidden", true);
+  $("#sign_in_or_sign_up_to_pick_html").attr("hidden", false);
+
+}
+
+function signoutProcess() {
+  $("#sign_out").attr("hidden", true);
+  $("#login_signup_header").attr("hidden", false);
+  $("#user_first_last").html("");
+}
+
+function signOutFB() {
+
+  console.log("signing out " + firebase.auth().currentUser.displayName);
+  firebase.auth().signOut().then(function() {
+    window.alert("Successfully signed out");
+    signoutProcess();
+}).catch(function(error) {
+  console.error(error);
+});
 }

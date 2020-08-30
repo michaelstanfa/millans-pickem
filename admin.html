@@ -5,50 +5,58 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
+<meta name="google-signin-client_id" content="808572509568-qmp14sth1dk6tl3drrhq879b8rjk8a5p.apps.googleusercontent.com">
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 
 <script src="https://cdn.firebase.com/libs/firebaseui/3.1.1/firebaseui.js"></script>
-  <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.1.1/firebaseui.css" />
+<link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.1.1/firebaseui.css" />
 
-  <link rel="stylesheet" src="/app.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+ <link rel="stylesheet" src="/app.css">
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
-  <script src="https://apis.google.com/js/api.js"></script>
-  <script src="https://apis.google.com/js/platform.js" async defer></script>
- <!--  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script> -->
-  <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
-  <script src="https://apis.google.com/js/platform.js?onload=onLoadCallback" async defer></script>
+<script src="https://apis.google.com/js/api.js"></script>
+<script src="https://apis.google.com/js/platform.js" async defer></script>
 
-  <script src="props.js"></script>
+<script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
+<script src="https://apis.google.com/js/platform.js?onload=onLoadCallback" async defer></script>
 
-  <script src="scripts/admin.js"></script>
-  <script src="scripts/gameweek.js"></script>
-  <script src="scripts/util.js"></script>
-  <script src="scripts/auth.js"></script>
-  <script type = "text/javascript"></script>
+<script src="props.js"></script>
+<script src="scripts/admin.js"></script>
+<script src="scripts/gameweek.js"></script>
+<script src="scripts/util.js"></script>
+<script src="scripts/auth.js"></script>
+<script type = "text/javascript"></script>
 
-  <script>
+<script>
 
-    window.onLoadCallback = function(){
-      gapi.auth2.init({
-        client_id: '808572509568-qmp14sth1dk6tl3drrhq879b8rjk8a5p.apps.googleusercontent.com'
-      });
-    }
+  window.onLoadCallback = function(){
+    gapi.auth2.init({
+      client_id: '808572509568-qmp14sth1dk6tl3drrhq879b8rjk8a5p.apps.googleusercontent.com'
+    });
+  }
 
-    /*window.onLoadCallback = function(){
-      gapi.auth2.init({
-        client_id: '808572509568-qmp14sth1dk6tl3drrhq879b8rjk8a5p.apps.googleusercontent.com'
-      });
-    }*/
-  </script>
-  <script>
-    window.onload = loadData();
-  </script>
+</script>
+
+<script>
+
+  window.onload = function() {
+    loadData();
+    setUser();
+  }
+</script>
+
+<script>
+$(function() {
+  $("#header").load("header.html");
+  $("#footer").load("footer.html");
+})
+</script>
+
 
 
 </head>
@@ -70,61 +78,62 @@ table {
 
 </style>
 
+<div id = "header"></div>
 
-<div class = "login_html">
+<div class = "login_html" id = "login_html">
     <div class="container">
-      <h1 class = "jumbotron">ADMIN ACCESS ONLY!</h1>
-      <h4>Please login with Google to continue.</h4>
+      <h1 class = "jumbotron" id = "admin_jumbotron">ADMIN ACCESS ONLY!</h1>
+      <h4>Please login with Google to continue.</h4>      
 
-      <div>
-        <button class="left btn btn-default" onclick ='authenticate().then(loadClient).then(displayAdminHTML).then(loadAdminPage)'>
-          <img width="20px" alt="Google &quot;G&quot; Logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png"/>
-          Login with Google
-        </button>
-      </div>
-    </div>
   </div>
 
-<body class="container main">
 
-  <h1>Set Those Lines!</h1>
-  
-  <p><a href="./index.html">Home</a></p>
+</div>
 
-    <select id = 'select_week_dropdown_admin' class ='btn-select dropdown-toggle' data-toggle='dropdown' onchange = "loadMatchupsForLineSetting(this.value)">
-      <option value='select'>Select Week</option>
-      <option value='1'>Week 1</option>
-      <option value='2'>Week 2</option>
-      <option value='3'>Week 3</option>
-      <option value='4'>Week 4</option>
-      <option value='5'>Week 5</option>
-      <option value='6'>Week 6</option>
-      <option value='7'>Week 7</option>
-      <option value='8'>Week 8</option>
-      <option value='9'>Week 9</option>
-      <option value='10'>Week 10</option>
-      <option value='11'>Week 11</option>
-      <option value='12'>Week 12</option>
-      <option value='13'>Week 13</option>
-      <option value='14'>Week 14</option>
-      <option value='15'>Week 15</option>
-      <option value='16'>Week 16</option>
-      <option value='17'>Week 17</option>
-    </select>
-    
-    <br />
-    <br />
-    
-    <div id = "this_week_games_admin"></div>
+<div id = "admin_access_only" hidden>
+  <h1>YOU SHALL NOT PASS</h1>
+  <h4>Sorry<text id = "logged_in_user_first_name"></text>, admin access only</h4>
+</div>
 
-</body>
+<div id="admin_html" hidden>
 
+  <body class="container main">
+
+    <h1>Set Those Lines!</h1>
+
+      <select id = 'select_week_dropdown_admin' class ='btn-select dropdown-toggle' data-toggle='dropdown' onchange = "loadMatchupsForLineSetting(this.value)">
+        <option value='select'>Select Week</option>
+        <option value='1'>Week 1</option>
+        <option value='2'>Week 2</option>
+        <option value='3'>Week 3</option>
+        <option value='4'>Week 4</option>
+        <option value='5'>Week 5</option>
+        <option value='6'>Week 6</option>
+        <option value='7'>Week 7</option>
+        <option value='8'>Week 8</option>
+        <option value='9'>Week 9</option>
+        <option value='10'>Week 10</option>
+        <option value='11'>Week 11</option>
+        <option value='12'>Week 12</option>
+        <option value='13'>Week 13</option>
+        <option value='14'>Week 14</option>
+        <option value='15'>Week 15</option>
+        <option value='16'>Week 16</option>
+        <option value='17'>Week 17</option>
+      </select>
+      
+      <br />
+      <br />
+      
+      <div id = "this_week_games_admin"></div>
+
+  </body>
   <div class = "footer-container">
     <button onclick="reviewLines()" value = "submit" class="btn btn-submit btn-primary">Submit Lines</button>
   </div>
-  
-  <div class="container">
-  
+</div>
+
+ 
     <!-- Trigger the modal with a button -->
 
     <!-- Modal -->
@@ -150,7 +159,9 @@ table {
     </div>
 
 
+<div id = "footer"></div>
 <!-- The core Firebase JS SDK is always required and must be listed first -->
+
 <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-app.js"></script>
 
 <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-auth.js"></script>
@@ -176,7 +187,7 @@ table {
     pickem = firebase.initializeApp(firebaseConfig);
     pickemStorage = pickem.storage();
     firebase.analytics();
-    // firebase.auth();
+    firebase.auth();
     var provider = new firebase.auth.GoogleAuthProvider();
   </script>
 

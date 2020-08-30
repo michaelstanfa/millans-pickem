@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" src="/app.css">
+
+<meta name="google-signin-client_id" content="808572509568-qmp14sth1dk6tl3drrhq879b8rjk8a5p.apps.googleusercontent.com">
+
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<script src="https://apis.google.com/js/api.js"></script>
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+
+<script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
+<script src="https://apis.google.com/js/platform.js?onload=onLoadCallback" async defer></script>
+
+<title>yapp</title>
+
+
+<style>
+	.container {
+	text-align: center;
+}
+</style>
+
+<div style="background-color:#F5F5F5" class = "banner">
+
+	<h1 style="display:inline-block">yapp  |  </h1>
+	<div style="display:inline-block"><h4 id = "user_first_last"></h4></div>
+	
+	<div id = "headers_links">
+		<a style="display:inline-block" href = "/index.html"><h5>make your picks</h5></a>
+		|
+		<a style="display:inline-block" href = "/admin.html"><h5>admin</h5></a>
+		|
+		<a hidden id = "sign_out" style="display:inline-block" href="#" onclick="signOutFB();"><h5>sign out</h5></a>
+
+		<div style="display:inline-block" id = "login_signup_header">
+			<button style="background-color:white; display:inline-block" class="left btn btn-default" onclick ='onSignUp()'>
+	          <img width="20px" alt="Google &quot;G&quot; Logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png"/>
+	          Login/Signup with Google
+	        </button>
+			or <a style="display:inline-block" href="/signup.html">sign up</a></div>
+
+
+       	</div>
+
+       	<br>
+
+	</div>	
+
+</div>
