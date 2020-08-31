@@ -32,8 +32,8 @@ function loadClient() {
 }
 
 const displayAdminHTML = (userName) => {
-  
-  if(userName == "Michael Stanfa" || user == "Ryan Millan") {
+  console.log(userName);
+  if(userName != "Michael Stanfa" || userName == "Ryan Millan") {
     $("#login_html").attr("hidden", true);
     $("#admin_html").attr("hidden", false);
   } else {
@@ -65,7 +65,12 @@ const displayAdminHTML = (userName) => {
 // }
 
 async function setUser() {
-  let user = firebase.auth().currentUser
+
+  console.log(firebase.auth());
+  let currentUser = await firebase.auth();
+ 
+  console.log(firebase.auth().currentUser);
+  let user = firebase.auth().currentUser;
   if(null != user) {
     $("#user_first_last").html(user.displayName);
 
@@ -102,16 +107,52 @@ async function onSignUp(googleUser) {
 
 
 // Using a popup.
+
+  /*var user = firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+  .then(function() {
+
+    // var provider = new firebase.auth.GoogleAuthProvider();
+    // In memory persistence will be applied to the signed in Google user
+    // even though the persistence was set to 'none' and a page redirect
+    // occurred.
+    // return firebase.auth().signInWithRedirect(provider);
+  })
+  .catch(function(error) {
+    // Handle Errors here.
+    var errorCode = error.code;
+    var errorMessage = error.message;
+  });*/
+
+  firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+  var user;
   var provider = new firebase.auth.GoogleAuthProvider();
   provider.addScope('profile');
   provider.addScope('email');
-  let user = await firebase.auth().signInWithPopup(provider).then(function(result) {
+  await firebase.auth().signInWithPopup(provider).then(function(result) {
    // This gives you a Google Access Token.
    var token = result.credential.accessToken;
    // The signed-in user info.
-   var user = result.user;
-   return user;
+   user = result.user;
+
   });
+
+  //setting persistence
+  // firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+  // .then(function() {
+  //   console.log("set persistence?");
+  //   console.log(firebase.auth());
+  //   // var provider = new firebase.auth.GoogleAuthProvider();
+  //   // In memory persistence will be applied to the signed in Google user
+  //   // even though the persistence was set to 'none' and a page redirect
+  //   // occurred.
+  //   // return firebase.auth().signInWithRedirect(provider);
+  // })
+  // .catch(function(error) {
+  //   // Handle Errors here.
+  //   var errorCode = error.code;
+  //   var errorMessage = error.message;
+  // });
+
 
   console.log(user);
   //check to see if user is registered already. if so, show their picks and stuff. if not, re-direct to the sign up page. Or just 
@@ -156,19 +197,19 @@ async function getUserData() {
   console.log(firebase.auth().currentUser);
 }
 
-function signOut() {
-  var auth2 = gapi.auth2.getAuthInstance();
-  auth2.signOut().then(function () {
-    console.log('User signed out.');
-  });
+// function signOut() {
+//   var auth2 = gapi.auth2.getAuthInstance();
+//   auth2.signOut().then(function () {
+//     console.log('User signed out.');
+//   });
 
-  $("#sign_out").attr("hidden", true);
-  $("#sign_in").attr("hidden", false);
-  $("#user_first_last").text("");
-  $("#picks_html").attr("hidden", true);
-  $("#sign_in_or_sign_up_to_pick_html").attr("hidden", false);
+//   $("#sign_out").attr("hidden", true);
+//   $("#sign_in").attr("hidden", false);
+//   $("#user_first_last").text("");
+//   $("#picks_html").attr("hidden", true);
+//   $("#sign_in_or_sign_up_to_pick_html").attr("hidden", false);
 
-}
+// }
 
 function signoutProcess() {
   $("#sign_out").attr("hidden", true);
