@@ -66,19 +66,16 @@ const displayAdminHTML = (userName) => {
 
 async function setUser() {
 
-  console.log(firebase.auth());
-  let currentUser = await firebase.auth();
- 
-  console.log(firebase.auth().currentUser);
-  let user = firebase.auth().currentUser;
-  if(null != user) {
-    $("#user_first_last").html(user.displayName);
+  firebase.auth().onAuthStateChanged(function(user) {
+    if(user) {
+      $("#user_first_last").html(user.displayName);
 
-    displayAdminHTML(user.displayName);
-    displayPicksHTML(user);
-    hideLoginButton()
+      displayAdminHTML(user.displayName);
+      displayPicksHTML(user);
+      hideLoginButton()
+    }
+  })
 
-  }
 }
 
 function displayPicksHTML(user) {
@@ -215,6 +212,8 @@ function signoutProcess() {
   $("#sign_out").attr("hidden", true);
   $("#login_signup_header").attr("hidden", false);
   $("#user_first_last").html("");
+  $("#picks_html").attr("hidden", true);
+  $("#sign_in_or_sign_up_to_pick_html").attr("hidden", false);
 }
 
 function signOutFB() {
