@@ -1,4 +1,7 @@
-body {cursor: pointer};
+body {
+	cursor: pointer;
+	position: relative;
+};
 
 .footer-container {
 	position: fixed;
@@ -18,5 +21,6 @@ body {cursor: pointer};
 }
 
 .banner {
-	background-color:sgreen;
+	background-color:green;
 }
+

@@ -1,5 +1,39 @@
 let currentGoogleUser;
 
+function UserData(name, email, photoURL, season) {
+  this.name = name,
+  this.email = email,
+  this.photoURL = photoURL,
+  this.season = season;
+}
+
+function UserIDAndData(id, userData) {
+  this.id = id,
+  this.userData = userData;
+}
+
+function Season(season) {
+  this.season = season;
+}
+
+function s_202021(picks, paid) {
+  this.picks = picks,
+  this.paid = paid;
+}
+
+function Weeks(weeks) {
+  this.weeks = weeks;
+}
+
+function UserWeek(week) {
+  this.week = week;
+}
+
+function UserPicks( picks) {
+  this.picks = picks;
+}
+
+
 function authenticate() {
     if(gapi.auth2.getAuthInstance().isSignedIn.get()){
         return gapi.auth2.getAuthInstance();
@@ -88,8 +122,10 @@ function hideLoginButton() {
 
   $("#sign_out").attr("hidden", false);
   $("#login_signup_header").attr("hidden", true);
+  $("#sign_in_or_sign_up_to_pick_html").attr("hidden", true);
 
 }
+
 
 async function onSignUp(googleUser) {
   // console.log("signing up user");
@@ -119,6 +155,8 @@ async function onSignUp(googleUser) {
     var errorCode = error.code;
     var errorMessage = error.message;
   });*/
+
+
 
   firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
   var user;
@@ -150,8 +188,43 @@ async function onSignUp(googleUser) {
   //   var errorMessage = error.message;
   // });
 
+  let year = 202021
 
   console.log(user);
+  console.log(user.displayName);
+  console.log(user.email);
+  console.log(user.uid);
+  console.log(user.photoURL);
+
+
+  let newSeason = new Season(new s_202021(year, false));
+
+
+
+  let newUserData = new UserData(user.displayName, user.email, user.photoURL, newSeason);
+
+  let userWithId = new UserIDAndData(user.uid, newUserData);
+
+  console.log(userWithId);
+
+
+  let fs = firebase.firestore();
+
+
+  let usersCollection = fs.collection('users');//('lines/201920/week/1/game/51461/away_team/line');
+  
+  // let newUser = 
+
+ /* let year = linesCollection.doc('202021');
+
+  let week = year.collection('week');
+
+  let weekX = week.doc($("#select_week_dropdown_admin").val());
+
+  let setDoc = weekX.set(game);
+
+  setDoc.then(window.alert("Lines saved"));*/
+
   //check to see if user is registered already. if so, show their picks and stuff. if not, re-direct to the sign up page. Or just 
   $("#user_first_last").html(user.displayName);
   $("#picks_html").attr("hidden", false);
@@ -191,7 +264,7 @@ async function onSignUp(googleUser) {
 
 
 async function getUserData() {
-  console.log(firebase.auth().currentUser);
+  return firebase.auth().currentUser;
 }
 
 // function signOut() {
@@ -222,7 +295,7 @@ function signOutFB() {
   firebase.auth().signOut().then(function() {
     window.alert("Successfully signed out");
     signoutProcess();
-}).catch(function(error) {
-  console.error(error);
-});
+  }).catch(function(error) {
+    console.error(error);
+  });
 }

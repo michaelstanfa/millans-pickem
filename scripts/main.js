@@ -6,7 +6,7 @@ let weekGames = null;
 let games = [];
 let submittingPicks = {};
 
-var TABLE_OPEN = "<table class='table'>";
+var TABLE_OPEN = "<table class='table' style = 'overflow-x:auto' display: block>";
 var TABLE_CLOSE = "</table>";
 var TH_OPEN = "<th>";
 var TH_CLOSE = "</th>"
@@ -66,7 +66,19 @@ const selectThisCard = (card) => {
 }
 
 const getTeamCard = (team, line) => {
-	return '<td class="team_option" abbr=' + team.Abbreviation + ' onclick=selectThisCard(this)>' + team.Name + prettyPrintTheLine(line) + TD_CLOSE;
+
+	return getTeamCardUsingString(team.Abbreviation, (team.Abbreviation != "WAS" ? team.Name : team.City), line, true)
+
+	// return '<td class="team_option" abbr=' + team.Abbreviation + ' onclick=selectThisCard(this)>' + (team.Abbreviation != "WAS" ? team.Name : team.City) + prettyPrintTheLine(line) + TD_CLOSE;
+
+}
+
+
+const getTeamCardUsingString = (abbreviation, display, line, clickable) => {
+	if(clickable) {
+		return '<td class="team_option" abbr=' + abbreviation + ' onclick=selectThisCard(this)>' + display + prettyPrintTheLine(line) + TD_CLOSE;
+	}
+	return '<td class="team_option" abbr=' + abbreviation + '>' + display + prettyPrintTheLine(line) + TD_CLOSE;
 
 }
 
@@ -97,7 +109,7 @@ const loadSpecificWeekMatchups = async (week) => {
 	if(week != "select") {
 		let result = "";
 		weekGames = schedule.fullgameschedule.gameentry.filter(e => e.week == week);
-
+		console.log(weekGames);
 		result = await loadWeekGames(weekGames);
 
 		thisWeek = new Week(week, result);
@@ -108,6 +120,48 @@ const loadSpecificWeekMatchups = async (week) => {
 
 		$("#this_week_games").html("");
 	}
+
+	invalidateSubmitButton(week);
+
+}
+
+const loadPicksIfSelected = async (week) => {
+
+	let currentUser = firebase.auth().currentUser;
+	let gameWeek = $("#select_week_dropdown").val();
+	console.log(gameWeek);
+	let fs = firebase.firestore();	
+	let usersCollection = fs.collection('users');
+
+	await usersCollection.doc(currentUser.uid).collection('seasons').doc('202021').collection('weeks').doc(gameWeek).get().then(
+		
+		async function(doc) {
+			console.log(doc);
+			let picks = await doc.data();
+			if(null == picks) {
+				$("#current_user_picks").html("You haven't made your picks yet.");
+			} else {
+
+				let label = TD_OPEN + "Current Picks: " + TD_CLOSE;
+				let first_pick = getTeamCardUsingString(picks.pick_1.team, picks.pick_1.team, picks.pick_1.line, false);
+				let second_pick = getTeamCardUsingString(picks.pick_2.team, picks.pick_2.team, picks.pick_2.line, false);
+				let third_pick = getTeamCardUsingString(picks.pick_3.team, picks.pick_3.team, picks.pick_3.line, false);
+
+				let alreadyPickedHTML = 
+						TABLE_OPEN +
+						TR_OPEN +
+						label +
+						first_pick +
+						second_pick +
+						third_pick +
+						TR_CLOSE +
+						TABLE_CLOSE;
+
+				$("#current_user_picks").html(alreadyPickedHTML);
+			}
+		})
+
+
 }
 
 const loadWeekGames = async (weekGames) => {
@@ -128,23 +182,24 @@ const loadWeekGames = async (weekGames) => {
 	});
 }
 
-const populateWeeklySchedule = async (thisWeek) => {
+const populateWeeklySchedule = (thisWeek) => {
 
 	let table = TABLE_OPEN;
 	
-	let header = "<h3>Week " +thisWeek.week + "</h3>" +
+	let header = //"<h3>Week " +thisWeek.week + "</h3>" +
 				"<th>Away</th>" +
+				"<th></th>" +
 				"<th>Home</th>" +
 				"<th>Day</th>" +
 				"<th>Time</th>";
 
-	let data = new Promise(function(resolve, reject) {
-		resolve(getGuts(thisWeek));
+	let data = new Promise(async function(resolve, reject) {
+		resolve(await getGuts(thisWeek));
 	});
 
 	data.then(
 		result => {
-			table += result + TABLE_CLOSE;
+			table += header += result + TABLE_CLOSE;
 			$("#this_week_games").html(table);
 		});
 
@@ -156,9 +211,10 @@ const sleep = (milliseconds) => {
 
 const getGuts = async (thisWeek) => {
 
-	await sleep(500);
+	await sleep(750);
 	let guts = "";
-	thisWeek.games.forEach(g => {
+
+	await thisWeek.games.forEach(g => {
 
 		guts += TR_OPEN + 
 			getTeamCard(g.awayTeam, g.awayLine) +
@@ -168,6 +224,7 @@ const getGuts = async (thisWeek) => {
 			TD_OPEN + g.time + TD_CLOSE +
 		TR_CLOSE;
 	});
+
 
 	return guts;
 }
@@ -224,9 +281,10 @@ const loadData = async () => {
 			});
 
 			promise.then(
-				result => {
+				async result => {
 					$("#select_week_dropdown").val(result);	
-					loadSpecificWeekMatchups(result);
+					await loadSpecificWeekMatchups(result);
+					await loadPicksIfSelected(result)
 				},
 				error => {
 					console.log(error);
@@ -236,6 +294,14 @@ const loadData = async () => {
 			console.log(error);
 		}
 	)
+}
+
+const invalidateSubmitButton = (selectedWeek) => {
+	if(selectedWeek != getGameWeek() && togglz.disableOtherWeekSubmissions) {
+		$("#submit-button").attr("disabled", true);
+	} else {
+		$("#submit-button").attr("disabled", false);
+	}
 }
 
 const getPickInfoFromAbbr = (abbr) => {
@@ -250,6 +316,12 @@ const getPickInfoFromAbbr = (abbr) => {
 }
 
 const validatePicks = () => {
+
+	let selectedWeek = $("#select_week_dropdown").val();
+
+	if(selectedWeek != getGameWeek() && togglz.disableOtherWeekSubmissions) {
+		alert("Failed to submit. Wrong week.");
+	}
 
 	cardChoices = [ ...$(".team_option")];
 
@@ -277,6 +349,79 @@ const validatePicks = () => {
 
 		$("#modal-picks").html(display.join("<br />"));
 		$("#submit-modal").modal(options);
+	}
+
+}
+
+const submitApprovedPicks = async () => {
+	let currentUser = firebase.auth().currentUser;
+
+	let fs = firebase.firestore();	
+	let usersCollection = fs.collection('users');
+
+	userExists = await usersCollection.doc(firebase.auth().currentUser.uid).get().then(
+		function(doc) {
+			if(doc.exists) {
+				console.log("user exists");
+				return true;
+			} else {
+				console.log("user doesn't exist");
+				return false;
+			}
+		})
+
+	if(!userExists) {
+		alert("Weird... we don't see you in our system. Contact Ryan Millan or Michael Stanfa NOW. And maybe email your picks to Millan. We'll get this figured out, pal.");
+	} else {
+
+		let thisYear = '202021'
+
+		let gameWeek = await getGameWeek();
+
+		if(!togglz.disableOtherWeekSubmissions){
+			gameWeek = $("#select_week_dropdown").val();	
+		} 
+
+
+
+		let firstPick =Object.entries(submittingPicks)[0][1]; 
+		let secondPick =Object.entries(submittingPicks)[1][1]; 
+		let thirdPick =Object.entries(submittingPicks)[2][1]; 
+
+		let pick_1 = {
+			'team': firstPick.team,
+			'against': firstPick.against,
+			'line': firstPick.line,
+			'dateTime':null,
+			'gameId': null
+		}
+
+		let pick_2 = {
+			'team': secondPick.team,
+			'against': secondPick.against,
+			'line': secondPick.line,
+			'dateTime':null,
+			'gameId': null
+		}
+
+		let pick_3 = {
+			'team': thirdPick.team,
+			'against': thirdPick.against,
+			'line': thirdPick.line,
+			'dateTime':null,
+			'gameId': null
+		}
+
+		await usersCollection.doc(currentUser.uid).collection('seasons').doc(thisYear).collection('weeks').doc(gameWeek).set(
+			{
+				pick_1: pick_1,
+				pick_2: pick_2,
+				pick_3: pick_3
+			}
+		);
+
+		loadPicksIfSelected(gameWeek);
+
 	}
 
 }

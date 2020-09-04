@@ -26,16 +26,18 @@
 <script src="https://apis.google.com/js/platform.js?onload=onLoadCallback" async defer></script>
 
 <script src="props.js"></script>
+<script src="toggles.js"></script>
+
 <script src="scripts/admin.js"></script>
 <script src="scripts/gameweek.js"></script>
 <script src="scripts/util.js"></script>
 <script src="scripts/auth.js"></script>
+
 <script type = "text/javascript"></script>
 
 <script>
 
   window.onLoadCallback = function(){
-    firebase.auth().init;
     gapi.auth2.init({
       client_id: '808572509568-qmp14sth1dk6tl3drrhq879b8rjk8a5p.apps.googleusercontent.com'
     });
