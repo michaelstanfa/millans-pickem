@@ -77,27 +77,6 @@ const displayAdminHTML = (userName) => {
   
 }
 
-// function onSignIn(googleUser) {
-//   currentGoogleUser = googleUser;
-//   var profile = googleUser.getBasicProfile();
-//   console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-//   console.log('Name: ' + profile.getName());
-//   console.log('Image URL: ' + profile.getImageUrl());
-//   console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
-//   console.log(profile);
-
-//   $("#sign_in").attr("hidden", true);
-//   $("#sign_out").attr("hidden", false);
-//   displayAdminHTML();
-//   $("#logged_in_user_first_name").text(" " + getCurrentUserName());
-//   $("#user_first_last").text(profile.getName());
-//   $("#picks_html").attr("hidden", false);
-//   $("#sign_in_or_sign_up_to_pick_html").attr("hidden", true);
-
-//   // location.reload();
-
-// }
-
 async function setUser() {
 
   firebase.auth().onAuthStateChanged(function(user) {
@@ -127,79 +106,39 @@ function hideLoginButton() {
 }
 
 
-async function onSignUp(googleUser) {
-  // console.log("signing up user");
-  // currentGoogleUser = googleUser;
-  // var profile = googleUser.getBasicProfile();
-  // console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-  // console.log('Name: ' + profile.getName());
-  // console.log('Image URL: ' + profile.getImageUrl());
-  // console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
-  // console.log(profile);
-  // setupSignupPage();
-
-
-// Using a popup.
-
-  /*var user = firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-  .then(function() {
-
-    // var provider = new firebase.auth.GoogleAuthProvider();
-    // In memory persistence will be applied to the signed in Google user
-    // even though the persistence was set to 'none' and a page redirect
-    // occurred.
-    // return firebase.auth().signInWithRedirect(provider);
-  })
-  .catch(function(error) {
-    // Handle Errors here.
-    var errorCode = error.code;
-    var errorMessage = error.message;
-  });*/
-
-
+async function onSignUp(firstSignUp) {
+  console.log(firstSignUp);
 
   firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
   var user;
   var provider = new firebase.auth.GoogleAuthProvider();
+
   provider.addScope('profile');
   provider.addScope('email');
+
   await firebase.auth().signInWithPopup(provider).then(function(result) {
    // This gives you a Google Access Token.
-   var token = result.credential.accessToken;
-   // The signed-in user info.
-   user = result.user;
+     var token = result.credential.accessToken;
+     // The signed-in user info.
+     user = result.user;  
 
   });
 
-  //setting persistence
-  // firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-  // .then(function() {
-  //   console.log("set persistence?");
-  //   console.log(firebase.auth());
-  //   // var provider = new firebase.auth.GoogleAuthProvider();
-  //   // In memory persistence will be applied to the signed in Google user
-  //   // even though the persistence was set to 'none' and a page redirect
-  //   // occurred.
-  //   // return firebase.auth().signInWithRedirect(provider);
-  // })
-  // .catch(function(error) {
-  //   // Handle Errors here.
-  //   var errorCode = error.code;
-  //   var errorMessage = error.message;
-  // });
+  console.log(user);
+
+  if(firstSignUp) {
+    let signupEmail = $("#email").val();
+
+    if(signupEmail != user.email) {
+      signOutWithMessage('The email you entered did not match the email that Google used to authenticate you. Try clearing your browser cache and logging in again.');
+      return false;
+    }
+
+  }
 
   let year = 202021
 
-  console.log(user);
-  console.log(user.displayName);
-  console.log(user.email);
-  console.log(user.uid);
-  console.log(user.photoURL);
-
-
   let newSeason = new Season(new s_202021(year, false));
-
-
 
   let newUserData = new UserData(user.displayName, user.email, user.photoURL, newSeason);
 
@@ -211,54 +150,15 @@ async function onSignUp(googleUser) {
   let fs = firebase.firestore();
 
 
-  let usersCollection = fs.collection('users');//('lines/201920/week/1/game/51461/away_team/line');
+  let usersCollection = fs.collection('users');
   
-  // let newUser = 
-
- /* let year = linesCollection.doc('202021');
-
-  let week = year.collection('week');
-
-  let weekX = week.doc($("#select_week_dropdown_admin").val());
-
-  let setDoc = weekX.set(game);
-
-  setDoc.then(window.alert("Lines saved"));*/
-
-  //check to see if user is registered already. if so, show their picks and stuff. if not, re-direct to the sign up page. Or just 
   $("#user_first_last").html(user.displayName);
   $("#picks_html").attr("hidden", false);
   $("#sign_in_or_sign_up_to_pick_html").attr("hidden", true);
 
   hideLoginButton();
 
-
-/*
-  firebase.auth().signInWithPopup(provider).then(function(result) {
-    console.log("loggin in with firebase?");
-    // This gives you a Google Access Token. You can use it to access the Google API.
-    var token = result.credential.accessToken;
-    // The signed-in user info.
-    var user = result.user;
-    console.log(user);
-
-
-    //now set up the databases for this user
-
-
-    // ...
-  }).catch(function(error) {
-    // Handle Errors here.
-    var errorCode = error.code;
-    var errorMessage = error.message;
-    // The email of the user's account used.
-    var email = error.email;
-    // The firebase.auth.AuthCredential type that was used.
-    var credential = error.credential;
-    // ...
-  });
-*/  
-
+  return true;
 }
 
 
@@ -267,19 +167,6 @@ async function getUserData() {
   return firebase.auth().currentUser;
 }
 
-// function signOut() {
-//   var auth2 = gapi.auth2.getAuthInstance();
-//   auth2.signOut().then(function () {
-//     console.log('User signed out.');
-//   });
-
-//   $("#sign_out").attr("hidden", true);
-//   $("#sign_in").attr("hidden", false);
-//   $("#user_first_last").text("");
-//   $("#picks_html").attr("hidden", true);
-//   $("#sign_in_or_sign_up_to_pick_html").attr("hidden", false);
-
-// }
 
 function signoutProcess() {
   $("#sign_out").attr("hidden", true);
@@ -289,13 +176,19 @@ function signoutProcess() {
   $("#sign_in_or_sign_up_to_pick_html").attr("hidden", false);
 }
 
-function signOutFB() {
+function signOutWithMessage(message) {
 
   console.log("signing out " + firebase.auth().currentUser.displayName);
   firebase.auth().signOut().then(function() {
-    window.alert("Successfully signed out");
+    window.alert(message);
     signoutProcess();
   }).catch(function(error) {
     console.error(error);
   });
+}
+
+function signOutFB() {
+
+  signOutWithMessage('Successfully signed out')
+
 }

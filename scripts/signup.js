@@ -22,35 +22,41 @@ const createIfUserNotExist = async () => {
 		if(null === email) {
 			alert("About to sign up via Google - Contact Ryan Millan & Michael Stanfa with any issues.");
 
-			await new Promise(function(resolve, reject) {
-				resolve(onSignUp());
+			let signedUp = await new Promise(async function(resolve, reject) {
+				console.log("about to sign up");
+				resolve(onSignUp(true));
 			});
-			
+		
 
-			let currentUser = firebase.auth().currentUser;
-			
-			usersCollection.doc(currentUser.uid).set(
-			{
-				name: currentUser.displayName,
-				email: currentUser.email,
-				photoURL: currentUser.photoURL
-			});
-
-			let thisYear = '202021';
-
-			usersCollection.doc(currentUser.uid).collection('seasons').doc(thisYear).set(
+			if(signedUp) {
+				console.log("user signed up");
+				let currentUser = await firebase.auth().currentUser;
+				console.log(currentUser);
+				usersCollection.doc(currentUser.uid).set(
 				{
-					paid: false
-				}
-			);
+					name: currentUser.displayName,
+					email: currentUser.email,
+					photoURL: currentUser.photoURL
+				});
 
+				let thisYear = '202021';
 
+				await usersCollection.doc(currentUser.uid).collection('seasons').doc(thisYear).set(
+					{
+						paid: false
+					}
+				);
+
+				window.location.href = "./index.html";
+			}
 
 		} else {
 			window.alert("Hmmm... looks like this email is already registered. Try signing in with the Google button at the top of this page.");
+
+			window.location.href = "./index.html";
 		}
 
-		window.location.href = "./index.html";
+		
 	}
 
 	
