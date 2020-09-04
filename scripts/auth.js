@@ -82,10 +82,10 @@ async function setUser() {
   firebase.auth().onAuthStateChanged(function(user) {
     if(user) {
       $("#user_first_last").html(user.displayName);
-      showAdminLink(user);
-      displayAdminHTML(user.displayName);
-      displayPicksHTML(user);
-      hideLoginButton()
+      await showAdminLink(user);
+      await displayAdminHTML(user.displayName);
+      await displayPicksHTML(user);
+      await hideLoginButton()
     }
   })
 
@@ -107,10 +107,10 @@ function showAdminLink(user) {
 
     let fs = firebase.firestore();
 
-    let usersCollection = fs.collection('users');
+    let usersCollection = await fs.collection('users');
 
     usersCollection.doc(user.uid).get().then(function(data){
-      if(data.data().admin) {
+      if(null != data.data().admin && data.data().admin) {
         $("#admin_link_in_header").attr("hidden", false);
       } else {
         $("#admin_link_in_header").attr("hidden", true);
