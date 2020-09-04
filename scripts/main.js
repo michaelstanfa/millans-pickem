@@ -127,14 +127,16 @@ const loadSpecificWeekMatchups = async (week) => {
 
 const loadPicksIfSelected = async (week) => {
 
+	sleep(1000);
+
 	let currentUser = await firebase.auth().currentUser;
 	// console.log(currentUser);
 	let gameWeek = $("#select_week_dropdown").val();
 	console.log(gameWeek);
 	let fs = firebase.firestore();	
-	let usersCollection = fs.collection('users');
+	let usersCollection = await fs.collection('users');
 
-	if(null == currentUser.uid) {
+	if(null == currentUser) {
 		sleep(250);
 		let currentUser = await firebase.auth().currentUser;
 	}

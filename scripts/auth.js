@@ -79,9 +79,12 @@ const displayAdminHTML = (userName) => {
 
 async function setUser() {
 
-  firebase.auth().onAuthStateChanged(function(user) {
+  await firebase.auth().onAuthStateChanged(async function(user) {
+    
+    
     if(user) {
       $("#user_first_last").html(user.displayName);
+      
       await showAdminLink(user);
       await displayAdminHTML(user.displayName);
       await displayPicksHTML(user);
@@ -103,14 +106,14 @@ function hideLoginButton() {
 
 }
 
-function showAdminLink(user) {
+async function showAdminLink(user) {
 
     let fs = firebase.firestore();
 
     let usersCollection = await fs.collection('users');
 
     usersCollection.doc(user.uid).get().then(function(data){
-      if(null != data.data().admin && data.data().admin) {
+      if(null != data.data() && data.data().admin) {
         $("#admin_link_in_header").attr("hidden", false);
       } else {
         $("#admin_link_in_header").attr("hidden", true);
@@ -119,49 +122,85 @@ function showAdminLink(user) {
 
 }
 
+
+async function onSignIn(googleUser) {
+  console.log('Google Auth Response', googleUser);
+  let currentGoogleUser = googleUser;
+  // We need to register an Observer on Firebase Auth to make sure auth is initialized.
+  let firebaseUser = await firebase.auth().currentUser != null ? firebase.auth().currentUser : null;
+
+  var unsubscribe = firebase.auth().onAuthStateChanged(async function(firebaseUser) {
+    unsubscribe();
+    // Check if we are already signed-in Firebase with the correct user.
+ 
+    if (!isUserEqual(googleUser, firebaseUser)) {
+
+
+      // Build Firebase credential with the Google ID token.
+      var credential = await firebase.auth.GoogleAuthProvider.credential(
+          googleUser.getAuthResponse().id_token);
+
+
+      await firebase.auth().signInWithCredential(credential).then(async function(user) {
+        console.log(user);
+      }).catch(function(error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // The email of the user's account used.
+        var email = error.email;
+        // The firebase.auth.AuthCredential type that was used.
+        var credential = error.credential;
+        })
+        
+        buildUserInFirestore();
+    } else {
+
+      console.log(firebaseUser);
+      console.log('User already signed-in Firebase.');
+    }
+  });
+}
+
+function isUserEqual(googleUser, firebaseUser) {
+  if (firebaseUser) {
+    var providerData = firebaseUser.providerData;
+    for (var i = 0; i < providerData.length; i++) {
+      if (providerData[i].providerId === firebase.auth.GoogleAuthProvider.PROVIDER_ID &&
+          providerData[i].uid === googleUser.getBasicProfile().getId()) {
+        // We don't need to reauth the Firebase connection.
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 async function onSignUp(firstSignUp) {
   console.log(firstSignUp);
 
-  firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
   var user;
-  var provider = new firebase.auth.GoogleAuthProvider();
+  
+  let result = await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION).then(
+    function() {
 
-  provider.addScope('profile');
-  provider.addScope('email');
+      var provider = new firebase.auth.GoogleAuthProvider();
 
-  await firebase.auth().signInWithRedirect(provider);/*.then(function(result) {
-   // This gives you a Google Access Token.
-     var token = result.credential.accessToken;
-     // The signed-in user info.
-     user = result.user;  
+      provider.addScope('profile');
+      provider.addScope('email');
 
-  });
-*/
-  firebase.auth().getRedirectResult().then(function(result) {
-    if (result.credential) {
-      // This gives you a Google Access Token. You can use it to access the Google API.
-      var token = result.credential.accessToken;
-      // ...
+      firebase.auth().signInWithRedirect(provider);
+      firebase.auth().getRedirectResult().then(function(result) {});
+
     }
-    // The signed-in user info.
-    var user = result.user;
-    console.log(user);
-    }).catch(function(error) {
-      // Handle Errors here.
-      var errorCode = error.code;
-      var errorMessage = error.message;
-      // The email of the user's account used.
-      var email = error.email;
-      // The firebase.auth.AuthCredential type that was used.
-      var credential = error.credential;
-      // ...
-    });
+  );
 
-  console.log(user);
+  console.log(result);
 
-  if(firstSignUp) {
+  if(result) {
     let signupEmail = $("#email").val();
-
+    console.log(user);
+    console.log(signupEmail);
     if(signupEmail != user.email) {
       signOutWithMessage('The email you entered did not match the email that Google used to authenticate you. Try clearing your browser cache and logging in again.');
       return false;
@@ -185,30 +224,17 @@ async function onSignUp(firstSignUp) {
   let usersCollection = fs.collection('users');
 
   usersCollection.doc(user.uid).get().then(function(data){
-    alert(console.log(data.data()));
+    alert(data.data());
   });
-
-  // await usersCollection.doc(currentUser.uid).collection('seasons').doc(thisYear).collection('weeks').doc(gameWeek).set(
-  //     {
-  //       pick_1: pick_1,
-  //       pick_2: pick_2,
-  //       pick_3: pick_3
-  //     }
-  //   );
-
   
   $("#user_first_last").html(user.displayName);
   $("#picks_html").attr("hidden", false);
   $("#sign_in_or_sign_up_to_pick_html").attr("hidden", true);
 
-
-
   hideLoginButton();
 
   return true;
 }
-
-
 
 async function getUserData() {
   return firebase.auth().currentUser;
@@ -234,8 +260,19 @@ function signOutWithMessage(message) {
   });
 }
 
-function signOutFB() {
+function signOut() {
 
-  signOutWithMessage('Successfully signed out')
+  firebase.auth().signOut().then(function() {
 
+    var auth2 = gapi.auth2.getAuthInstance();
+    
+    auth2.signOut().then(function () {
+      // auth2.disconnect();
+      console.log('User signed out.');
+      signoutProcess()
+    });
+  
+  }).catch(function(error) {
+    // An error happened.
+  });
 }

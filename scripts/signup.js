@@ -1,35 +1,61 @@
 const createIfUserNotExist = async () => {
+
 	let fs = firebase.firestore();	
 	let usersCollection = fs.collection('users');
 
-	let e = $("#email").val()
-	let validEmail = validateEmail(e);
+	// let e = $("#email").val()
+	// let validEmail = validateEmail(e);
 
-	if(validEmail) {
-		let email = await usersCollection.get().then(async function(users) {
-			let user;
-			await users.forEach(u => {
-				if(u.data().email === e) {
-					user = u;
-				}
-				
-			});
+	//if(validEmail) {
 
-			return null != user ? user.data().email : null;
+	
 
+	/*let email = await usersCollection.get().then(async function(users) {
+		let user;
+		await users.forEach(u => {
+			if(u.data().email === e) {
+				user = u;
+			}
+			
 		});
 
-		if(null === email) {
-			alert("About to sign up via Google - Contact Ryan Millan & Michael Stanfa with any issues.");
+		return null != user ? user.data().email : null;
 
-			let signedUp = await new Promise(async function(resolve, reject) {
-				console.log("about to sign up");
-				resolve(onSignUp(true));
-			});
-		
+	});
+*/
+/*	if(null === email) {
+		// alert("About to sign up via Google - Contact Ryan Millan & Michael Stanfa with any issues.");
 
-			if(signedUp) {
-				console.log("user signed up");
+		let signedUp = await new Promise(async function(resolve, reject) {
+			console.log("about to sign up");
+			resolve(signIn());
+		});
+
+	}*/
+
+}
+
+const buildUserInFirestore = async () => {
+	console.log("redirect");
+	let auth = await gapi.auth2.getAuthInstance();
+	console.log(auth);
+	let e =await auth.currentUser.get().getBasicProfile();
+
+	console.log(e.getEmail());
+
+	console.log(e);
+
+	console.log(firebase.auth());
+
+	await firebase.auth().onAuthStateChanged(async function(user) {
+		let fs = firebase.firestore();	
+		let usersCollection = fs.collection('users');
+
+		console.log(user);
+
+		usersCollection.doc(user.uid).get().then(async function(doc){
+			if(!doc.exists) {
+				console.log("getting " +  user + " signed up");
 				let currentUser = await firebase.auth().currentUser;
 				console.log(currentUser);
 				usersCollection.doc(currentUser.uid).set(
@@ -50,17 +76,8 @@ const createIfUserNotExist = async () => {
 
 				window.location.href = "./index.html";
 			}
-
-		} else {
-			window.alert("Hmmm... looks like this email is already registered. Try signing in with the Google button at the top of this page.");
-
-			window.location.href = "./index.html";
-		}
-
-		
-	}
-
-	
+		});
+	});
 }
 
 function validateEmail(mail) 
