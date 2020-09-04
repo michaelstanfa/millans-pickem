@@ -56,9 +56,10 @@
 
 <script>
 
-  window.onload = function() {
-    loadData();
-    setUser();
+  window.onload = async function() {
+    await loadData();
+    await setUser();
+    await loadPicksIfSelected($("#select_week_dropdown").val());
   }
 </script>
 

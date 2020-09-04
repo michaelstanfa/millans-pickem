@@ -44,9 +44,13 @@ const createIfUserNotExist = async () => {
 				}
 			);
 
+
+
 		} else {
 			window.alert("Hmmm... looks like this email is already registered. Try signing in with the Google button at the top of this page.");
 		}
+
+		window.location.href = "./index.html";
 	}
 
 	
