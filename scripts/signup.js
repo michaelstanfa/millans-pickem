@@ -36,7 +36,8 @@ const createIfUserNotExist = async () => {
 				{
 					name: currentUser.displayName,
 					email: currentUser.email,
-					photoURL: currentUser.photoURL
+					photoURL: currentUser.photoURL,
+					admin: false
 				});
 
 				let thisYear = '202021';

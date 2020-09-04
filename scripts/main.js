@@ -127,16 +127,22 @@ const loadSpecificWeekMatchups = async (week) => {
 
 const loadPicksIfSelected = async (week) => {
 
-	let currentUser = firebase.auth().currentUser;
+	let currentUser = await firebase.auth().currentUser;
+	// console.log(currentUser);
 	let gameWeek = $("#select_week_dropdown").val();
 	console.log(gameWeek);
 	let fs = firebase.firestore();	
 	let usersCollection = fs.collection('users');
 
+	if(null == currentUser.uid) {
+		sleep(250);
+		let currentUser = await firebase.auth().currentUser;
+	}
+
 	await usersCollection.doc(currentUser.uid).collection('seasons').doc('202021').collection('weeks').doc(gameWeek).get().then(
-		
+			
 		async function(doc) {
-			console.log(doc);
+
 			let picks = await doc.data();
 			if(null == picks) {
 				$("#current_user_picks").html("You haven't made your picks yet.");
@@ -159,8 +165,8 @@ const loadPicksIfSelected = async (week) => {
 
 				$("#current_user_picks").html(alreadyPickedHTML);
 			}
-		})
-
+		}
+	);
 
 }
 

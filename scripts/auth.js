@@ -1,10 +1,11 @@
 let currentGoogleUser;
 
-function UserData(name, email, photoURL, season) {
+function UserData(name, email, photoURL, season, admin) {
   this.name = name,
   this.email = email,
   this.photoURL = photoURL,
-  this.season = season;
+  this.season = season,
+  this.admin = admin;
 }
 
 function UserIDAndData(id, userData) {
@@ -66,7 +67,6 @@ function loadClient() {
 }
 
 const displayAdminHTML = (userName) => {
-  console.log(userName);
   if(userName != "Michael Stanfa" || userName == "Ryan Millan") {
     $("#login_html").attr("hidden", true);
     $("#admin_html").attr("hidden", false);
@@ -82,7 +82,7 @@ async function setUser() {
   firebase.auth().onAuthStateChanged(function(user) {
     if(user) {
       $("#user_first_last").html(user.displayName);
-
+      showAdminLink(user);
       displayAdminHTML(user.displayName);
       displayPicksHTML(user);
       hideLoginButton()
@@ -92,8 +92,6 @@ async function setUser() {
 }
 
 function displayPicksHTML(user) {
-  //will need to get individual user info. but for now, just load it.
-  console.log("showing picks");
   $("#picks_html").attr("hidden", false);
 }
 
@@ -105,6 +103,21 @@ function hideLoginButton() {
 
 }
 
+function showAdminLink(user) {
+
+    let fs = firebase.firestore();
+
+    let usersCollection = fs.collection('users');
+
+    usersCollection.doc(user.uid).get().then(function(data){
+      if(data.data().admin) {
+        $("#admin_link_in_header").attr("hidden", false);
+      } else {
+        $("#admin_link_in_header").attr("hidden", true);
+      }
+    });
+
+}
 
 async function onSignUp(firstSignUp) {
   console.log(firstSignUp);
@@ -116,13 +129,33 @@ async function onSignUp(firstSignUp) {
   provider.addScope('profile');
   provider.addScope('email');
 
-  await firebase.auth().signInWithPopup(provider).then(function(result) {
+  await firebase.auth().signInWithRedirect(provider);/*.then(function(result) {
    // This gives you a Google Access Token.
      var token = result.credential.accessToken;
      // The signed-in user info.
      user = result.user;  
 
   });
+*/
+  firebase.auth().getRedirectResult().then(function(result) {
+    if (result.credential) {
+      // This gives you a Google Access Token. You can use it to access the Google API.
+      var token = result.credential.accessToken;
+      // ...
+    }
+    // The signed-in user info.
+    var user = result.user;
+    console.log(user);
+    }).catch(function(error) {
+      // Handle Errors here.
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      // The email of the user's account used.
+      var email = error.email;
+      // The firebase.auth.AuthCredential type that was used.
+      var credential = error.credential;
+      // ...
+    });
 
   console.log(user);
 
@@ -140,7 +173,7 @@ async function onSignUp(firstSignUp) {
 
   let newSeason = new Season(new s_202021(year, false));
 
-  let newUserData = new UserData(user.displayName, user.email, user.photoURL, newSeason);
+  let newUserData = new UserData(user.displayName, user.email, user.photoURL, newSeason, false);
 
   let userWithId = new UserIDAndData(user.uid, newUserData);
 
@@ -149,12 +182,26 @@ async function onSignUp(firstSignUp) {
 
   let fs = firebase.firestore();
 
-
   let usersCollection = fs.collection('users');
+
+  usersCollection.doc(user.uid).get().then(function(data){
+    alert(console.log(data.data()));
+  });
+
+  // await usersCollection.doc(currentUser.uid).collection('seasons').doc(thisYear).collection('weeks').doc(gameWeek).set(
+  //     {
+  //       pick_1: pick_1,
+  //       pick_2: pick_2,
+  //       pick_3: pick_3
+  //     }
+  //   );
+
   
   $("#user_first_last").html(user.displayName);
   $("#picks_html").attr("hidden", false);
   $("#sign_in_or_sign_up_to_pick_html").attr("hidden", true);
+
+
 
   hideLoginButton();
 
