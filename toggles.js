@@ -1,0 +1,3 @@
+togglz = {
+	disableOtherWeekSubmissions: false
+}

@@ -5,6 +5,7 @@
 <meta name="google-signin-client_id" content="808572509568-qmp14sth1dk6tl3drrhq879b8rjk8a5p.apps.googleusercontent.com">
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 
@@ -23,11 +24,14 @@
 <script src="https://apis.google.com/js/platform.js?onload=onLoadCallback" async defer></script>
 
 <script src="props.js"></script>
+<script src="toggles.js"></script>
+
 <script src="scripts/admin.js"></script>
 <script src="scripts/gameweek.js"></script>
 <script src="scripts/util.js"></script>
 <script src="scripts/auth.js"></script>
 <script src="scripts/signup.js"></script>
+
 <script type = "text/javascript"></script>
 
 <!-- logging in to firebase i think -->
@@ -123,15 +127,22 @@ table {
 </div> -->
 <div id = "header"></div>
 <body class="container main">
-<p>We use Google to set you up. You'll continue to use Google to access your picks throughout the season.</p>
+<p>Enter your gmail below. We'll make sure you haven't already registered, then use Google Authentication moving forward.</p>
+<p>Make sure the email you enter in the input box below is the same as the email you use when authenticating with Google or your picks won't register!</p>
 
 
 <div id = "signup_message"></div>
 
-<button style="background-color:white" class="left btn btn-default" onclick ='onSignUp()'>
+<form>
+	
+	<input required placeholder = "email" type = "text" id = "email" name = "email">
+	<input type = "button" value = "Sign Up" onclick="createIfUserNotExist()">
+</form>
+
+<!-- <button style="background-color:white" class="left btn btn-default" onclick ='onSignUp()'>
           <img width="20px" alt="Google &quot;G&quot; Logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png"/>
           Sign Up with Google
-        </button>
+        </button> -->
 
 <a id = "sign_out" href="#" onclick="signOutFB();"><h5>sign out</h5></a>
 

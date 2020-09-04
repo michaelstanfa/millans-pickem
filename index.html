@@ -27,14 +27,22 @@
 
   <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script> -->
   <script src="props.js"></script>
+  <script src="toggles.js"></script>
 
   <script src="scripts/main.js"></script>
   <script src="scripts/gameweek.js"></script>
   <script src="scripts/util.js"></script>
   <script src="scripts/auth.js"></script>
-  <script type = "text/javascript">
+  <script type = "text/javascript"></script>
 
-</script>
+  <script>
+    $(function(){
+      console.log(document.cookie);
+      document.cookie = 'Secure';
+      document.cookie = 'SameSite=None';
+      console.log(document.cookie);
+    })
+  </script>
 
 <script>
 
@@ -72,8 +80,10 @@ table {
 	border: 2px;
 	border-top;
 	border-bottom;
-	text-align:outside;
+	text-align:center;
 	display:block;
+  /*border-collapse:collapse;*/
+  overflow-x:auto;
 }
 
 #header{
@@ -87,8 +97,8 @@ table {
 <body class="container main">
 
   <div id = "picks_html" hidden>
-
-    <select id = 'select_week_dropdown' class ='btn-select dropdown-toggle' data-toggle='dropdown' onchange = 'loadSpecificWeekMatchups(this.value)'>
+    <br>
+    <select id = 'select_week_dropdown' class ='btn-select btn btn-secondary dropdown-toggle' data-toggle='dropdown' onchange = 'loadSpecificWeekMatchups(this.value); loadPicksIfSelected(this.value)'>
       <option value='select'>Select Week</option>
       <option value='1'>Week 1</option>
       <option value='2'>Week 2</option>
@@ -108,17 +118,17 @@ table {
       <option value='16'>Week 16</option>
       <option value='17'>Week 17</option>
     </select>
+    <br><br>
+    <div id = "current_user_picks">
+      You haven't made your picks yet.
+    </div>
     
-    <br />
-    <br />
-    
-    <div>Click a team to select</div>
     <div id = "this_week_games"></div>
 
 </body>
 
   <div class = "footer-container">
-    <button value = "submit" onclick = "validatePicks()" class="btn btn-submit btn-primary">Submit</button>
+    <button id = "submit-button" value = "submit" onclick = "validatePicks()" class="btn btn-submit btn-primary">Submit</button>
   </div>
   
 </div>
@@ -145,7 +155,7 @@ table {
             <div id = "modal-picks"></div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-success" data-dismiss="modal">Submit</button>
+            <button type="button" class="btn btn-success" data-dismiss="modal" onclick = "submitApprovedPicks()">Submit</button>
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
           </div>
         </div>
