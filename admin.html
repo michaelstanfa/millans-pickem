@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Millan's Pickem</title>
+  <title>ADMIN</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
@@ -28,6 +28,7 @@
 <script src="props.js"></script>
 <script src="toggles.js"></script>
 
+<script src="scripts/main.js"></script>
 <script src="scripts/admin.js"></script>
 <script src="scripts/gameweek.js"></script>
 <script src="scripts/util.js"></script>
@@ -96,16 +97,16 @@ table {
 
 <div id = "admin_access_only" hidden>
   <h1>YOU SHALL NOT PASS</h1>
-  <h4>Sorry<text id = "logged_in_user_first_name"></text>, admin access only</h4>
+  <h4>Sorry, admin access only</h4>
 </div>
 
 <div id="admin_html" hidden>
 
   <body class="container main">
 
-    <h4 style="display:inline-block">Set Lines</h4>
+    <h4 style="display:inline-block">Select Week</h4>
 
-    <select style = "display:inline-block" id = 'select_week_dropdown_admin' class ='btn-select dropdown-toggle' data-toggle='dropdown' onchange = "loadMatchupsForLineSetting(this.value)">
+    <select style = "display:inline-block" id = 'select_week_dropdown_admin' class ='btn-select dropdown-toggle' data-toggle='dropdown' onchange = "loadMatchupsForLineSetting(this.value); loadMatchupsForScoreSetting(this.value);">
       <option value='select'>Select Week</option>
       <option value='1'>Week 1</option>
       <option value='2'>Week 2</option>
@@ -128,13 +129,40 @@ table {
     
     <br />
     <br />
-      
+    
+    <button class = "btn btn-info" style = "display:inline-block" onclick = "showLines()">Show Lines</button>
+    <button class = "btn btn-info" style = "display:inline-block" onclick = "showScores()">Show Scores</button>
+    <br />
+    <br />
+
+    <div id = "admin_set_lines">
       <div id = "this_week_games_admin"></div>
 
+      <div class = "footer-container">
+        <button onclick="reviewLines()" value = "submit" class="btn btn-submit btn-primary">Submit Lines</button>
+      </div>
+    <br/>
+    <br/>
+    <br/>
+    </div>
+
+    <div hidden id = "admin_set_scores">
+      <div id = "this_week_scores_admin"></div>
+
+      <div class = "footer-container">
+        <button onclick="setScores()" value = "submit" class="btn btn-submit btn-primary">Update Scores</button>
+      </div>
+    <br/>
+    <br/>
+    <br/>
+    </div>
+
+
+
   </body>
-  <div class = "footer-container">
+  <!-- <div class = "footer-container">
     <button onclick="reviewLines()" value = "submit" class="btn btn-submit btn-primary">Submit Lines</button>
-  </div>
+  </div> -->
 </div>
 
  

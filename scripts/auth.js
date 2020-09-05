@@ -66,8 +66,8 @@ function loadClient() {
             function(err) { console.error("Error loading GAPI client for API", err); });
 }
 
-const displayAdminHTML = (userName) => {
-  if(userName != "Michael Stanfa" || userName == "Ryan Millan") {
+const displayAdminHTML = (display) => {
+  if(display) {
     $("#login_html").attr("hidden", true);
     $("#admin_html").attr("hidden", false);
   } else {
@@ -84,9 +84,8 @@ async function setUser() {
     
     if(user) {
       $("#user_first_last").html(user.displayName);
-      
+
       await showAdminLink(user);
-      await displayAdminHTML(user.displayName);
       await displayPicksHTML(user);
       await hideLoginButton()
     }
@@ -112,11 +111,13 @@ async function showAdminLink(user) {
 
     let usersCollection = await fs.collection('users');
 
-    usersCollection.doc(user.uid).get().then(function(data){
+    usersCollection.doc(user.uid).get().then(async function(data){
       if(null != data.data() && data.data().admin) {
         $("#admin_link_in_header").attr("hidden", false);
+        await displayAdminHTML(true);
       } else {
         $("#admin_link_in_header").attr("hidden", true);
+        await displayAdminHTML(false);
       }
     });
 
@@ -143,6 +144,7 @@ async function onSignIn(googleUser) {
 
       await firebase.auth().signInWithCredential(credential).then(async function(user) {
         console.log(user);
+        $("#user_first_last").html(user.displayName);
       }).catch(function(error) {
         // Handle Errors here.
         var errorCode = error.code;
@@ -155,11 +157,14 @@ async function onSignIn(googleUser) {
         
         buildUserInFirestore();
     } else {
-
+      $("#user_first_last").html(firebaseUser.displayName);
       console.log(firebaseUser);
       console.log('User already signed-in Firebase.');
+
     }
   });
+
+  
 }
 
 function isUserEqual(googleUser, firebaseUser) {
@@ -195,19 +200,17 @@ async function onSignUp(firstSignUp) {
     }
   );
 
-  console.log(result);
-
+/*
   if(result) {
     let signupEmail = $("#email").val();
-    console.log(user);
-    console.log(signupEmail);
+
     if(signupEmail != user.email) {
       signOutWithMessage('The email you entered did not match the email that Google used to authenticate you. Try clearing your browser cache and logging in again.');
       return false;
     }
 
   }
-
+*/
   let year = 202021
 
   let newSeason = new Season(new s_202021(year, false));

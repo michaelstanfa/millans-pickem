@@ -1,65 +1,3 @@
-let schedule = null;
-let thisWeek = null;
-let picks = null;
-let choices = null;
-let weekGames = null;
-let games = [];
-let submittingPicks = {};
-let weeks = null;
-
-var TABLE_OPEN = "<table class='table'>";
-var TABLE_CLOSE = "</table>";
-var TH_OPEN = "<th>";
-var TH_CLOSE = "</th>"
-var TR_OPEN = "<tr>";
-var TR_CLOSE = "</tr>";
-var TD_OPEN = "<td>";
-var TD_CLOSE = "</td>";
-var DIV_OPEN = "<div>";
-var DIV_CLOSE = "</div>";
-
-// var List = require("collections/list");
-
-function Schedule(fullgameschedule) {
-	this.fullgameschedule = fullgameschedule;
-}
-
-function Week(week, games) {
-	this.week = week,
-	this.games = games;
-}
-
-function Game(id, awayTeam, homeTeam, date, time, awayLine, homeLine) {
-	this.id = id,
-	this.awayTeam = awayTeam,
-	this.homeTeam = homeTeam,
-	this.date = date,
-	this.time = time,
-	this.awayLine = awayLine,
-	this.homeLine = homeLine;
-}
-
-function Pick(team, against, line) {
-	this.team = team,
-	this.against = against,
-	this.line = line;
-}
-
-const getSchedule = async () => {
-	return new Promise(function(resolve, reject){
-		if(null == schedule) {
-			resolve(retrieveSched());
-		} else {
-			resolve(schedule);
-		}	
-	})
-}
-
-const getTeamCard = (team, gameIndex) => {
-	return '<td class="team_option" index=' + gameIndex + ' abbr=' + team.Abbreviation + ' onclick=selectThisCard(this)>' + team.Name + TD_CLOSE;
-
-}
-
 async function retrieveSched() {
 	let year = "2020";
 	return $.ajax
@@ -99,6 +37,23 @@ async function loadMatchupsForLineSetting(week) {
 	}
 }
 
+async function loadMatchupsForScoreSetting(week) {
+	if(week != "select") {
+		games = [];
+		weekGames = schedule.fullgameschedule.gameentry.filter(e => e.week == week);
+		let i = 0;
+		weekGames.forEach(g => {
+			games[i] = new Game(g.id, g.awayTeam, g.homeTeam, g.date, g.time, getScore(week, g.awayTeam), getScore(week, g.homeTeam));
+			i++;
+		})
+
+		thisWeek = new Week(week, games);
+		populateWeeklyScheduleForScores(thisWeek);
+	} else {
+		$("#this_week_scores_admin").html("");
+	}
+}
+
 const changeThisLine = (gameId, idToChange, line, side) => {
 
 	let game = thisWeek.games.filter(g => g.id == gameId);
@@ -111,6 +66,83 @@ const changeThisLine = (gameId, idToChange, line, side) => {
 		game[0].awayLine = -line / 1;
 		game[0].homeLine = line / 1;
 	}
+
+}
+
+const showLines = () => {
+	$("#admin_set_scores").attr("hidden", true);
+	$("#admin_set_lines").attr("hidden", false);
+}
+
+const showScores = () => {
+	$("#admin_set_lines").attr("hidden", true);
+	$("#admin_set_scores").attr("hidden", false);	
+}
+
+const populateWeeklyScheduleForScores = async (thisWeek) => {
+	
+
+	let thisWeekScores = getThisWeekScores(thisWeek.week);
+
+	$("#this_week_scores_admin").html("");
+
+	thisWeekScores.then(
+		result => {
+
+			let table = TABLE_OPEN;
+
+			let data = "";
+
+			let week = result;
+
+			let scoresNotSet = false;
+
+			thisWeek.games.forEach(g => {
+
+				try {
+
+					if(week.game[g.id] != null ) {
+						
+						g.awayScore = week.game[g.id].away_team.score;
+						g.homeScore = week.game[g.id].home_team.score;
+			
+					} else {
+						g.awayScore = 0;
+						g.homeScore = 0;
+					}
+				
+				} catch {
+					scoresNotSet = true;
+					g.awayScore = 0;
+					g.homeScore = 0;
+				}
+
+				data += TR_OPEN + 
+					getTeamCardForAdmin(
+										g.awayTeam.Abbreviation, 
+										(g.awayTeam.Name === "Football Team" ? g.awayTeam.City : g.awayTeam.Name)
+										) +
+					TD_OPEN + "<input class = 'score' id='" + g.id + "_" + g.awayTeam.Abbreviation + "_score'" + " gameId='" + g.id + "' abbr='" + g.awayTeam.Abbreviation + "' nickname='" + g.awayTeam.Name + "' homeAway='AWAY' type='number' step='1' size='4' value='" + g.awayScore + "'>" + TD_CLOSE +
+					TD_OPEN + "@" + TD_CLOSE + 
+					getTeamCardForAdmin(
+										g.homeTeam.Abbreviation, 
+										(g.homeTeam.Name === "Football Team" ? g.homeTeam.City : g.homeTeam.Name)
+										) +
+					TD_OPEN + "<input class = 'score' id='" + g.id + "_" + g.homeTeam.Abbreviation + "_score'" + " gameId='" + g.id + "' abbr='" + g.homeTeam.Abbreviation + "' nickname='" + g.homeTeam.Name + "' homeAway='HOME' type='number' step='1' size='4' value='" + g.homeScore + "'>" + TD_CLOSE +
+					TD_OPEN + g.date + TD_CLOSE +
+					TD_OPEN + g.time + TD_CLOSE +
+				TR_CLOSE
+			})
+
+			table += data;
+			table += TABLE_CLOSE;
+
+			$("#this_week_scores_admin").html(table);
+		},
+		error => {
+			console.log(error);
+		}
+	);
 
 }
 
@@ -129,6 +161,8 @@ const populateWeeklyScheduleForLines = async (thisWeek) => {
 
 			let week = result;
 
+			let linesNotSet = false;
+
 			thisWeek.games.forEach(g => {
 
 				try {
@@ -144,15 +178,23 @@ const populateWeeklyScheduleForLines = async (thisWeek) => {
 					}
 				
 				} catch {
-					console.log('Lines not yet set for this week: ' + thisWeek.week);
+					linesNotSet = true;
+					g.awayLine = 1.5;
+					g.homeLine = -1.5;
 				}
 
 				data += TR_OPEN + 
-					getTeamCard(g.awayTeam, g.id) +
-					TD_OPEN + "<input class = 'line' id='" + g.id + "_" + g.awayTeam.Abbreviation + "' gameId='" + g.id + "' abbr='" + g.awayTeam.Abbreviation + "' nickname='" + g.awayTeam.Name + "' homeAway='AWAY' oninput='changeThisLine(" + g.id + "," + "\"" + g.id + "_" + g.homeTeam.Abbreviation + "\"" + ", this.value, \"away\")' type='number' step='1' size='4' value='" + g.awayLine + "'>" + TD_CLOSE +
+					getTeamCardForAdmin(
+										g.awayTeam.Abbreviation, 
+										(g.awayTeam.Name === "Football Team" ? g.awayTeam.City : g.awayTeam.Name)
+										) +
+					TD_OPEN + "<input class = 'line' id='" + g.id + "_" + g.awayTeam.Abbreviation + "_line'" + " gameId='" + g.id + "' abbr='" + g.awayTeam.Abbreviation + "' nickname='" + g.awayTeam.Name + "' homeAway='AWAY' oninput='changeThisLine(" + g.id + "," + "\"" + g.id + "_" + g.homeTeam.Abbreviation + "_line" + "\"" + ", this.value, \"away\")' type='number' step='1' size='4' value='" + g.awayLine + "'>" + TD_CLOSE +
 					TD_OPEN + "@" + TD_CLOSE + 
-					getTeamCard(g.homeTeam, g.id) +
-					TD_OPEN + "<input class = 'line' id='" + g.id + "_" + g.homeTeam.Abbreviation + "' gameId='" + g.id + "' abbr='" + g.homeTeam.Abbreviation + "' nickname='" + g.homeTeam.Name + "' homeAway='HOME' oninput='changeThisLine(" + g.id + "," + "\"" + g.id + "_" + g.awayTeam.Abbreviation + "\"" + ", this.value, \"home\")' type='number' step='1' size='4' value='" + g.homeLine + "'>" + TD_CLOSE +
+					getTeamCardForAdmin(
+										g.homeTeam.Abbreviation, 
+										(g.homeTeam.Name === "Football Team" ? g.homeTeam.City : g.homeTeam.Name)
+										) +
+					TD_OPEN + "<input class = 'line' id='" + g.id + "_" + g.homeTeam.Abbreviation + "_line'" + " gameId='" + g.id + "' abbr='" + g.homeTeam.Abbreviation + "' nickname='" + g.homeTeam.Name + "' homeAway='HOME' oninput='changeThisLine(" + g.id + "," + "\"" + g.id + "_" + g.awayTeam.Abbreviation + "_line" + "\"" + ", this.value, \"home\")' type='number' step='1' size='4' value='" + g.homeLine + "'>" + TD_CLOSE +
 					TD_OPEN + g.date + TD_CLOSE +
 					TD_OPEN + g.time + TD_CLOSE +
 				TR_CLOSE
@@ -160,6 +202,10 @@ const populateWeeklyScheduleForLines = async (thisWeek) => {
 
 			table += data;
 			table += TABLE_CLOSE;
+
+			if(linesNotSet) {
+				alert("Lines haven't been set for this week. Defaulting to +/- 1.5. Nothing will be saved until you submit.")
+			}
 
 			$("#this_week_games_admin").html(table);
 		},
@@ -169,64 +215,73 @@ const populateWeeklyScheduleForLines = async (thisWeek) => {
 	
 }
 
-const getLine = (week, team) => {
-	return 1.5;
-}
 
-const prettyPrintTheLine = (line) => {
-	if(line > 0) {
-		return " +" + line;
-	} else {
-		return " -" + line;
-	}
-}
+const setScores = () => {
+	let scores = [ ...$(".score")];
 
-const loadData = async () => {
+	let allIds = new Set();
 
-	console.log("loading data");
+	scores.forEach(s => {
+		allIds.add(s.getAttribute("gameId"));
+	});
 
-	let promiseSchedule = getSchedule();
+	let pushScoreUpdate = [];
 
-	promiseSchedule.then(
-		result => {
-			schedule = result;
+	let data = {};
 
-			let promise = new Promise(function(resolve, reject) {
-			 	resolve(getGameWeek());
-			});
+	allIds.forEach(id => {
+		let idScores = scores.filter(s => s.getAttribute("gameId") == id);
+		let away = idScores.filter(s => s.getAttribute('homeaway') == "AWAY");
+		let home = idScores.filter(s => s.getAttribute('homeaway') == "HOME");
 
-			promise.then(
-				result => {
-					$("#select_week_dropdown_admin").val(result);	
-					loadMatchupsForLineSetting(result);
-				},
-				error => {
-					console.log(error);
-				})
-		},
-		error => {
-			console.log(error);
+		data[id] = {
+			away_team: {
+				score: away[0].value
+			},
+			home_team: {
+				score: home[0].value
+			}
 		}
-	)
+
+	})
+
+	let fs = firebase.firestore();
+	
+	let linesCollection = fs.collection('lines');
+	
+	let year = linesCollection.doc('202021');
+
+	let week = year.collection('week');
+
+	let weekX = week.doc($("#select_week_dropdown_admin").val());
+
+
+
+	weekX.get().then(function(doc) {
+
+		for (let [k, v] of Object.entries(doc.data().game)) {
+
+			let gameUpdate = {};
+			gameUpdate[`game.${k}.away_team.score`] = data[k].away_team.score;
+			weekX.update(gameUpdate);
+
+			gameUpdate[`game.${k}.home_team.score`] = data[k].home_team.score;
+			weekX.update(gameUpdate);
+
+		}
+	})
+
+
 }
 
-const getPickInfoFromAbbr = (abbr) => {
+const reviewLines = async () => {
 
-	// let val = null;
-	let game = games.filter(g => g.homeTeam.Abbreviation == abbr || g.awayTeam.Abbreviation == abbr); 
-	if(game[0].homeTeam.Abbreviation == abbr) {
-		return new Pick(game[0].homeTeam.Abbreviation, game[0].awayTeam.Abbreviation, game[0].homeLine);
-	} else {
-		return new Pick(game[0].awayTeam.Abbreviation, game[0].homeTeam.Abbreviation, game[0].awayLine);
-	}
-}
-
-const reviewLines = () => {
+	let gameWeek = await getWeekOfGames($("#select_week_dropdown_admin").val());
 
 	let lines = [ ...$(".line")];
 	
 	let allIds = new Set();
-	// let uniqueIds = new Set[...]
+
 	lines.forEach(l => {
 		allIds.add(l.getAttribute("gameId"));
 
@@ -240,15 +295,20 @@ const reviewLines = () => {
 
 		let away = idLines.filter(l => l.getAttribute('homeaway') == "AWAY");
 		let home = idLines.filter(l => l.getAttribute('homeaway') == "HOME")
+		let scheduleGame = gameWeek.filter(w => w.id == id);
 
 		data[id] = {
+			date: scheduleGame[0].date,
+			time: scheduleGame[0].time,
 			away_team: {
 				line: away[0].value,
-				name: away[0].getAttribute('nickname')
+				name: away[0].getAttribute('nickname'),
+				score: 0
 			},
 			home_team: {
 				line: home[0].value,
-				name: home[0].getAttribute('nickname')
+				name: home[0].getAttribute('nickname'),
+				score: 0
 			}
 		}
 
@@ -267,7 +327,7 @@ const reviewLines = () => {
 
 	let fs = firebase.firestore();
 	
-	let linesCollection = fs.collection('lines');//('lines/201920/week/1/game/51461/away_team/line');
+	let linesCollection = fs.collection('lines');
 	
 	let year = linesCollection.doc('202021');
 

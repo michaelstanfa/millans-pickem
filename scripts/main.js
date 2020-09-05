@@ -52,6 +52,11 @@ const getSchedule = async () => {
 	})
 }
 
+const getWeekOfGames = async (week) => {
+	let sched = await getSchedule();
+	return sched.fullgameschedule.gameentry.filter(e => e.week == week);
+}
+
 const selectThisCard = (card) => {
 
 	if(card.hasAttribute("selected")) {
@@ -66,11 +71,14 @@ const selectThisCard = (card) => {
 }
 
 const getTeamCard = (team, line) => {
-
 	return getTeamCardUsingString(team.Abbreviation, (team.Abbreviation != "WAS" ? team.Name : team.City), line, true)
 
 	// return '<td class="team_option" abbr=' + team.Abbreviation + ' onclick=selectThisCard(this)>' + (team.Abbreviation != "WAS" ? team.Name : team.City) + prettyPrintTheLine(line) + TD_CLOSE;
 
+}
+
+const getTeamCardForAdmin = (abbreviation, display) => {
+	return '<td class="team_option" abbr=' + abbreviation + '>' + display + TD_CLOSE;
 }
 
 
@@ -141,7 +149,8 @@ const loadPicksIfSelected = async (week) => {
 		let currentUser = await firebase.auth().currentUser;
 	}
 
-	await usersCollection.doc(currentUser.uid).collection('seasons').doc('202021').collection('weeks').doc(gameWeek).get().then(
+	if(undefined != gameWeek) {
+		await usersCollection.doc(currentUser.uid).collection('seasons').doc('202021').collection('weeks').doc(gameWeek).get().then(
 			
 		async function(doc) {
 
@@ -169,6 +178,9 @@ const loadPicksIfSelected = async (week) => {
 			}
 		}
 	);
+	}
+
+	
 
 }
 
@@ -263,6 +275,33 @@ const getLine = async (week, id, homeOrAway) => {
 	}	
 }
 
+const getScore = async (week, id, homeOrAway) => {
+
+	let lines = await getThisWeekLines(week);
+
+	try {
+		if(!lines.game[id].home_team.score){
+			return Promise.resolve(0);
+		}
+		if(homeOrAway == "home_team") {
+
+			return Promise.resolve(lines.game[id].home_team.score);
+
+		} else if (homeOrAway == "away_team") {
+
+			return Promise.resolve(lines.game[id].away_team.score);
+
+		} else {
+			return new Promise(function(resolve, reject) {
+				resolve(0);
+			});
+		}
+	} catch {
+		return Promise.resolve(0);
+	}	
+
+}
+
 
 const prettyPrintTheLine = (line) => {
 	if(line > 0) {
@@ -290,9 +329,13 @@ const loadData = async () => {
 
 			promise.then(
 				async result => {
-					$("#select_week_dropdown").val(result);	
+					console.log(result);
+					await $("#select_week_dropdown").val(result);
+					await $("#select_week_dropdown_admin").val(result);	
 					await loadSpecificWeekMatchups(result);
-					await loadPicksIfSelected(result)
+					await loadMatchupsForLineSetting(result);
+					await loadMatchupsForScoreSetting(result);
+					await loadPicksIfSelected(result);
 				},
 				error => {
 					console.log(error);
