@@ -26,14 +26,17 @@ function Week(week, games) {
 	this.games = games;
 }
 
-function Game(id, awayTeam, homeTeam, date, time, awayLine, homeLine) {
+function Game(id, awayTeam, homeTeam, date, time, awayLine, homeLine, awayScore, homeScore, final) {
 	this.id = id,
 	this.awayTeam = awayTeam,
 	this.homeTeam = homeTeam,
 	this.date = date,
 	this.time = time,
 	this.awayLine = awayLine,
-	this.homeLine = homeLine;
+	this.homeLine = homeLine,
+	this.awayScore = awayScore,
+	this.homeScore = homeScore,
+	this.final = final;
 }
 
 function Pick(team, against, line, id, date, time) {
@@ -242,8 +245,11 @@ const loadWeekGames = async (weekGames) => {
 
 			let awayLine = await getLine(g.week, g.id, "away_team");
 			let homeLine = await getLine(g.week, g.id, "home_team");
+			let final = await getFinal(g.week, g.id);
+			let awayScore = await getScore(g.week, g.id, "away_team");
+			let homeScore = await getScore(g.week, g.id, "home_team");
 
-			games[i] = new Game(g.id, g.awayTeam, g.homeTeam, g.date, g.time, awayLine, homeLine);
+			games[i] = new Game(g.id, g.awayTeam, g.homeTeam, g.date, g.time, awayLine, homeLine, awayScore, homeScore, final);
 
 			i++;
 		});
@@ -278,6 +284,34 @@ const sleep = (milliseconds) => {
   return new Promise(resolve => setTimeout(resolve, milliseconds))
 }
 
+
+const getScore = async (week, id, homeOrAway) => {
+
+	let lines = await getThisWeekLines(week);
+
+	try {
+		if(!lines.game[id].home_team.score){
+			return Promise.resolve(0);
+		}
+		if(homeOrAway == "home_team") {
+
+			return Promise.resolve(lines.game[id].home_team.score);
+
+		} else if (homeOrAway == "away_team") {
+
+			return Promise.resolve(lines.game[id].away_team.score);
+
+		} else {
+			return new Promise(function(resolve, reject) {
+				resolve(0);
+			});
+		}
+	} catch {
+		return Promise.resolve(0);
+	}	
+
+}
+
 const getGuts = async (thisWeek) => {
 
 	await sleep(750);
@@ -299,14 +333,14 @@ const getGuts = async (thisWeek) => {
 			TR_OPEN = "<tr>"
 		}
 
-		// let locked = false;
-
 		guts += TR_OPEN + 
 			getTeamCard(g.awayTeam, g.awayLine, locked) +
 			TD_OPEN + "@" + TD_CLOSE + 
 			getTeamCard(g.homeTeam, g.homeLine, locked) +
 			TD_OPEN + g.date + TD_CLOSE +
 			TD_OPEN + g.time + TD_CLOSE +
+			TD_OPEN + (g.final ? "FINAL" : "") + TD_CLOSE +
+			TD_OPEN + g.awayScore + " - " + g.homeScore + TD_CLOSE +
 		TR_CLOSE;
 	});
 
@@ -382,32 +416,21 @@ const getLine = async (week, id, homeOrAway) => {
 	}	
 }
 
-const getScore = async (week, id, homeOrAway) => {
-
+const getFinal = async (week, id) => {
 	let lines = await getThisWeekLines(week);
 
 	try {
-		if(!lines.game[id].home_team.score){
-			return Promise.resolve(0);
+		if(!lines.game[id].final){
+			return Promise.resolve(false);
 		}
-		if(homeOrAway == "home_team") {
+		
+		return lines.game[id].final;
 
-			return Promise.resolve(lines.game[id].home_team.score);
-
-		} else if (homeOrAway == "away_team") {
-
-			return Promise.resolve(lines.game[id].away_team.score);
-
-		} else {
-			return new Promise(function(resolve, reject) {
-				resolve(0);
-			});
-		}
 	} catch {
-		return Promise.resolve(0);
+		return Promise.resolve(false);
 	}	
-
 }
+
 
 
 const prettyPrintTheLine = (line) => {

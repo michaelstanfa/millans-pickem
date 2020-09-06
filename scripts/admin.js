@@ -43,9 +43,11 @@ async function loadMatchupsForScoreSetting(week) {
 		weekGames = schedule.fullgameschedule.gameentry.filter(e => e.week == week);
 		let i = 0;
 		weekGames.forEach(g => {
-			games[i] = new Game(g.id, g.awayTeam, g.homeTeam, g.date, g.time, getScore(week, g.awayTeam), getScore(week, g.homeTeam));
+			games[i] = new Game(g.id, g.awayTeam, g.homeTeam, g.date, g.time, getScore(week, g.id, g.awayTeam), getScore(week, g.id, g.homeTeam));
 			i++;
 		})
+
+		console.log(games);
 
 		thisWeek = new Week(week, games);
 		populateWeeklyScheduleForScores(thisWeek);
@@ -101,23 +103,30 @@ const populateWeeklyScheduleForScores = async (thisWeek) => {
 
 			thisWeek.games.forEach(g => {
 
+				console.log(g);
+
 				try {
 
 					if(week.game[g.id] != null ) {
 						
 						g.awayScore = week.game[g.id].away_team.score;
 						g.homeScore = week.game[g.id].home_team.score;
+						g.final = week.game[g.id].final
 			
 					} else {
 						g.awayScore = 0;
 						g.homeScore = 0;
+						g.final = false;	
 					}
 				
 				} catch {
 					scoresNotSet = true;
 					g.awayScore = 0;
 					g.homeScore = 0;
+					g.final = false;	
 				}
+
+				console.log(g.final);
 
 				data += TR_OPEN + 
 					getTeamCardForAdmin(
@@ -133,6 +142,7 @@ const populateWeeklyScheduleForScores = async (thisWeek) => {
 					TD_OPEN + "<input class = 'score' id='" + g.id + "_" + g.homeTeam.Abbreviation + "_score'" + " gameId='" + g.id + "' abbr='" + g.homeTeam.Abbreviation + "' nickname='" + g.homeTeam.Name + "' homeAway='HOME' type='number' step='1' size='4' value='" + g.homeScore + "'>" + TD_CLOSE +
 					TD_OPEN + g.date + TD_CLOSE +
 					TD_OPEN + g.time + TD_CLOSE +
+					TD_OPEN + "<input " + (g.final ? "checked " : "") + "class = 'final_checkbox' type='checkbox' id='" + g.id + "_final'> Final" + TD_CLOSE +
 				TR_CLOSE
 			})
 
@@ -173,16 +183,19 @@ const populateWeeklyScheduleForLines = async (thisWeek) => {
 						
 						g.awayLine = week.game[g.id].away_team.line;
 						g.homeLine = week.game[g.id].home_team.line;
+
 			
 					} else {
 						g.awayLine = 1.5;
 						g.homeLine = -1.5;
+				
 					}
 				
 				} catch {
 					linesNotSet = true;
 					g.awayLine = 1.5;
 					g.homeLine = -1.5;
+
 				}
 
 				data += TR_OPEN + 
@@ -235,8 +248,11 @@ const setScores = () => {
 		let idScores = scores.filter(s => s.getAttribute("gameId") == id);
 		let away = idScores.filter(s => s.getAttribute('homeaway') == "AWAY");
 		let home = idScores.filter(s => s.getAttribute('homeaway') == "HOME");
+		let final = $("#" + id + "_final");
+		
 
 		data[id] = {
+			final: final[0].checked,
 			away_team: {
 				score: away[0].value
 			},
@@ -270,7 +286,12 @@ const setScores = () => {
 			gameUpdate[`game.${k}.home_team.score`] = data[k].home_team.score;
 			weekX.update(gameUpdate);
 
+			gameUpdate[`game.${k}.final`] = data[k].final;
+			weekX.update(gameUpdate);
+
 		}
+
+		alert("Scores updated");
 	})
 
 
@@ -302,6 +323,7 @@ const reviewLines = async () => {
 		data[id] = {
 			date: scheduleGame[0].date,
 			time: scheduleGame[0].time,
+			final: false,
 			away_team: {
 				line: away[0].value,
 				name: away[0].getAttribute('nickname'),
