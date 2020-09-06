@@ -67,34 +67,37 @@ function loadClient() {
 }
 
 const displayAdminHTML = (display) => {
+
   if(display) {
-    $("#login_html").attr("hidden", true);
     $("#admin_html").attr("hidden", false);
   } else {
-    $("#login_html").attr("hidden", true);
+    
     $("#admin_access_only").attr("hidden", false);
   }
+
+
   
 }
 
 async function setUser() {
 
   await firebase.auth().onAuthStateChanged(async function(user) {
-    
-    
+
     if(user) {
       $("#user_first_last").html(user.displayName);
-
+      $("#login_html").attr("hidden", true);
       await showAdminLink(user);
       await displayPicksHTML(user);
       await hideLoginButton()
     }
+
   })
 
 }
 
 function displayPicksHTML(user) {
   $("#picks_html").attr("hidden", false);
+  loadPicksIfSelected($("#select_week_dropdown").val());
 }
 
 function hideLoginButton() {
@@ -115,9 +118,14 @@ async function showAdminLink(user) {
       if(null != data.data() && data.data().admin) {
         $("#admin_link_in_header").attr("hidden", false);
         await displayAdminHTML(true);
+        await loadMatchupsForLineSetting($("#select_week_dropdown_admin").val());
+        await loadMatchupsForScoreSetting($("#select_week_dropdown_admin").val());
+
       } else {
         $("#admin_link_in_header").attr("hidden", true);
         await displayAdminHTML(false);
+        $("#this_week_games_admin").html("");
+        $("#this_week_scores_admin").html("");
       }
     });
 
@@ -130,7 +138,10 @@ async function onSignIn(googleUser) {
   // We need to register an Observer on Firebase Auth to make sure auth is initialized.
   let firebaseUser = await firebase.auth().currentUser != null ? firebase.auth().currentUser : null;
 
+
+
   var unsubscribe = firebase.auth().onAuthStateChanged(async function(firebaseUser) {
+    console.log(firebaseUser);
     unsubscribe();
     // Check if we are already signed-in Firebase with the correct user.
  
@@ -163,7 +174,6 @@ async function onSignIn(googleUser) {
 
     }
   });
-
   
 }
 
@@ -182,10 +192,7 @@ function isUserEqual(googleUser, firebaseUser) {
 }
 
 async function onSignUp(firstSignUp) {
-  console.log(firstSignUp);
 
-  var user;
-  
   let result = await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION).then(
     function() {
 
@@ -200,17 +207,6 @@ async function onSignUp(firstSignUp) {
     }
   );
 
-/*
-  if(result) {
-    let signupEmail = $("#email").val();
-
-    if(signupEmail != user.email) {
-      signOutWithMessage('The email you entered did not match the email that Google used to authenticate you. Try clearing your browser cache and logging in again.');
-      return false;
-    }
-
-  }
-*/
   let year = 202021
 
   let newSeason = new Season(new s_202021(year, false));
@@ -250,6 +246,9 @@ function signoutProcess() {
   $("#user_first_last").html("");
   $("#picks_html").attr("hidden", true);
   $("#sign_in_or_sign_up_to_pick_html").attr("hidden", false);
+  $("#admin_link_in_header").attr("hidden", true);
+  $("#this_week_games_admin").html("");
+  $("#this_week_scores_admin").html("");
 }
 
 function signOutWithMessage(message) {

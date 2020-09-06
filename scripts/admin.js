@@ -72,11 +72,13 @@ const changeThisLine = (gameId, idToChange, line, side) => {
 const showLines = () => {
 	$("#admin_set_scores").attr("hidden", true);
 	$("#admin_set_lines").attr("hidden", false);
+	$("#lines_or_scores_label").html("Setting Lines");
 }
 
 const showScores = () => {
 	$("#admin_set_lines").attr("hidden", true);
-	$("#admin_set_scores").attr("hidden", false);	
+	$("#admin_set_scores").attr("hidden", false);
+	$("#lines_or_scores_label").html("Setting Scores");
 }
 
 const populateWeeklyScheduleForScores = async (thisWeek) => {

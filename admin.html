@@ -49,9 +49,9 @@
 
 <script>
 
-  window.onload = function() {
-    loadData();
-    setUser();
+  window.onload = async function() {
+    await loadData();
+    await setUser();
   }
 </script>
 
@@ -104,9 +104,8 @@ table {
 
   <body class="container main">
 
-    <h4 style="display:inline-block">Select Week</h4>
-
-    <select style = "display:inline-block" id = 'select_week_dropdown_admin' class ='btn-select dropdown-toggle' data-toggle='dropdown' onchange = "loadMatchupsForLineSetting(this.value); loadMatchupsForScoreSetting(this.value);">
+    
+    <select style = "display:inline-block" id = 'select_week_dropdown_admin' class ='btn btn-dark' data-toggle='dropdown' onchange = "loadMatchupsForLineSetting(this.value); loadMatchupsForScoreSetting(this.value);">
       <option value='select'>Select Week</option>
       <option value='1'>Week 1</option>
       <option value='2'>Week 2</option>
@@ -126,14 +125,16 @@ table {
       <option value='16'>Week 16</option>
       <option value='17'>Week 17</option>
     </select>
-    
+<!--     
     <br />
-    <br />
+    <br /> -->
     
     <button class = "btn btn-info" style = "display:inline-block" onclick = "showLines()">Show Lines</button>
     <button class = "btn btn-info" style = "display:inline-block" onclick = "showScores()">Show Scores</button>
     <br />
     <br />
+
+    <h4 id = "lines_or_scores_label" style = "display:inline-block">Setting Lines</h4>
 
     <div id = "admin_set_lines">
       <div id = "this_week_games_admin"></div>

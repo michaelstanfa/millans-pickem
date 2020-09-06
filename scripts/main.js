@@ -36,10 +36,13 @@ function Game(id, awayTeam, homeTeam, date, time, awayLine, homeLine) {
 	this.homeLine = homeLine;
 }
 
-function Pick(team, against, line) {
-	this.team = team;
-	this.against = against;
-	this.line = line;
+function Pick(team, against, line, id, date, time) {
+	this.team = team,
+	this.against = against,
+	this.line = line,
+	this.id = id,
+	this.date = date,
+	this.time = time;
 }
 
 const getSchedule = async () => {
@@ -54,6 +57,7 @@ const getSchedule = async () => {
 
 const getWeekOfGames = async (week) => {
 	let sched = await getSchedule();
+
 	return sched.fullgameschedule.gameentry.filter(e => e.week == week);
 }
 
@@ -66,14 +70,13 @@ const selectThisCard = (card) => {
 	} else {
 
 		card.setAttribute("selected", "");
-		card.setAttribute("bgcolor", "#C0C0C0");
+		card.setAttribute("bgcolor", "#90EE90");//#C0C0C0
 	}
 }
 
-const getTeamCard = (team, line) => {
-	return getTeamCardUsingString(team.Abbreviation, (team.Abbreviation != "WAS" ? team.Name : team.City), line, true)
-
-	// return '<td class="team_option" abbr=' + team.Abbreviation + ' onclick=selectThisCard(this)>' + (team.Abbreviation != "WAS" ? team.Name : team.City) + prettyPrintTheLine(line) + TD_CLOSE;
+const getTeamCard = (team, line, locked) => {
+	
+	return getTeamCardUsingString(team.Abbreviation, (team.Abbreviation != "WAS" ? team.Name : team.City), line, !locked)
 
 }
 
@@ -86,8 +89,17 @@ const getTeamCardUsingString = (abbreviation, display, line, clickable) => {
 	if(clickable) {
 		return '<td class="team_option" abbr=' + abbreviation + ' onclick=selectThisCard(this)>' + display + prettyPrintTheLine(line) + TD_CLOSE;
 	}
-	return '<td class="team_option" abbr=' + abbreviation + '>' + display + prettyPrintTheLine(line) + TD_CLOSE;
+	return '<td class="team_option" abbr=' + abbreviation + '>' + (display === 'LA' ? 'LAR' : display) + prettyPrintTheLine(line) + TD_CLOSE;
 
+}
+
+const getTeamCardForCurrentPicks = (abbreviation, display, line, locked) => {
+	let bgcolor = "#FFFFFF";
+	if(locked) {
+		bgcolor = "#C0C0C0";
+	}
+
+	return '<td bgcolor="' + bgcolor + '" class="team_option" abbr=' + abbreviation + '>' + (display === 'LA' ? 'LAR' : display) + prettyPrintTheLine(line) + TD_CLOSE;	
 }
 
 async function retrieveSched() {
@@ -117,7 +129,7 @@ const loadSpecificWeekMatchups = async (week) => {
 	if(week != "select") {
 		let result = "";
 		weekGames = schedule.fullgameschedule.gameentry.filter(e => e.week == week);
-		console.log(weekGames);
+
 		result = await loadWeekGames(weekGames);
 
 		thisWeek = new Week(week, result);
@@ -138,9 +150,9 @@ const loadPicksIfSelected = async (week) => {
 	sleep(1000);
 
 	let currentUser = await firebase.auth().currentUser;
-	// console.log(currentUser);
+
 	let gameWeek = $("#select_week_dropdown").val();
-	console.log(gameWeek);
+
 	let fs = firebase.firestore();	
 	let usersCollection = await fs.collection('users');
 
@@ -155,16 +167,24 @@ const loadPicksIfSelected = async (week) => {
 		async function(doc) {
 
 			let picks = await doc.data();
+
 			if(null == picks) {
 				$("#current_user_picks").html("You haven't made your picks yet.");
 			} else {
 
 				let label = TD_OPEN + "Current Picks: " + TD_CLOSE;
-				let first_pick = getTeamCardUsingString(picks.pick_1.team, picks.pick_1.team, picks.pick_1.line, false);
-				let second_pick = getTeamCardUsingString(picks.pick_2.team, picks.pick_2.team, picks.pick_2.line, false);
-				let third_pick = getTeamCardUsingString(picks.pick_3.team, picks.pick_3.team, picks.pick_3.line, false);
 
-				let alreadyPickedHTML = 
+				let p1 = await picks.pick_1;
+				let p2 = await picks.pick_2;
+				let p3 = await picks.pick_3;
+
+				let first_pick = getTeamCardForCurrentPicks(p1.team, p1.team, p1.line, isGameLocked(p1.date, p1.time));
+				let second_pick = getTeamCardForCurrentPicks(p2.team, p2.team, p2.line, isGameLocked(p2.date, p2.time));
+				let third_pick = getTeamCardForCurrentPicks(p3.team, p3.team, p3.line, isGameLocked(p3.date, p3.time));
+
+				let alreadyPickedHTML = "";
+
+				alreadyPickedHTML = 
 						TABLE_OPEN +
 						TR_OPEN +
 						label +
@@ -176,13 +196,42 @@ const loadPicksIfSelected = async (week) => {
 
 				$("#current_user_picks").html(alreadyPickedHTML);
 			}
-		}
-	);
+		});
 	}
+}
 
 	
+const fetchPicksIfSelected = async (week) => {
 
+	sleep(1000);
+
+	let currentUser = await firebase.auth().currentUser;
+
+	let gameWeek = $("#select_week_dropdown").val();
+
+	let fs = firebase.firestore();	
+	let usersCollection = await fs.collection('users');
+
+	if(null == currentUser) {
+		sleep(250);
+		let currentUser = await firebase.auth().currentUser;
+	}
+
+	if(undefined != gameWeek) {
+		return await usersCollection.doc(currentUser.uid).collection('seasons').doc('202021').collection('weeks').doc(gameWeek).get().then(
+			
+		async function(doc) {
+
+			let picks = await doc.data();
+			if(null == picks) {
+				$("#current_user_picks").html("You haven't made your picks yet.");
+			} else {
+				return picks;
+			}
+		})
+	}
 }
+
 
 const loadWeekGames = async (weekGames) => {
 
@@ -211,7 +260,7 @@ const populateWeeklySchedule = (thisWeek) => {
 				"<th></th>" +
 				"<th>Home</th>" +
 				"<th>Day</th>" +
-				"<th>Time</th>";
+				"<th>Time (Eastern)</th>";
 
 	let data = new Promise(async function(resolve, reject) {
 		resolve(await getGuts(thisWeek));
@@ -234,12 +283,28 @@ const getGuts = async (thisWeek) => {
 	await sleep(750);
 	let guts = "";
 
-	await thisWeek.games.forEach(g => {
+	await thisWeek.games.forEach(async g => {
+
+		let nowDate = new Date();
+
+		let gameDate = new Date(g.date);
+
+		let locked = await new Promise(function(resolve, reject) {
+			resolve(isGameLocked(g.date, g.time));
+		})
+
+		if(locked) {
+			TR_OPEN = "<tr bgcolor='#C0C0C0'>" 
+		} else {
+			TR_OPEN = "<tr>"
+		}
+
+		// let locked = false;
 
 		guts += TR_OPEN + 
-			getTeamCard(g.awayTeam, g.awayLine) +
+			getTeamCard(g.awayTeam, g.awayLine, locked) +
 			TD_OPEN + "@" + TD_CLOSE + 
-			getTeamCard(g.homeTeam, g.homeLine) +
+			getTeamCard(g.homeTeam, g.homeLine, locked) +
 			TD_OPEN + g.date + TD_CLOSE +
 			TD_OPEN + g.time + TD_CLOSE +
 		TR_CLOSE;
@@ -247,6 +312,48 @@ const getGuts = async (thisWeek) => {
 
 
 	return guts;
+}
+
+const isGameLocked = (gameDate, gameTime) => {
+	let nowDate = new Date();
+
+	let gameStart = convertTimeForComputerReadable(gameDate, gameTime);
+
+	let lockTime = new Date(gameStart.getTime() - 30 * 60000)
+
+	if(togglz.testingDate) {
+		nowDate = new Date(testDate.year, testDate.month, testDate.day, testDate.hour, testDate.minute);
+	}
+
+	if(lockTime.getTime() < nowDate.getTime()) {
+
+		return true;
+	} else {
+		return false;
+	}
+	
+}
+
+const convertTimeForComputerReadable = (date, time) => {
+	
+	let am_pm = time.substring(time.length - 2);
+	time = time.substring(0, time.length - 2);
+
+	time = time.split(":");
+	hours = parseInt(time[0]);
+	minutes = parseInt(time[1]);
+	hours = (am_pm == "PM" && hours != 12 ? hours + 12 : hours);
+
+	date = date.split("-");
+
+	let year = parseInt(date[0]);
+	let month = parseInt(date[1] - 1);
+	let day = parseInt(date[2]);
+
+	let gameStart = new Date(year, month, day, hours, minutes);
+
+	return gameStart;
+
 }
 
 const getLine = async (week, id, homeOrAway) => {
@@ -333,8 +440,7 @@ const loadData = async () => {
 					await $("#select_week_dropdown").val(result);
 					await $("#select_week_dropdown_admin").val(result);	
 					await loadSpecificWeekMatchups(result);
-					await loadMatchupsForLineSetting(result);
-					await loadMatchupsForScoreSetting(result);
+
 					await loadPicksIfSelected(result);
 				},
 				error => {
@@ -359,14 +465,15 @@ const getPickInfoFromAbbr = (abbr) => {
 
 	let val = null;
 	let game = games.filter(g => g.homeTeam.Abbreviation == abbr || g.awayTeam.Abbreviation == abbr); 
+
 	if(game[0].homeTeam.Abbreviation == abbr) {
-		return new Pick(game[0].homeTeam.Abbreviation, game[0].awayTeam.Abbreviation, game[0].homeLine);
+		return new Pick(game[0].homeTeam.Abbreviation, game[0].awayTeam.Abbreviation, game[0].homeLine, game[0].id, game[0].date, game[0].time);
 	} else {
-		return new Pick(game[0].awayTeam.Abbreviation, game[0].homeTeam.Abbreviation, game[0].awayLine);
+		return new Pick(game[0].awayTeam.Abbreviation, game[0].homeTeam.Abbreviation, game[0].awayLine, game[0].id, game[0].date, game[0].time);
 	}
 }
 
-const validatePicks = () => {
+const validatePicks = async () => {
 
 	let selectedWeek = $("#select_week_dropdown").val();
 
@@ -382,26 +489,81 @@ const validatePicks = () => {
 
 	picks = choices.filter(c => c != "NONE");
 
-	if(cardPicks.length != 3) {
-		alert("Pick 3 and only 3 games.");
+	let pickOptionsForSelectedWeek = await getWeekOfGames(selectedWeek);
+
+	let currentPicksSubmitted = await new Promise(async function(resolve, reject) {
+		resolve(fetchPicksIfSelected(selectedWeek));
+	});
+
+
+	let lockedPicks = [] 
+	if(currentPicksSubmitted) {
+		let pickedAlready1 = currentPicksSubmitted.pick_1;
+		let pickedAlready2 = currentPicksSubmitted.pick_2;
+		let pickedAlready3 = currentPicksSubmitted.pick_3;
+
+		if(isGameLocked(pickedAlready1.date, pickedAlready1.time)) {
+			lockedPicks.push(pickedAlready1);
+		}
+
+		if(isGameLocked(pickedAlready2.date, pickedAlready2.time)) {
+			lockedPicks.push(pickedAlready2);
+		}
+
+		if(isGameLocked(pickedAlready3.date, pickedAlready3.time)) {
+			lockedPicks.push(pickedAlready3);
+		}
+
+	}
+
+	if(lockedPicks.length === 3) {
+		alert("You have previously submitted picks and they're all locked. You can't change your picks now.")
+	} else if(lockedPicks.length === 0 && cardPicks.length !== 3) {
+		console.log(lockedPicks.length);
+		console.log(cardPicks.length);
+		alert("Pick 3 and only 3 games");
+	} else if(lockedPicks.length > 0 && lockedPicks.length < 3 && (cardPicks.length + lockedPicks.length != 3)) {
+		alert("You've already locked " + 
+				lockedPicks.length + " pick" + 
+				(lockedPicks.length === 1 ? ". " : "s. ") +
+				"Select " + (3 - lockedPicks.length) + " replacement pick" + 
+				(lockedPicks.length === 1 ? "s " : " ") +
+				"to submit.");
 	} else {
 		var options = {
 			'show':true
 		};
 		submittingPicks = [];
+
+		let lockedToSubmit = [];
+	
+		lockedPicks.forEach(p => {
+			submittingPicks[p.team] = getPickInfoFromAbbr(p.team);
+		})
+
 		picks.forEach(p => {
 			submittingPicks[p] = getPickInfoFromAbbr(p);
+
 		})
+
+		console.log(submittingPicks);
 
 		let display = [];
 		for (let [k, v] of Object.entries(submittingPicks)) {
-			display.push(v.team + " " + prettyPrintTheLine(v.line) + " against " + v.against);
+			display.push(getProperAbbr(v.team) + " " + prettyPrintTheLine(v.line) + " against " + getProperAbbr(v.against));
 		}
 
 		$("#modal-picks").html(display.join("<br />"));
 		$("#submit-modal").modal(options);
 	}
 
+}
+
+const getProperAbbr = (abbr) => {
+	if(abbr === 'LA') {
+		return 'LAR'
+	}
+	return abbr;
 }
 
 const submitApprovedPicks = async () => {
@@ -433,34 +595,41 @@ const submitApprovedPicks = async () => {
 			gameWeek = $("#select_week_dropdown").val();	
 		} 
 
+		console.log(submittingPicks);
 
+		//need to figure out how to get the game id & how to get 
 
 		let firstPick =Object.entries(submittingPicks)[0][1]; 
 		let secondPick =Object.entries(submittingPicks)[1][1]; 
 		let thirdPick =Object.entries(submittingPicks)[2][1]; 
 
+		console.log(firstPick);
+
 		let pick_1 = {
 			'team': firstPick.team,
 			'against': firstPick.against,
 			'line': firstPick.line,
-			'dateTime':null,
-			'gameId': null
+			'date': firstPick.date,
+			'time': firstPick.time,
+			'gameId': firstPick.id
 		}
 
 		let pick_2 = {
 			'team': secondPick.team,
 			'against': secondPick.against,
 			'line': secondPick.line,
-			'dateTime':null,
-			'gameId': null
+			'date': secondPick.date,
+			'time': secondPick.time,
+			'gameId': secondPick.id
 		}
 
 		let pick_3 = {
 			'team': thirdPick.team,
 			'against': thirdPick.against,
 			'line': thirdPick.line,
-			'dateTime':null,
-			'gameId': null
+			'date': thirdPick.date,
+			'time': thirdPick.time,
+			'gameId': thirdPick.id
 		}
 
 		await usersCollection.doc(currentUser.uid).collection('seasons').doc(thisYear).collection('weeks').doc(gameWeek).set(
