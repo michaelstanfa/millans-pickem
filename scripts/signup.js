@@ -70,7 +70,9 @@ const buildUserInFirestore = async () => {
 
 				await usersCollection.doc(currentUser.uid).collection('seasons').doc(thisYear).set(
 					{
-						paid: false
+						paid: false,
+						wins: 0,
+						losses: 0
 					}
 				);
 

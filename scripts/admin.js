@@ -47,8 +47,6 @@ async function loadMatchupsForScoreSetting(week) {
 			i++;
 		})
 
-		console.log(games);
-
 		thisWeek = new Week(week, games);
 		populateWeeklyScheduleForScores(thisWeek);
 	} else {
@@ -103,8 +101,6 @@ const populateWeeklyScheduleForScores = async (thisWeek) => {
 
 			thisWeek.games.forEach(g => {
 
-				console.log(g);
-
 				try {
 
 					if(week.game[g.id] != null ) {
@@ -125,8 +121,6 @@ const populateWeeklyScheduleForScores = async (thisWeek) => {
 					g.homeScore = 0;
 					g.final = false;	
 				}
-
-				console.log(g.final);
 
 				data += TR_OPEN + 
 					getTeamCardForAdmin(
@@ -318,8 +312,8 @@ const reviewLines = async () => {
 
 		let away = idLines.filter(l => l.getAttribute('homeaway') == "AWAY");
 		let home = idLines.filter(l => l.getAttribute('homeaway') == "HOME")
-		let scheduleGame = gameWeek.filter(w => w.id == id);
 
+		let scheduleGame = gameWeek.filter(w => w.id == id);
 		data[id] = {
 			date: scheduleGame[0].date,
 			time: scheduleGame[0].time,
@@ -327,12 +321,15 @@ const reviewLines = async () => {
 			away_team: {
 				line: away[0].value,
 				name: away[0].getAttribute('nickname'),
-				score: 0
+				score: 0,
+				abbr: away[0].getAttribute('abbr')
+
 			},
 			home_team: {
 				line: home[0].value,
 				name: home[0].getAttribute('nickname'),
-				score: 0
+				score: 0,
+				abbr: home[0].getAttribute('abbr')
 			}
 		}
 
@@ -360,6 +357,8 @@ const reviewLines = async () => {
 	let weekX = week.doc($("#select_week_dropdown_admin").val());
 
 	let setDoc = weekX.set(game);
+
+	console.log(game);
 
 	setDoc.then(window.alert("Lines saved"));
 

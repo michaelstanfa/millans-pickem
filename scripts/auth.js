@@ -84,7 +84,15 @@ async function setUser() {
   await firebase.auth().onAuthStateChanged(async function(user) {
 
     if(user) {
+
+      let wins = 0;
+      let losses = 0;
+
+      wins = await getUserWins(user);
+      losses = await getUserLosses(user);
+
       $("#user_first_last").html(user.displayName);
+      $("#user_record").html("(" + wins + "-" + losses + ")");
       $("#login_html").attr("hidden", true);
       await showAdminLink(user);
       await displayPicksHTML(user);
@@ -92,6 +100,139 @@ async function setUser() {
     }
 
   })
+
+}
+
+const getUserWins = async () => {
+  let user = firebase.auth().currentUser;
+  let fs = firebase.firestore();
+  let usersCollection = fs.collection('users');
+
+  let data = await new Promise(function(resolve, reject) {
+    resolve(usersCollection.doc(user.uid).collection('seasons').doc('202021').get());
+  });
+  
+  return data.data().wins;
+
+}
+
+const getUserLosses = async () => {
+  let user = firebase.auth().currentUser;
+  let fs = firebase.firestore();
+  let usersCollection = fs.collection('users');
+
+  let data = await new Promise(function(resolve, reject) {
+    resolve(usersCollection.doc(user.uid).collection('seasons').doc('202021').get());
+  });
+  
+  return data.data().losses;
+}
+
+const calculateRecord = async () => {
+
+  let user = firebase.auth().currentUser;
+  console.log(user);
+
+  let totalWins = 0;//get user wins and losses
+  let totalLosses = 0;
+
+  let fs = firebase.firestore();
+
+  let usersCollection = await fs.collection('users');
+
+
+
+  let linesCollection = await fs.collection('lines');
+
+  let allPicks = [];
+
+  for (let fetchWeek = 1; fetchWeek <= 17; fetchWeek++) {
+    allPicks.push(await new Promise(async function(resolve, reject) {
+        resolve(fetchPicksIfSelected(fetchWeek));
+    }));
+
+  }
+
+  allPicks = allPicks.filter(function(e) {
+    return e !== undefined;
+  })
+
+
+  await allPicks.forEach(async function(picks) {
+    
+    let thisWeek = picks.pick_2.week.toString();
+    let lines = await getThisWeekLines(thisWeek);
+
+    let pick1 = await picks.pick_1;
+    let pick2 = await picks.pick_2;
+    let pick3 = await picks.pick_3;
+
+    if(await isWin(lines, pick1)){
+      totalWins += 1;
+    } else {
+      totalLosses += 1;
+    }
+
+    if(await isWin(lines, pick2)){
+      totalWins += 1;
+    } else {
+      totalLosses += 1;
+    }
+
+    if(await isWin(lines, pick3)){
+      totalWins += 1;
+    } else {
+      totalLosses += 1;
+    }
+
+    console.log(totalWins);
+    console.log(totalLosses);
+
+    let userSeason = usersCollection.doc(user.uid).collection('seasons').doc('202021');
+    let userUpdate = {};
+    userUpdate['wins'] = totalWins;
+    userUpdate['losses'] = totalLosses;
+
+    userSeason.update(userUpdate);
+
+  })
+
+}
+
+const isWin = async (lines, pick) => {
+  console.log(lines);
+  console.log(pick.gameId);
+
+  if(lines.game[pick.gameId].final) {
+        let awayScore = lines.game[pick.gameId].away_team.score;
+        let homeScore = lines.game[pick.gameId].home_team.score;
+
+        let pickedTeam = pick.team;
+
+        if(pickedTeam === lines.game[pick.gameId].away_team.abbr) {
+
+          pickedLine = pick.line;
+          if(lines.game[pick.gameId].away_team.score + pickedLine > lines.game[pick.gameId].home_team.score) {
+            return true;
+          } else {
+            return false;
+          }
+
+        } else if(pickedTeam === lines.game[pick.gameId].home_team.abbr) {
+          if(lines.game[pick.gameId].home_team.score + pickedLine > lines.game[pick.gameId].away_team.score) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      
+      }
+}
+
+
+const calculateLosses = async (user) => {
+
+  return 0;
 
 }
 
@@ -249,6 +390,7 @@ function signoutProcess() {
   $("#admin_link_in_header").attr("hidden", true);
   $("#this_week_games_admin").html("");
   $("#this_week_scores_admin").html("");
+  $("#admin_access_only").attr("hidden", false);
 }
 
 function signOutWithMessage(message) {

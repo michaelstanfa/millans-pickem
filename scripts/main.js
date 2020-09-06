@@ -26,7 +26,7 @@ function Week(week, games) {
 	this.games = games;
 }
 
-function Game(id, awayTeam, homeTeam, date, time, awayLine, homeLine, awayScore, homeScore, final) {
+function Game(id, awayTeam, homeTeam, date, time, awayLine, homeLine, awayScore, homeScore, final, week) {
 	this.id = id,
 	this.awayTeam = awayTeam,
 	this.homeTeam = homeTeam,
@@ -36,16 +36,18 @@ function Game(id, awayTeam, homeTeam, date, time, awayLine, homeLine, awayScore,
 	this.homeLine = homeLine,
 	this.awayScore = awayScore,
 	this.homeScore = homeScore,
-	this.final = final;
+	this.final = final,
+	this.week = week;
 }
 
-function Pick(team, against, line, id, date, time) {
+function Pick(team, against, line, id, date, time, week) {
 	this.team = team,
 	this.against = against,
 	this.line = line,
 	this.id = id,
 	this.date = date,
-	this.time = time;
+	this.time = time,
+	this.week = week;
 }
 
 const getSchedule = async () => {
@@ -133,7 +135,7 @@ const loadSpecificWeekMatchups = async (week) => {
 		let result = "";
 		weekGames = schedule.fullgameschedule.gameentry.filter(e => e.week == week);
 
-		result = await loadWeekGames(weekGames);
+		result = await loadWeekGames(weekGames, week);
 
 		thisWeek = new Week(week, result);
 
@@ -205,12 +207,12 @@ const loadPicksIfSelected = async (week) => {
 
 	
 const fetchPicksIfSelected = async (week) => {
-
+	week = week.toString()
 	sleep(1000);
 
 	let currentUser = await firebase.auth().currentUser;
 
-	let gameWeek = $("#select_week_dropdown").val();
+	// let gameWeek = $("#select_week_dropdown").val();
 
 	let fs = firebase.firestore();	
 	let usersCollection = await fs.collection('users');
@@ -220,15 +222,13 @@ const fetchPicksIfSelected = async (week) => {
 		let currentUser = await firebase.auth().currentUser;
 	}
 
-	if(undefined != gameWeek) {
-		return await usersCollection.doc(currentUser.uid).collection('seasons').doc('202021').collection('weeks').doc(gameWeek).get().then(
+	if(undefined != week) {
+		return await usersCollection.doc(currentUser.uid).collection('seasons').doc('202021').collection('weeks').doc(week).get().then(
 			
 		async function(doc) {
 
 			let picks = await doc.data();
-			if(null == picks) {
-				$("#current_user_picks").html("You haven't made your picks yet.");
-			} else {
+			if(null != picks) {
 				return picks;
 			}
 		})
@@ -236,7 +236,7 @@ const fetchPicksIfSelected = async (week) => {
 }
 
 
-const loadWeekGames = async (weekGames) => {
+const loadWeekGames = async (weekGames, week) => {
 
 	games = [];
 	return new Promise(function(resolve, reject) {
@@ -249,7 +249,7 @@ const loadWeekGames = async (weekGames) => {
 			let awayScore = await getScore(g.week, g.id, "away_team");
 			let homeScore = await getScore(g.week, g.id, "home_team");
 
-			games[i] = new Game(g.id, g.awayTeam, g.homeTeam, g.date, g.time, awayLine, homeLine, awayScore, homeScore, final);
+			games[i] = new Game(g.id, g.awayTeam, g.homeTeam, g.date, g.time, awayLine, homeLine, awayScore, homeScore, final, week);
 
 			i++;
 		});
@@ -486,13 +486,14 @@ const invalidateSubmitButton = (selectedWeek) => {
 
 const getPickInfoFromAbbr = (abbr) => {
 
-	let val = null;
+	
+	console.log(games);
 	let game = games.filter(g => g.homeTeam.Abbreviation == abbr || g.awayTeam.Abbreviation == abbr); 
 
 	if(game[0].homeTeam.Abbreviation == abbr) {
-		return new Pick(game[0].homeTeam.Abbreviation, game[0].awayTeam.Abbreviation, game[0].homeLine, game[0].id, game[0].date, game[0].time);
+		return new Pick(game[0].homeTeam.Abbreviation, game[0].awayTeam.Abbreviation, game[0].homeLine, game[0].id, game[0].date, game[0].time, game[0].week);
 	} else {
-		return new Pick(game[0].awayTeam.Abbreviation, game[0].homeTeam.Abbreviation, game[0].awayLine, game[0].id, game[0].date, game[0].time);
+		return new Pick(game[0].awayTeam.Abbreviation, game[0].homeTeam.Abbreviation, game[0].awayLine, game[0].id, game[0].date, game[0].time, game[0].week);
 	}
 }
 
@@ -618,10 +619,6 @@ const submitApprovedPicks = async () => {
 			gameWeek = $("#select_week_dropdown").val();	
 		} 
 
-		console.log(submittingPicks);
-
-		//need to figure out how to get the game id & how to get 
-
 		let firstPick =Object.entries(submittingPicks)[0][1]; 
 		let secondPick =Object.entries(submittingPicks)[1][1]; 
 		let thirdPick =Object.entries(submittingPicks)[2][1]; 
@@ -634,7 +631,8 @@ const submitApprovedPicks = async () => {
 			'line': firstPick.line,
 			'date': firstPick.date,
 			'time': firstPick.time,
-			'gameId': firstPick.id
+			'gameId': firstPick.id,
+			'week': gameWeek
 		}
 
 		let pick_2 = {
@@ -643,7 +641,8 @@ const submitApprovedPicks = async () => {
 			'line': secondPick.line,
 			'date': secondPick.date,
 			'time': secondPick.time,
-			'gameId': secondPick.id
+			'gameId': secondPick.id,
+			'week': gameWeek
 		}
 
 		let pick_3 = {
@@ -652,7 +651,8 @@ const submitApprovedPicks = async () => {
 			'line': thirdPick.line,
 			'date': thirdPick.date,
 			'time': thirdPick.time,
-			'gameId': thirdPick.id
+			'gameId': thirdPick.id,
+			'week': gameWeek
 		}
 
 		await usersCollection.doc(currentUser.uid).collection('seasons').doc(thisYear).collection('weeks').doc(gameWeek).set(
