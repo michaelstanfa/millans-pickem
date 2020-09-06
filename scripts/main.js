@@ -261,8 +261,7 @@ const populateWeeklySchedule = (thisWeek) => {
 
 	let table = TABLE_OPEN;
 	
-	let header = //"<h3>Week " +thisWeek.week + "</h3>" +
-				"<th>Away</th>" +
+	let header ="<th>Away</th>" +
 				"<th></th>" +
 				"<th>Home</th>" +
 				"<th>Day</th>" +

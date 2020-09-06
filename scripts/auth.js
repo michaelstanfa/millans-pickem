@@ -282,7 +282,7 @@ async function onSignIn(googleUser) {
 
 
   var unsubscribe = firebase.auth().onAuthStateChanged(async function(firebaseUser) {
-    console.log(firebaseUser);
+
     unsubscribe();
     // Check if we are already signed-in Firebase with the correct user.
  
@@ -310,11 +310,14 @@ async function onSignIn(googleUser) {
         buildUserInFirestore();
     } else {
       $("#user_first_last").html(firebaseUser.displayName);
-      console.log(firebaseUser);
+      
       console.log('User already signed-in Firebase.');
 
     }
   });
+
+  $("#calculate_record_button").attr("hidden", false);
+  $("#user_record").attr("hidden", false);
   
 }
 
@@ -391,6 +394,8 @@ function signoutProcess() {
   $("#this_week_games_admin").html("");
   $("#this_week_scores_admin").html("");
   $("#admin_access_only").attr("hidden", false);
+  $("#calculate_record_button").attr("hidden", true);
+  $("#user_record").attr("hidden", true);
 }
 
 function signOutWithMessage(message) {
