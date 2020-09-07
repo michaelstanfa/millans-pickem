@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+
+<title>Make Your Picks</title>
+
 <meta charset="utf-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
 <meta name="google-signin-client_id" content="808572509568-qmp14sth1dk6tl3drrhq879b8rjk8a5p.apps.googleusercontent.com">
@@ -31,6 +36,7 @@
   <script src="scripts/util.js"></script>
   <script src="scripts/main.js"></script>
   <script src="scripts/gameweek.js"></script>
+  <script src="scripts/admin.js"></script>
   
   <script src="scripts/auth.js"></script>
   <script type = "text/javascript"></script>
@@ -38,8 +44,8 @@
 
 <script>
 
-  window.onLoadCallback = async function(){
-    await gapi.auth2.init({
+  window.onLoadCallback = function(){
+    gapi.auth2.init({
       client_id: '808572509568-qmp14sth1dk6tl3drrhq879b8rjk8a5p.apps.googleusercontent.com'
     });
   }
