@@ -73,12 +73,22 @@ const showLines = () => {
 	$("#admin_set_scores").attr("hidden", true);
 	$("#admin_set_lines").attr("hidden", false);
 	$("#lines_or_scores_label").html("Setting Lines");
+	$("#admin_manager_users").attr("hidden", true);
 }
 
 const showScores = () => {
 	$("#admin_set_lines").attr("hidden", true);
 	$("#admin_set_scores").attr("hidden", false);
 	$("#lines_or_scores_label").html("Setting Scores");
+	$("#admin_manager_users").attr("hidden", true);
+}
+
+const showUsers = async () => {
+	$("#admin_set_lines").attr("hidden", true);
+	$("#admin_set_scores").attr("hidden", true);
+	$("#admin_manage_users").attr("hidden", false);
+	$("#lines_or_scores_label").html("Users");
+	await loadUsers();
 }
 
 const populateWeeklyScheduleForScores = async (thisWeek) => {
@@ -150,6 +160,34 @@ const populateWeeklyScheduleForScores = async (thisWeek) => {
 		}
 	);
 
+}
+
+const loadUsers = async () => {
+
+	fs = firebase.firestore();
+
+	let users = fs.collection('users');
+
+	let usersTable = ""
+	usersTable += TABLE_OPEN
+
+	usersTable += "<tr><th>Name<th>Email</th><th>Admin</th></tr>"
+
+
+	await users.get().then(function(result) {
+		result.forEach(u => {
+			console.log(u.data());
+			usersTable += TR_OPEN +
+				TD_OPEN + u.data().name + TD_CLOSE +
+				TD_OPEN + u.data().email + TD_CLOSE +
+				TD_OPEN + u.data().admin + TD_CLOSE +
+				TR_CLOSE
+		})
+	});
+
+	usersTable += TABLE_CLOSE;
+
+	$("#admin_see_users").html(usersTable);
 }
 
 const populateWeeklyScheduleForLines = async (thisWeek) => {
