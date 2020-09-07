@@ -20,7 +20,7 @@ async function retrieveSched() {
 
 }
 
-async function loadMatchupsForLineSetting(week) {
+const loadMatchupsForLineSetting = (week) => {
 	if(week != "select") {
 		games = [];
 		weekGames = schedule.fullgameschedule.gameentry.filter(e => e.week == week);
@@ -257,7 +257,7 @@ const setScores = () => {
 
 	})
 
-	let fs = firebase.firestore();
+	let fs = firebase.firestore();	
 	
 	let linesCollection = fs.collection('lines');
 	
@@ -347,7 +347,6 @@ const reviewLines = async () => {
 	}
 
 	let fs = firebase.firestore();
-	
 	let linesCollection = fs.collection('lines');
 	
 	let year = linesCollection.doc('202021');

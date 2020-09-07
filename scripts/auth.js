@@ -185,9 +185,6 @@ const calculateRecord = async () => {
       totalLosses += 1;
     }
 
-    console.log(totalWins);
-    console.log(totalLosses);
-
     let userSeason = usersCollection.doc(user.uid).collection('seasons').doc('202021');
     let userUpdate = {};
     userUpdate['wins'] = totalWins;
@@ -229,16 +226,9 @@ const isWin = async (lines, pick) => {
       }
 }
 
-
-const calculateLosses = async (user) => {
-
-  return 0;
-
-}
-
-function displayPicksHTML(user) {
+const displayPicksHTML = async (user) => {
   $("#picks_html").attr("hidden", false);
-  loadPicksIfSelected($("#select_week_dropdown").val());
+  await loadPicksIfSelected($("#select_week_dropdown").val());
 }
 
 function hideLoginButton() {
@@ -249,7 +239,7 @@ function hideLoginButton() {
 
 }
 
-async function showAdminLink(user) {
+const showAdminLink = async (user) => {
 
     let fs = firebase.firestore();
 
@@ -258,9 +248,6 @@ async function showAdminLink(user) {
     usersCollection.doc(user.uid).get().then(async function(data){
       if(null != data.data() && data.data().admin) {
         $("#admin_link_in_header").attr("hidden", false);
-        await displayAdminHTML(true);
-        await loadMatchupsForLineSetting($("#select_week_dropdown_admin").val());
-        await loadMatchupsForScoreSetting($("#select_week_dropdown_admin").val());
 
       } else {
         $("#admin_link_in_header").attr("hidden", true);
@@ -378,11 +365,6 @@ async function onSignUp(firstSignUp) {
 
   return true;
 }
-
-async function getUserData() {
-  return firebase.auth().currentUser;
-}
-
 
 function signoutProcess() {
   $("#sign_out").attr("hidden", true);

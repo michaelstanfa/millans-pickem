@@ -23,6 +23,5 @@ const getGameWeek = () => {
 	}
 	
 	return Math.ceil(days_since_start / 7) > 17;
-
 	
 }

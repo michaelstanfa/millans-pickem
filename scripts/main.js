@@ -1,3 +1,5 @@
+let fs;
+
 let schedule = null;
 let thisWeek = null;
 let picks = null;
@@ -16,6 +18,13 @@ var TD_OPEN = "<td>";
 var TD_CLOSE = "</td>";
 var DIV_OPEN = "<div>";
 var DIV_CLOSE = "</div>";
+
+const getFirestore = async () => {
+	if(!fs){
+		fs = firebase.firestore();	
+	}
+	return fs;
+}
 
 function Schedule(fullgameschedule) {
 	this.fullgameschedule = fullgameschedule;
@@ -154,12 +163,12 @@ const loadPicksIfSelected = async (week) => {
 
 	sleep(1000);
 
-	let currentUser = await firebase.auth().currentUser;
-
 	let gameWeek = $("#select_week_dropdown").val();
 
-	let fs = firebase.firestore();	
+	let fs = firebase.firestore();
 	let usersCollection = await fs.collection('users');
+
+	let currentUser = await firebase.auth().currentUser;
 
 	if(null == currentUser) {
 		sleep(250);
@@ -592,7 +601,7 @@ const getProperAbbr = (abbr) => {
 const submitApprovedPicks = async () => {
 	let currentUser = firebase.auth().currentUser;
 
-	let fs = firebase.firestore();	
+	let fs = firebase.firestore();
 	let usersCollection = fs.collection('users');
 
 	userExists = await usersCollection.doc(firebase.auth().currentUser.uid).get().then(

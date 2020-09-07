@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
 <meta name="google-signin-client_id" content="808572509568-qmp14sth1dk6tl3drrhq879b8rjk8a5p.apps.googleusercontent.com">
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
@@ -28,25 +28,18 @@
   <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script> -->
   <script src="props.js"></script>
   <script src="toggles.js"></script>
-
+  <script src="scripts/util.js"></script>
   <script src="scripts/main.js"></script>
   <script src="scripts/gameweek.js"></script>
-  <script src="scripts/util.js"></script>
+  
   <script src="scripts/auth.js"></script>
   <script type = "text/javascript"></script>
   <script src="scripts/signup.js"></script>
 
-  <script>
-    $(function(){
-      document.cookie = 'Secure';
-      document.cookie = 'SameSite=None';
-    })
-  </script>
-
 <script>
 
-  window.onLoadCallback = function(){
-    gapi.auth2.init({
+  window.onLoadCallback = async function(){
+    await gapi.auth2.init({
       client_id: '808572509568-qmp14sth1dk6tl3drrhq879b8rjk8a5p.apps.googleusercontent.com'
     });
   }
@@ -138,9 +131,6 @@ table {
     <p>Sign in above or <a href='signup.html'>sign up</a> to play!</p>
 </div>
   <div class="container">
-  
-    <!-- Trigger the modal with a button -->
-
     <!-- Modal -->
     <div class="modal fade" id="submit-modal" role="dialog">
       <div class="modal-dialog">

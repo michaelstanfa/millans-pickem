@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>ADMIN</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<title>ADMIN</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
 <meta name="google-signin-client_id" content="808572509568-qmp14sth1dk6tl3drrhq879b8rjk8a5p.apps.googleusercontent.com">
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
@@ -14,8 +15,8 @@
 <script src="https://cdn.firebase.com/libs/firebaseui/3.1.1/firebaseui.js"></script>
 <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.1.1/firebaseui.css" />
 
- <link rel="stylesheet" src="/app.css">
- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<link rel="stylesheet" src="/app.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
@@ -25,14 +26,15 @@
 <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
 <script src="https://apis.google.com/js/platform.js?onload=onLoadCallback" async defer></script>
 
+<script src="scripts/util.js"></script>
 <script src="props.js"></script>
 <script src="toggles.js"></script>
-
+<script src="scripts/auth.js"></script>
 <script src="scripts/main.js"></script>
 <script src="scripts/admin.js"></script>
 <script src="scripts/gameweek.js"></script>
-<script src="scripts/util.js"></script>
-<script src="scripts/auth.js"></script>
+
+
 <script src="scripts/signup.js"></script>
 
 <script type = "text/javascript"></script>
@@ -52,6 +54,10 @@
   window.onload = async function() {
     await loadData();
     await setUser();
+    await displayAdminHTML(true);
+    sleep(250);
+    await loadMatchupsForLineSetting($("#select_week_dropdown_admin").val());
+    await loadMatchupsForScoreSetting($("#select_week_dropdown_admin").val());
   }
 </script>
 
@@ -105,7 +111,7 @@ table {
   <body class="container main">
 
     
-    <select style = "display:inline-block" id = 'select_week_dropdown_admin' class ='btn btn-dark' data-toggle='dropdown' onchange = "loadMatchupsForLineSetting(this.value); loadMatchupsForScoreSetting(this.value);">
+    <select style = "display:inline-block" id = 'select_week_dropdown_admin' class ='btn btn-dark' data-toggle='dropdown' onchange = " loadMatchupsForScoreSetting(this.value); loadMatchupsForLineSetting(this.value);">
       <option value='select'>Select Week</option>
       <option value='1'>Week 1</option>
       <option value='2'>Week 2</option>
