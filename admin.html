@@ -52,12 +52,12 @@
 <script>
 
   window.onload = async function() {
-    await loadData();
-    await setUser();
-    await displayAdminHTML(true);
+    loadData();
+    setUser();
+    displayAdminHTML(true);
     sleep(250);
-    await loadMatchupsForLineSetting($("#select_week_dropdown_admin").val());
-    await loadMatchupsForScoreSetting($("#select_week_dropdown_admin").val());
+    loadMatchupsForLineSetting($("#select_week_dropdown_admin").val());
+    loadMatchupsForScoreSetting($("#select_week_dropdown_admin").val());
   }
 </script>
 

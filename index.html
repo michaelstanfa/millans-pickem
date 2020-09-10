@@ -33,8 +33,8 @@
   <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script> -->
   <script src="props.js"></script>
   <script src="toggles.js"></script>
-  <script src="scripts/util.js"></script>
   <script src="scripts/main.js"></script>
+  <script src="scripts/util.js"></script>
   <script src="scripts/gameweek.js"></script>
   <script src="scripts/admin.js"></script>
   
@@ -54,10 +54,10 @@
 
 <script>
 
-  window.onload = async function() {
-    await loadData();
-    await setUser();
-    await loadPicksIfSelected($("#select_week_dropdown").val());
+  window.onload = function() {
+    loadData();
+    setUser();
+    loadPicksIfSelected($("#select_week_dropdown").val());
   }
 </script>
 

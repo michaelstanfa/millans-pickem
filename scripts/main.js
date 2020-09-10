@@ -89,7 +89,7 @@ const selectThisCard = (card) => {
 }
 
 const getTeamCard = (team, line, locked) => {
-	
+
 	return getTeamCardUsingString(team.Abbreviation, (team.Abbreviation != "WAS" ? team.Name : team.City), line, !locked)
 
 }
@@ -145,10 +145,9 @@ const loadSpecificWeekMatchups = async (week) => {
 		weekGames = schedule.fullgameschedule.gameentry.filter(e => e.week == week);
 
 		result = await loadWeekGames(weekGames, week);
-
 		thisWeek = new Week(week, result);
 
-		await populateWeeklySchedule(thisWeek);
+		await populateWeeklySchedule(result);
 
 	} else {
 
@@ -221,8 +220,6 @@ const fetchPicksIfSelected = async (week) => {
 
 	let currentUser = await firebase.auth().currentUser;
 
-	// let gameWeek = $("#select_week_dropdown").val();
-
 	let fs = firebase.firestore();	
 	let usersCollection = await fs.collection('users');
 
@@ -266,9 +263,7 @@ const loadWeekGames = async (weekGames, week) => {
 	});
 }
 
-const populateWeeklySchedule = (thisWeek) => {
-
-	let table = TABLE_OPEN;
+const populateWeeklySchedule = async (thisWeek) => {
 	
 	let header ="<th>Away</th>" +
 				"<th></th>" +
@@ -276,15 +271,20 @@ const populateWeeklySchedule = (thisWeek) => {
 				"<th>Day</th>" +
 				"<th>Time (Eastern)</th>";
 
-	let data = new Promise(async function(resolve, reject) {
-		resolve(await getGuts(thisWeek));
-	});
+	await sleep(500);
 
-	data.then(
+	let data = await getGuts(thisWeek);
+
+	let table = TABLE_OPEN + header + data + TABLE_CLOSE;
+
+	$("#this_week_games").html(table);
+
+	/*data.then(
 		result => {
-			table += header += result + TABLE_CLOSE;
+			console.log(result);
+			table = table + header + result + TABLE_CLOSE;
 			$("#this_week_games").html(table);
-		});
+		});*/
 
 }
 
@@ -320,26 +320,21 @@ const getScore = async (week, id, homeOrAway) => {
 
 }
 
-const getGuts = async (thisWeek) => {
+const getGuts = async (weekGames) => {
 
-	await sleep(750);
+	await sleep(1250);
+
 	let guts = "";
 
-	await thisWeek.games.forEach(async g => {
+	let locked = false;
+
+	weekGames.forEach(g => {
+
+		console.log(g);
 
 		let nowDate = new Date();
 
 		let gameDate = new Date(g.date);
-
-		let locked = await new Promise(function(resolve, reject) {
-			resolve(isGameLocked(g.date, g.time));
-		})
-
-		if(locked) {
-			TR_OPEN = "<tr bgcolor='#C0C0C0'>" 
-		} else {
-			TR_OPEN = "<tr>"
-		}
 
 		guts += TR_OPEN + 
 			getTeamCard(g.awayTeam, g.awayLine, locked) +
@@ -455,21 +450,26 @@ const loadData = async () => {
 
 	console.log("loading data");
 
-	let promiseSchedule = getSchedule();
+	let promiseSchedule = new Promise(function(resolve, reject) {
+		resolve(getSchedule());
+	});
+
+	await sleep(500);
 
 	promiseSchedule.then(
-		result => {
+		async result => {
+			console.log(result);
 			schedule = result;
 
-			let promise = new Promise(function(resolve, reject) {
+			let gameWeek = new Promise(async function(resolve, reject) {
 			 	resolve(getGameWeek());
 			});
 
-			promise.then(
+			gameWeek.then(
 				async result => {
 					console.log(result);
-					await $("#select_week_dropdown").val(result);
-					await $("#select_week_dropdown_admin").val(result);	
+					$("#select_week_dropdown").val(result);
+					$("#select_week_dropdown_admin").val(result);	
 					await loadSpecificWeekMatchups(result);
 
 					await loadPicksIfSelected(result);
