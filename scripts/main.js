@@ -296,7 +296,8 @@ const populateWeeklySchedule = async (thisWeek) => {
 				"<th></th>" +
 				"<th>Home</th>" +
 				"<th>Day</th>" +
-				"<th>Time (Eastern)</th>";
+				"<th>Time (Eastern)</th>" + 
+				"<th>Score</th>";
 
 	await sleep(500);
 
@@ -353,8 +354,8 @@ const getGuts = async (weekGames) => {
 			getTeamCard(g.homeTeam, g.homeLine, isGameLocked(g.date, g.time)) +
 			TD_OPEN + g.date + TD_CLOSE +
 			TD_OPEN + g.time + TD_CLOSE +
-			TD_OPEN + (g.final ? "FINAL" : "") + TD_CLOSE +
-			TD_OPEN + getProperAbbr(g.awayTeam.Abbreviation) + " " + g.awayScore + " - " + g.homeScore + " " + getProperAbbr(g.homeTeam.Abbreviation) + TD_CLOSE +
+			TD_OPEN + (g.final ? "FINAL: " : "") +
+			getProperAbbr(g.awayTeam.Abbreviation) + " " + g.awayScore + " - " + g.homeScore + " " + getProperAbbr(g.homeTeam.Abbreviation) + TD_CLOSE +
 		TR_CLOSE;
 	});
 
@@ -498,8 +499,10 @@ const loadData = async () => {
 	)
 }
 
-const invalidateSubmitButton = (selectedWeek) => {
-	if(selectedWeek != getGameWeek() && togglz.disableOtherWeekSubmissions) {
+const invalidateSubmitButton = async (selectedWeek) => {
+	let gameWeek = await getGameWeek();
+	
+	if(selectedWeek != gameWeek && togglz.disableOtherWeekSubmissions) {
 		$("#submit-button").attr("disabled", true);
 	} else {
 		$("#submit-button").attr("disabled", false);

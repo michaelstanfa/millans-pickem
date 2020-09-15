@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 
-<title>Standings</title>
+<title>ADMIN</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
@@ -52,9 +52,9 @@
 <script>
 
   window.onload = async function() {
-    loadStandings();
-    loadData();
+
     setUser();
+
   }
 </script>
 
@@ -64,6 +64,8 @@ $(function() {
   $("#footer").load("footer.html");
 })
 </script>
+
+
 
 </head>
 
@@ -85,18 +87,67 @@ table {
 </style>
 
 <div id = "header"></div>
-<h5>sorting feature in progress</h5>
-<div id="standings_html">
 
-  <body class="container main">
+
+<div id="help_html">
+
+  <body class="container">
+
+    <p>You can add this we page as a bookmark on your phone, so it will look and basically act like an app - <a target="_blank" href="https://www.verizon.com/support/knowledge-base-206701/">iPhone</a> and <a  target="_blank" href="https://www.wikihow.com/Set-a-Bookmark-Shortcut-in-Your-Home-Screen-on-Android">Android</a> instructions.</p>
+    
+    <p>When you sign up, you'll need to do so using a Google account. If you have issues, contact Ryan Millan and Michael Stanfa and we'll go from there</p>
+
+    <p>When you return to the app, please be sure to use the <u>same</u> Google account each time. It should auto-log you in with the correct account. If you have multiple Google accounts logged in on your device, it may log you in with the wrong account. You'll notice this if you don't see a record or see that you haven't made any picks when you expect to see some. Just sign-out and sign back in. Contact stanfa.michael@gmail.com if this happens and we'll get everything cleaned up.<p>
+
+    <p>At this time, you will not be receiving notifications from this app. Lines will be set each week and reflected here. If every game has +-1.5 as the line, don't pick. Lines default to +-1.5 until Millan sets them.</p>
+
+    <p>When making your picks, be patient. This is not a perfect web app. You may need to reload the page.</p>
+
+    <p>Picks lock 30 minutes before game time. All times on this app are listed as EASTERN. Pick accordingly.</p>
+
+    <p>At this time, scores are updated manually by a few people in this group. Your scores and record will be reflected as the game days complete.</p>
+
+    <p>Nobody will be able to see your picks except for you.</p>
+
+    <p>If you have suggestions or ideas for improvement, please contact stanfa.michael@gmail.com</p>
+
+    <p>This was built to help out Millan. He puts in a LOT of time into this pick'em. Using this app will alleviate his time and give you access to lines and standings at your fingertips.</p>
+
+
+
+
+
+
 
 
   </body>
-  <!-- <div class = "footer-container">
-    <button onclick="reviewLines()" value = "submit" class="btn btn-submit btn-primary">Submit Lines</button>
-  </div> -->
+
 </div>
 
+ 
+    <!-- Trigger the modal with a button -->
+
+    <!-- Modal -->
+    <div class="modal fade" id="submit-modal" role="dialog">
+      <div class="modal-dialog">
+      
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Submit The Lines</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <p>Lines</p>
+            <div id = "modal-picks"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-success" data-dismiss="modal">Submit</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
 
 <div id = "footer"></div>
