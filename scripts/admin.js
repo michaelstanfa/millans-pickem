@@ -92,7 +92,6 @@ const showUsers = async () => {
 }
 
 const populateWeeklyScheduleForScores = async (thisWeek) => {
-	
 
 	let thisWeekScores = getThisWeekScores(thisWeek.week);
 
@@ -134,13 +133,13 @@ const populateWeeklyScheduleForScores = async (thisWeek) => {
 
 				data += TR_OPEN + 
 					getTeamCardForAdmin(
-										g.awayTeam.Abbreviation, 
+										getProperAbbr(g.awayTeam.Abbreviation), 
 										(g.awayTeam.Name === "Football Team" ? g.awayTeam.City : g.awayTeam.Name)
 										) +
 					TD_OPEN + "<input class = 'score' id='" + g.id + "_" + g.awayTeam.Abbreviation + "_score'" + " gameId='" + g.id + "' abbr='" + g.awayTeam.Abbreviation + "' nickname='" + g.awayTeam.Name + "' homeAway='AWAY' type='number' step='1' size='4' value='" + g.awayScore + "'>" + TD_CLOSE +
 					TD_OPEN + "@" + TD_CLOSE + 
 					getTeamCardForAdmin(
-										g.homeTeam.Abbreviation, 
+										getProperAbbr(g.homeTeam.Abbreviation), 
 										(g.homeTeam.Name === "Football Team" ? g.homeTeam.City : g.homeTeam.Name)
 										) +
 					TD_OPEN + "<input class = 'score' id='" + g.id + "_" + g.homeTeam.Abbreviation + "_score'" + " gameId='" + g.id + "' abbr='" + g.homeTeam.Abbreviation + "' nickname='" + g.homeTeam.Name + "' homeAway='HOME' type='number' step='1' size='4' value='" + g.homeScore + "'>" + TD_CLOSE +
@@ -190,9 +189,9 @@ const loadUsers = async () => {
 					TD_OPEN + u.data().name + TD_CLOSE +
 					TD_OPEN + u.data().email + TD_CLOSE +
 					TD_OPEN + u.data().admin + TD_CLOSE +
-					TD_OPEN + result.pick_1.team + " " + result.pick_1.line + TD_CLOSE +
-					TD_OPEN + result.pick_2.team + " " + result.pick_2.line + TD_CLOSE +
-					TD_OPEN + result.pick_3.team + " " + result.pick_3.line +  TD_CLOSE +
+					TD_OPEN + getProperAbbr(result.pick_1.team) + " " + result.pick_1.line + TD_CLOSE +
+					TD_OPEN + getProperAbbr(result.pick_2.team) + " " + result.pick_2.line + TD_CLOSE +
+					TD_OPEN + getProperAbbr(result.pick_3.team) + " " + result.pick_3.line +  TD_CLOSE +
 					TR_CLOSE
 				} else {
 					usersTable += TR_OPEN +
@@ -255,13 +254,13 @@ const populateWeeklyScheduleForLines = async (thisWeek) => {
 
 				data += TR_OPEN + 
 					getTeamCardForAdmin(
-										g.awayTeam.Abbreviation, 
+										getProperAbbr(g.awayTeam.Abbreviation), 
 										(g.awayTeam.Name === "Football Team" ? g.awayTeam.City : g.awayTeam.Name)
 										) +
 					TD_OPEN + "<input class = 'line' id='" + g.id + "_" + g.awayTeam.Abbreviation + "_line'" + " gameId='" + g.id + "' abbr='" + g.awayTeam.Abbreviation + "' nickname='" + g.awayTeam.Name + "' homeAway='AWAY' oninput='changeThisLine(" + g.id + "," + "\"" + g.id + "_" + g.homeTeam.Abbreviation + "_line" + "\"" + ", this.value, \"away\")' type='number' step='1' size='4' value='" + g.awayLine + "'>" + TD_CLOSE +
 					TD_OPEN + "@" + TD_CLOSE + 
 					getTeamCardForAdmin(
-										g.homeTeam.Abbreviation, 
+										getProperAbbr(g.homeTeam.Abbreviation), 
 										(g.homeTeam.Name === "Football Team" ? g.homeTeam.City : g.homeTeam.Name)
 										) +
 					TD_OPEN + "<input class = 'line' id='" + g.id + "_" + g.homeTeam.Abbreviation + "_line'" + " gameId='" + g.id + "' abbr='" + g.homeTeam.Abbreviation + "' nickname='" + g.homeTeam.Name + "' homeAway='HOME' oninput='changeThisLine(" + g.id + "," + "\"" + g.id + "_" + g.awayTeam.Abbreviation + "_line" + "\"" + ", this.value, \"home\")' type='number' step='1' size='4' value='" + g.homeLine + "'>" + TD_CLOSE +

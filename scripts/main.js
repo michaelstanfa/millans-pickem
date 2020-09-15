@@ -599,8 +599,6 @@ const validatePicks = async () => {
 
 		})
 
-		console.log(submittingPicks);
-
 		let display = [];
 		for (let [k, v] of Object.entries(submittingPicks)) {
 			display.push(getProperAbbr(v.team) + " " + prettyPrintTheLine(v.line) + " against " + getProperAbbr(v.against));

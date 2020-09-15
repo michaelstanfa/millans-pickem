@@ -130,15 +130,20 @@ const getUserLosses = async () => {
 
 const calculateRecords = async () => {
 
+  alert("Starting calculation... this will take a few minutes");
+
   let fs = firebase.firestore();
 
   let usersCollection = fs.collection('users');
 
-  usersCollection.get().then(function(result) {
+  return usersCollection.get().then(async function(result) {
 
-    result.forEach(async function(user) {
-      console.log(user.id);
+    let resultSize = result.size
+    let userCount = 0;
 
+    await result.forEach(async function(user) {
+
+      
 
       let linesCollection = await fs.collection('lines');
 
@@ -157,8 +162,10 @@ const calculateRecords = async () => {
 
       if(allPicks.length > 0) {
 
-          let totalWins = 0;
-          let totalLosses = 0;
+        userCount ++;
+
+        let totalWins = 0;
+        let totalLosses = 0;
 
         await allPicks.forEach(async function(picks) {
         
@@ -187,25 +194,25 @@ const calculateRecords = async () => {
             totalLosses += 1;
           }
 
-          console.log(user);
-          console.log(user.id);
-
           let userSeason = usersCollection.doc(user.id).collection('seasons').doc('202021');
 
           let userUpdate = {};
           userUpdate['wins'] = totalWins;
           userUpdate['losses'] = totalLosses;
 
-          console.log(user.id)
-          console.log(userUpdate);
-
           userSeason.update(userUpdate);
 
         })
+      } else {
+        userCount ++;
+      }
+
+      if(userCount === resultSize) {
+        alert("Record calculations almost done... please click 'OK' and wait 10 seconds to close the app.");
       }
 
     });
-      
+
   });
 
 }
@@ -216,19 +223,20 @@ const isWin = async (lines, pick) => {
         let awayScore = lines.game[pick.gameId].away_team.score;
         let homeScore = lines.game[pick.gameId].home_team.score;
 
-        let pickedTeam = pick.team;
+        let pickedTeam = getProperAbbr(pick.team);
         let pickedLine = pick.line;
-        if(pickedTeam === lines.game[pick.gameId].away_team.abbr) {
 
-          
-          if(lines.game[pick.gameId].away_team.score + pickedLine > lines.game[pick.gameId].home_team.score) {
+        if(pickedTeam === getProperAbbr(lines.game[pick.gameId].away_team.abbr)) {
+
+          if(parseFloat(lines.game[pick.gameId].away_team.score) + parseFloat(pickedLine) > parseFloat(lines.game[pick.gameId].home_team.score)) {
             return true;
           } else {
             return false;
           }
 
-        } else if(pickedTeam === lines.game[pick.gameId].home_team.abbr) {
-          if(lines.game[pick.gameId].home_team.score + pickedLine > lines.game[pick.gameId].away_team.score) {
+        } else if(pickedTeam === getProperAbbr(lines.game[pick.gameId].home_team.abbr)) {
+
+          if(parseFloat(lines.game[pick.gameId].home_team.score) + parseFloat(pickedLine) > parseFloat(lines.game[pick.gameId].away_team.score)) {
             return true;
           } else {
             return false;
