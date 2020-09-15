@@ -128,87 +128,99 @@ const getUserLosses = async () => {
   return data.data().losses;
 }
 
-const calculateRecord = async () => {
-
-  let user = firebase.auth().currentUser;
-  console.log(user);
-
-  let totalWins = 0;//get user wins and losses
-  let totalLosses = 0;
+const calculateRecords = async () => {
 
   let fs = firebase.firestore();
 
-  let usersCollection = await fs.collection('users');
+  let usersCollection = fs.collection('users');
+
+  usersCollection.get().then(function(result) {
+
+    result.forEach(async function(user) {
+      console.log(user.id);
 
 
+      let linesCollection = await fs.collection('lines');
 
-  let linesCollection = await fs.collection('lines');
+      let allPicks = [];
 
-  let allPicks = [];
+      for (let fetchWeek = 1; fetchWeek <= 17; fetchWeek++) {
+        allPicks.push(await new Promise(async function(resolve, reject) {
+            resolve(fetchUserPicksWithIdAndWeek(fetchWeek, user.id));
+        }));
 
-  for (let fetchWeek = 1; fetchWeek <= 17; fetchWeek++) {
-    allPicks.push(await new Promise(async function(resolve, reject) {
-        resolve(fetchPicksIfSelected(fetchWeek));
-    }));
+      }
 
-  }
+      allPicks = allPicks.filter(function(e) {
+        return e !== undefined;
+      })
 
-  allPicks = allPicks.filter(function(e) {
-    return e !== undefined;
-  })
+      if(allPicks.length > 0) {
 
+          let totalWins = 0;
+          let totalLosses = 0;
 
-  await allPicks.forEach(async function(picks) {
-    
-    let thisWeek = picks.pick_2.week.toString();
-    let lines = await getThisWeekLines(thisWeek);
+        await allPicks.forEach(async function(picks) {
+        
+          let thisWeek = picks.pick_2.week.toString();
+          let lines = await getThisWeekLines(thisWeek);
 
-    let pick1 = await picks.pick_1;
-    let pick2 = await picks.pick_2;
-    let pick3 = await picks.pick_3;
+          let pick1 = await picks.pick_1;
+          let pick2 = await picks.pick_2;
+          let pick3 = await picks.pick_3;
 
-    if(await isWin(lines, pick1)){
-      totalWins += 1;
-    } else {
-      totalLosses += 1;
-    }
+          if(await isWin(lines, pick1)){
+            totalWins += 1;
+          } else {
+            totalLosses += 1;
+          }
 
-    if(await isWin(lines, pick2)){
-      totalWins += 1;
-    } else {
-      totalLosses += 1;
-    }
+          if(await isWin(lines, pick2)){
+            totalWins += 1;
+          } else {
+            totalLosses += 1;
+          }
 
-    if(await isWin(lines, pick3)){
-      totalWins += 1;
-    } else {
-      totalLosses += 1;
-    }
+          if(await isWin(lines, pick3)){
+            totalWins += 1;
+          } else {
+            totalLosses += 1;
+          }
 
-    let userSeason = usersCollection.doc(user.uid).collection('seasons').doc('202021');
-    let userUpdate = {};
-    userUpdate['wins'] = totalWins;
-    userUpdate['losses'] = totalLosses;
+          console.log(user);
+          console.log(user.id);
 
-    userSeason.update(userUpdate);
+          let userSeason = usersCollection.doc(user.id).collection('seasons').doc('202021');
 
-  })
+          let userUpdate = {};
+          userUpdate['wins'] = totalWins;
+          userUpdate['losses'] = totalLosses;
+
+          console.log(user.id)
+          console.log(userUpdate);
+
+          userSeason.update(userUpdate);
+
+        })
+      }
+
+    });
+      
+  });
 
 }
 
 const isWin = async (lines, pick) => {
-  console.log(lines);
-  console.log(pick.gameId);
 
   if(lines.game[pick.gameId].final) {
         let awayScore = lines.game[pick.gameId].away_team.score;
         let homeScore = lines.game[pick.gameId].home_team.score;
 
         let pickedTeam = pick.team;
-
+        let pickedLine = pick.line;
         if(pickedTeam === lines.game[pick.gameId].away_team.abbr) {
 
-          pickedLine = pick.line;
+          
           if(lines.game[pick.gameId].away_team.score + pickedLine > lines.game[pick.gameId].home_team.score) {
             return true;
           } else {
@@ -246,6 +258,7 @@ const showAdminLink = async (user) => {
     let usersCollection = await fs.collection('users');
 
     usersCollection.doc(user.uid).get().then(async function(data){
+
       if(null != data.data() && data.data().admin) {
         $("#admin_link_in_header").attr("hidden", false);
 

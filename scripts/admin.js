@@ -73,14 +73,14 @@ const showLines = () => {
 	$("#admin_set_scores").attr("hidden", true);
 	$("#admin_set_lines").attr("hidden", false);
 	$("#lines_or_scores_label").html("Setting Lines");
-	$("#admin_manager_users").attr("hidden", true);
+	$("#admin_manage_users").attr("hidden", true);
 }
 
 const showScores = () => {
 	$("#admin_set_lines").attr("hidden", true);
 	$("#admin_set_scores").attr("hidden", false);
 	$("#lines_or_scores_label").html("Setting Scores");
-	$("#admin_manager_users").attr("hidden", true);
+	$("#admin_manage_users").attr("hidden", true);
 }
 
 const showUsers = async () => {
@@ -164,30 +164,53 @@ const populateWeeklyScheduleForScores = async (thisWeek) => {
 
 const loadUsers = async () => {
 
+	let week = $("#select_week_dropdown_admin").val();
+
 	fs = firebase.firestore();
 
 	let users = fs.collection('users');
+	
+	let usersTable = TABLE_OPEN;
 
-	let usersTable = ""
-	usersTable += TABLE_OPEN
+	usersTable += "<tr><th>Name<th>Email</th><th>Admin</th><th>Pick 1</th><th>Pick 2</th><th>Pick 3</th></tr>";
 
-	usersTable += "<tr><th>Name<th>Email</th><th>Admin</th></tr>"
+	users.get().then(function(result) {
+		
+		result.forEach(function(u) {
+			
+			let picks = new Promise(function(resolve, reject) {
+				resolve(fetchUserPicksWithIdAndWeek(week, u.id))
+			});
+			console.log(users);
+			let html = picks.then(result => {
 
-
-	await users.get().then(function(result) {
-		result.forEach(u => {
-			console.log(u.data());
-			usersTable += TR_OPEN +
-				TD_OPEN + u.data().name + TD_CLOSE +
-				TD_OPEN + u.data().email + TD_CLOSE +
-				TD_OPEN + u.data().admin + TD_CLOSE +
-				TR_CLOSE
-		})
+				if(undefined != result) {
+					
+					usersTable += TR_OPEN +
+					TD_OPEN + u.data().name + TD_CLOSE +
+					TD_OPEN + u.data().email + TD_CLOSE +
+					TD_OPEN + u.data().admin + TD_CLOSE +
+					TD_OPEN + result.pick_1.team + " " + result.pick_1.line + TD_CLOSE +
+					TD_OPEN + result.pick_2.team + " " + result.pick_2.line + TD_CLOSE +
+					TD_OPEN + result.pick_3.team + " " + result.pick_3.line +  TD_CLOSE +
+					TR_CLOSE
+				} else {
+					usersTable += TR_OPEN +
+					TD_OPEN + u.data().name + TD_CLOSE +
+					TD_OPEN + u.data().email + TD_CLOSE +
+					TD_OPEN + u.data().admin + TD_CLOSE +
+					TD_OPEN + "NO PICK" + TD_CLOSE +
+					TD_OPEN + "NO PICK" + TD_CLOSE +
+					TD_OPEN + "NO PICK" + TD_CLOSE +
+					TR_CLOSE
+				}
+				return usersTable;
+			})
+			html.then(result => {
+				$("#admin_see_users").html(usersTable + TABLE_CLOSE);
+			});
+		});
 	});
-
-	usersTable += TABLE_CLOSE;
-
-	$("#admin_see_users").html(usersTable);
 }
 
 const populateWeeklyScheduleForLines = async (thisWeek) => {

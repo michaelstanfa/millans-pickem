@@ -1,5 +1,5 @@
 togglz = {
-	disableOtherWeekSubmissions: false,
+	disableOtherWeekSubmissions: true,
 	testingDate: false
 }
 

@@ -215,21 +215,25 @@ const loadPicksIfSelected = async (week) => {
 
 	
 const fetchPicksIfSelected = async (week) => {
-	week = week.toString()
-	sleep(1000);
-
 	let currentUser = await firebase.auth().currentUser;
 
-	let fs = firebase.firestore();	
-	let usersCollection = await fs.collection('users');
-
-	if(null == currentUser) {
+	if(null === currentUser) {
 		sleep(250);
 		let currentUser = await firebase.auth().currentUser;
 	}
 
+	return fetchUserPicksWithIdAndWeek(week, currentUser.uid);
+}
+
+const fetchUserPicksWithIdAndWeek = async (week, userId) => {
+	week = week.toString()
+	sleep(1000);
+
+	let fs = firebase.firestore();	
+	let usersCollection = await fs.collection('users');
+
 	if(undefined != week) {
-		return await usersCollection.doc(currentUser.uid).collection('seasons').doc('202021').collection('weeks').doc(week).get().then(
+		return await usersCollection.doc(userId).collection('seasons').doc('202021').collection('weeks').doc(week).get().then(
 			
 		async function(doc) {
 
@@ -241,6 +245,29 @@ const fetchPicksIfSelected = async (week) => {
 	}
 }
 
+const fetchUserWinsWithId = async (userId) => {
+	let fs = firebase.firestore();	
+	let usersCollection = await fs.collection('users');
+
+	return await usersCollection.doc(userId).collection('seasons').doc('202021').get().then(
+
+		async function(doc) {
+			return doc.data().wins;
+		}
+	);
+
+}
+
+
+const fetchUserLossesWithId = async (userId) => {
+	let fs = firebase.firestore();	
+	let usersCollection = await fs.collection('users');
+
+	return await usersCollection.doc(userId).collection('seasons').doc('202021').get().then(function(doc) {
+		return doc.data().losses;
+	});
+
+}
 
 const loadWeekGames = async (weekGames, week) => {
 
@@ -278,14 +305,6 @@ const populateWeeklySchedule = async (thisWeek) => {
 	let table = TABLE_OPEN + header + data + TABLE_CLOSE;
 
 	$("#this_week_games").html(table);
-
-	/*data.then(
-		result => {
-			console.log(result);
-			table = table + header + result + TABLE_CLOSE;
-			$("#this_week_games").html(table);
-		});*/
-
 }
 
 const sleep = (milliseconds) => {
@@ -326,24 +345,16 @@ const getGuts = async (weekGames) => {
 
 	let guts = "";
 
-	let locked = false;
-
 	weekGames.forEach(g => {
 
-		console.log(g);
-
-		let nowDate = new Date();
-
-		let gameDate = new Date(g.date);
-
 		guts += TR_OPEN + 
-			getTeamCard(g.awayTeam, g.awayLine, locked) +
+			getTeamCard(g.awayTeam, g.awayLine, isGameLocked(g.date, g.time)) +
 			TD_OPEN + "@" + TD_CLOSE + 
-			getTeamCard(g.homeTeam, g.homeLine, locked) +
+			getTeamCard(g.homeTeam, g.homeLine, isGameLocked(g.date, g.time)) +
 			TD_OPEN + g.date + TD_CLOSE +
 			TD_OPEN + g.time + TD_CLOSE +
 			TD_OPEN + (g.final ? "FINAL" : "") + TD_CLOSE +
-			TD_OPEN + g.awayScore + " - " + g.homeScore + TD_CLOSE +
+			TD_OPEN + getProperAbbr(g.awayTeam.Abbreviation) + " " + g.awayScore + " - " + g.homeScore + " " + getProperAbbr(g.homeTeam.Abbreviation) + TD_CLOSE +
 		TR_CLOSE;
 	});
 
@@ -356,14 +367,17 @@ const isGameLocked = (gameDate, gameTime) => {
 
 	let gameStart = convertTimeForComputerReadable(gameDate, gameTime);
 
-	let lockTime = new Date(gameStart.getTime() - 30 * 60000)
+	let lockTime = new Date(gameStart.getTime() - (30 * 60000))
+
+	let easternNowTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"})
 
 	if(togglz.testingDate) {
-		nowDate = new Date(testDate.year, testDate.month, testDate.day, testDate.hour, testDate.minute);
+		easternNowTime = new Date(testDate.year, testDate.month, testDate.day, testDate.hour, testDate.minute).toLocaleString("en-US", {timeZone: "America/New_York"});
 	}
 
-	if(lockTime.getTime() < nowDate.getTime()) {
+	let compareLockTime = new Date(lockTime).toLocaleString("en-US", {timeZone: "America/New_York"});
 
+	if(compareLockTime < easternNowTime) {
 		return true;
 	} else {
 		return false;
@@ -458,7 +472,7 @@ const loadData = async () => {
 
 	promiseSchedule.then(
 		async result => {
-			console.log(result);
+
 			schedule = result;
 
 			let gameWeek = new Promise(async function(resolve, reject) {
@@ -467,7 +481,7 @@ const loadData = async () => {
 
 			gameWeek.then(
 				async result => {
-					console.log(result);
+					
 					$("#select_week_dropdown").val(result);
 					$("#select_week_dropdown_admin").val(result);	
 					await loadSpecificWeekMatchups(result);
@@ -675,4 +689,29 @@ const submitApprovedPicks = async () => {
 
 	}
 
+}
+
+
+const loadStandings = async () => {
+	let fs = firebase.firestore();
+	let users = await fs.collection('users');
+	users.get().then(function(result) {
+			standingsTable = TABLE_OPEN;
+			standingsTable += "<tr><th>Name</th><th>Wins</th><th>-</th><th>Losses</th>"
+			let html = result.forEach(async function(u) {
+				let wins = await fetchUserWinsWithId(u.id);
+				let losses = await fetchUserLossesWithId(u.id);
+
+				standingsTable += TR_OPEN +
+						TD_OPEN + u.data().name + TD_CLOSE +
+						
+						TD_OPEN + wins + TD_CLOSE +
+						TD_OPEN + " - " + TD_CLOSE +
+						TD_OPEN + losses + TD_CLOSE +
+						TR_CLOSE
+
+				$("#standings_html").html(standingsTable);
+				
+			});				
+		});
 }

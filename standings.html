@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 
-<title>ADMIN</title>
+<title>Standings</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
@@ -52,12 +52,9 @@
 <script>
 
   window.onload = async function() {
+    loadStandings();
     loadData();
     setUser();
-    displayAdminHTML(true);
-    sleep(250);
-    loadMatchupsForLineSetting($("#select_week_dropdown_admin").val());
-    loadMatchupsForScoreSetting($("#select_week_dropdown_admin").val());
   }
 </script>
 
@@ -67,8 +64,6 @@ $(function() {
   $("#footer").load("footer.html");
 })
 </script>
-
-
 
 </head>
 
@@ -91,88 +86,9 @@ table {
 
 <div id = "header"></div>
 
-<div class = "login_html" id = "login_html">
-    <div class="container">
-      <h1 class = "jumbotron" id = "admin_jumbotron">ADMIN ACCESS ONLY!</h1>
-      <h4>Please login with Google to continue.</h4>      
-
-  </div>
-
-
-</div>
-
-<div id = "admin_access_only" hidden>
-  <h1>YOU SHALL NOT PASS</h1>
-  <h4>Sorry, admin access only</h4>
-</div>
-
-<div id="admin_html" hidden>
+<div id="standings_html">
 
   <body class="container main">
-
-    
-    <select style = "display:inline-block" id = 'select_week_dropdown_admin' class ='btn btn-dark' data-toggle='dropdown' onchange = " loadMatchupsForScoreSetting(this.value); loadMatchupsForLineSetting(this.value);">
-      <option value='select'>Select Week</option>
-      <option value='1'>Week 1</option>
-      <option value='2'>Week 2</option>
-      <option value='3'>Week 3</option>
-      <option value='4'>Week 4</option>
-      <option value='5'>Week 5</option>
-      <option value='6'>Week 6</option>
-      <option value='7'>Week 7</option>
-      <option value='8'>Week 8</option>
-      <option value='9'>Week 9</option>
-      <option value='10'>Week 10</option>
-      <option value='11'>Week 11</option>
-      <option value='12'>Week 12</option>
-      <option value='13'>Week 13</option>
-      <option value='14'>Week 14</option>
-      <option value='15'>Week 15</option>
-      <option value='16'>Week 16</option>
-      <option value='17'>Week 17</option>
-    </select>
-        
-    <br />
-    <br />
-    
-    <button class = "btn btn-info" style = "display:inline-block" onclick = "showLines()">Lines</button>
-    <button class = "btn btn-info" style = "display:inline-block" onclick = "showScores()">Scores</button>
-    <button class = "btn btn-info" style = "display:inline-block" onclick = "showUsers()">Users</button>
-    <button class = "btn btn-danger" id = "calculate_record_button" onclick = "calculateRecords()">Calculate Records</button>
-
-    <br />
-    <br />
-
-    <h4 id = "lines_or_scores_label" style = "display:inline-block">Setting Lines</h4>
-
-    <div id = "admin_set_lines">
-      <div id = "this_week_games_admin"></div>
-
-      <div class = "footer-container">
-        <button onclick="reviewLines()" value = "submit" class="btn btn-submit btn-primary">Submit Lines</button>
-      </div>
-    <br/>
-    <br/>
-    <br/>
-    </div>
-
-    <div hidden id = "admin_set_scores">
-      <div id = "this_week_scores_admin"></div>
-
-      <div class = "footer-container">
-        <button onclick="setScores()" value = "submit" class="btn btn-submit btn-primary">Update Scores</button>
-      </div>
-    <br/>
-    <br/>
-    <br/>
-    </div>
-
-    <div hidden id = "admin_manage_users">
-      <div id = "admin_see_users"></div>
-
-    <br/>
-    </div>
-
 
 
   </body>
@@ -181,30 +97,6 @@ table {
   </div> -->
 </div>
 
- 
-    <!-- Trigger the modal with a button -->
-
-    <!-- Modal -->
-    <div class="modal fade" id="submit-modal" role="dialog">
-      <div class="modal-dialog">
-      
-        <!-- Modal content-->
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Submit The Lines</h4>
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-          </div>
-          <div class="modal-body">
-            <p>Lines</p>
-            <div id = "modal-picks"></div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-success" data-dismiss="modal">Submit</button>
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
 
 
 <div id = "footer"></div>
