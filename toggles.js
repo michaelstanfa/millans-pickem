@@ -1,6 +1,7 @@
 togglz = {
-	disableOtherWeekSubmissions: true,
-	testingDate: false
+	disableOtherWeekSubmissions: false,
+	testingDate: false,
+	lockPicks: true
 }
 
 testDate = {

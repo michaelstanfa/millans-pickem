@@ -348,10 +348,12 @@ const getGuts = async (weekGames) => {
 
 	weekGames.forEach(g => {
 
+		//isGameLocked(g.date, g.time)
+
 		guts += TR_OPEN + 
-			getTeamCard(g.awayTeam, g.awayLine, isGameLocked(g.date, g.time)) +
+			getTeamCard(g.awayTeam, g.awayLine, false) +
 			TD_OPEN + "@" + TD_CLOSE + 
-			getTeamCard(g.homeTeam, g.homeLine, isGameLocked(g.date, g.time)) +
+			getTeamCard(g.homeTeam, g.homeLine, false) +
 			TD_OPEN + g.date + TD_CLOSE +
 			TD_OPEN + g.time + TD_CLOSE +
 			TD_OPEN + (g.final ? "FINAL: " : "") +
@@ -551,16 +553,18 @@ const validatePicks = async () => {
 		let pickedAlready2 = currentPicksSubmitted.pick_2;
 		let pickedAlready3 = currentPicksSubmitted.pick_3;
 
-		if(isGameLocked(pickedAlready1.date, pickedAlready1.time)) {
-			lockedPicks.push(pickedAlready1);
-		}
+		if(togglz.lockPicks) {
+			if(isGameLocked(pickedAlready1.date, pickedAlready1.time)) {
+				lockedPicks.push(pickedAlready1);
+			}
 
-		if(isGameLocked(pickedAlready2.date, pickedAlready2.time)) {
-			lockedPicks.push(pickedAlready2);
-		}
+			if(isGameLocked(pickedAlready2.date, pickedAlready2.time)) {
+				lockedPicks.push(pickedAlready2);
+			}
 
-		if(isGameLocked(pickedAlready3.date, pickedAlready3.time)) {
-			lockedPicks.push(pickedAlready3);
+			if(isGameLocked(pickedAlready3.date, pickedAlready3.time)) {
+				lockedPicks.push(pickedAlready3);
+			}
 		}
 
 	}
