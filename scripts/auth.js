@@ -176,21 +176,24 @@ const calculateRecords = async () => {
           let pick2 = await picks.pick_2;
           let pick3 = await picks.pick_3;
 
-          if(await isWin(lines, pick1)){
+          let win1 = await isWin(lines, pick1);
+          if(win1){
             totalWins += 1;
-          } else {
+          } else if(win1 === false) {
             totalLosses += 1;
           }
 
-          if(await isWin(lines, pick2)){
+          let win2 = await isWin(lines, pick2);
+          if(win2){
             totalWins += 1;
-          } else {
+          } else if(win2 === false) {
             totalLosses += 1;
           }
 
-          if(await isWin(lines, pick3)){
+          let win3 = await isWin(lines, pick3);
+          if(win3){
             totalWins += 1;
-          } else {
+          } else if(win3 === false) {
             totalLosses += 1;
           }
 
@@ -218,8 +221,12 @@ const calculateRecords = async () => {
 }
 
 const isWin = async (lines, pick) => {
+  console.log("****new game****");
+  console.log(lines.game[pick.gameId].away_team);
+  console.log(lines.game[pick.gameId].home_team);
+  console.log(lines.game[pick.gameId].final);
 
-  if(lines.game[pick.gameId].final) {
+  if(lines.game[pick.gameId].final === true) {
         let awayScore = lines.game[pick.gameId].away_team.score;
         let homeScore = lines.game[pick.gameId].home_team.score;
 
