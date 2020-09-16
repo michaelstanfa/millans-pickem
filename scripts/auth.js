@@ -221,10 +221,6 @@ const calculateRecords = async () => {
 }
 
 const isWin = async (lines, pick) => {
-  console.log("****new game****");
-  console.log(lines.game[pick.gameId].away_team);
-  console.log(lines.game[pick.gameId].home_team);
-  console.log(lines.game[pick.gameId].final);
 
   if(lines.game[pick.gameId].final === true) {
         let awayScore = lines.game[pick.gameId].away_team.score;
