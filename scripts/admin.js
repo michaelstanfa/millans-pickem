@@ -87,7 +87,7 @@ const showUsers = async () => {
 	$("#admin_set_lines").attr("hidden", true);
 	$("#admin_set_scores").attr("hidden", true);
 	$("#admin_manage_users").attr("hidden", false);
-	$("#lines_or_scores_label").html("Users");
+	
 	await loadUsers();
 }
 
@@ -168,19 +168,21 @@ const loadUsers = async () => {
 	fs = firebase.firestore();
 
 	let users = fs.collection('users');
-	
+
 	let usersTable = TABLE_OPEN;
 
 	usersTable += "<tr><th>Name<th>Email</th><th>Admin</th><th>Pick 1</th><th>Pick 2</th><th>Pick 3</th></tr>";
 
 	users.get().then(function(result) {
+
+		$("#lines_or_scores_label").html("Users (" + result.size + ")");
 		
 		result.forEach(function(u) {
 			
 			let picks = new Promise(function(resolve, reject) {
 				resolve(fetchUserPicksWithIdAndWeek(week, u.id))
 			});
-			console.log(users);
+
 			let html = picks.then(result => {
 
 				if(undefined != result) {
