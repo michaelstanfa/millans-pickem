@@ -513,8 +513,6 @@ const invalidateSubmitButton = async (selectedWeek) => {
 
 const getPickInfoFromAbbr = (abbr) => {
 
-	
-	console.log(games);
 	let game = games.filter(g => g.homeTeam.Abbreviation == abbr || g.awayTeam.Abbreviation == abbr); 
 
 	if(game[0].homeTeam.Abbreviation == abbr) {
@@ -553,7 +551,7 @@ const validatePicks = async () => {
 		let pickedAlready2 = currentPicksSubmitted.pick_2;
 		let pickedAlready3 = currentPicksSubmitted.pick_3;
 
-		if(togglz.lockPicks) {
+		if(togglz.lockPicks || selectedWeek === '2') {
 			if(isGameLocked(pickedAlready1.date, pickedAlready1.time)) {
 				lockedPicks.push(pickedAlready1);
 			}
