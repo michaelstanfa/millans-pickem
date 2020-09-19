@@ -139,12 +139,13 @@ async function retrieveSched() {
 }
 
 const loadSpecificWeekMatchups = async (week) => {
-
+	let result = "";
 	if(week != "select") {
-		let result = "";
+		
 		weekGames = schedule.fullgameschedule.gameentry.filter(e => e.week == week);
 
 		result = await loadWeekGames(weekGames, week);
+
 		thisWeek = new Week(week, result);
 
 		await populateWeeklySchedule(result);
@@ -154,7 +155,17 @@ const loadSpecificWeekMatchups = async (week) => {
 		$("#this_week_games").html("");
 	}
 
-	invalidateSubmitButton(week);
+	if(result[0].awayLine === 0 || result[0].awayLine === '0') {
+		$("#current_user_picks").html("Lines Not Set Yet");
+		
+		invalidateSubmitButtonWithForce(week, true);
+	} else {
+		invalidateSubmitButton(week);	
+	}
+
+	
+
+	
 
 }
 
@@ -348,12 +359,12 @@ const getGuts = async (weekGames) => {
 
 	weekGames.forEach(g => {
 
-		//isGameLocked(g.date, g.time)
+		
 
 		guts += TR_OPEN + 
-			getTeamCard(g.awayTeam, g.awayLine, false) +
+			getTeamCard(g.awayTeam, g.awayLine, isGameLocked(g.date, g.time)) +
 			TD_OPEN + "@" + TD_CLOSE + 
-			getTeamCard(g.homeTeam, g.homeLine, false) +
+			getTeamCard(g.homeTeam, g.homeLine, isGameLocked(g.date, g.time)) +
 			TD_OPEN + g.date + TD_CLOSE +
 			TD_OPEN + g.time + TD_CLOSE +
 			TD_OPEN + (g.final ? "FINAL: " : "") +
@@ -379,6 +390,12 @@ const isGameLocked = (gameDate, gameTime) => {
 	}
 
 	let compareLockTime = new Date(lockTime).toLocaleString("en-US", {timeZone: "America/New_York"});
+
+
+	//AFTER WEEK 2: GET RID OF THIS CHECK THAT ALLOWS PEOPLE TO SUBMIT THEIR PICKS
+	if($("#select_week_dropdown").val() === '1') {
+		return false;
+	}
 
 	if(compareLockTime < easternNowTime) {
 		return true;
@@ -502,9 +519,13 @@ const loadData = async () => {
 }
 
 const invalidateSubmitButton = async (selectedWeek) => {
+	invalidateSubmitButtonWithForce(selectedWeek, false);
+}
+
+const invalidateSubmitButtonWithForce = async (selectedWeek, forcedInvalidation) => {
 	let gameWeek = await getGameWeek();
 	
-	if(selectedWeek != gameWeek && togglz.disableOtherWeekSubmissions) {
+	if((selectedWeek != gameWeek && togglz.disableOtherWeekSubmissions) || forcedInvalidation) {
 		$("#submit-button").attr("disabled", true);
 	} else {
 		$("#submit-button").attr("disabled", false);
@@ -551,6 +572,8 @@ const validatePicks = async () => {
 		let pickedAlready2 = currentPicksSubmitted.pick_2;
 		let pickedAlready3 = currentPicksSubmitted.pick_3;
 
+		//AFTER WEEK 2: GET RID OF THIS SELECTED WEEK
+
 		if(togglz.lockPicks || selectedWeek === '2') {
 			if(isGameLocked(pickedAlready1.date, pickedAlready1.time)) {
 				lockedPicks.push(pickedAlready1);
@@ -574,9 +597,10 @@ const validatePicks = async () => {
 		console.log(cardPicks.length);
 		alert("Pick 3 and only 3 games");
 	} else if(lockedPicks.length > 0 && lockedPicks.length < 3 && (cardPicks.length + lockedPicks.length != 3)) {
-		alert("You've already locked " + 
-				lockedPicks.length + " pick" + 
-				(lockedPicks.length === 1 ? ". " : "s. ") +
+		alert("You have selected from " + 
+				lockedPicks.length + " game" + 
+				(lockedPicks.length === 1 ? " " : "s ") + "that " + 
+				(lockedPicks.length === 1 ? "has " : "have ") + "already locked. " +
 				"Select " + (3 - lockedPicks.length) + " replacement pick" + 
 				(lockedPicks.length === 1 ? "s " : " ") +
 				"to submit.");
