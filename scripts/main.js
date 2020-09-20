@@ -377,25 +377,32 @@ const getGuts = async (weekGames) => {
 }
 
 const isGameLocked = (gameDate, gameTime) => {
+	sleep(250);
 	let nowDate = new Date();
 
 	let gameStart = convertTimeForComputerReadable(gameDate, gameTime);
 
-	let lockTime = new Date(gameStart.getTime() - (30 * 60000))
+	let lockTime = null;
 
-	let easternNowTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"})
+	lockTime = new Date(gameStart.getTime() - (30 * 60000))
+
+	let easternNowTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York", hour12: false})
 
 	if(togglz.testingDate) {
 		easternNowTime = new Date(testDate.year, testDate.month, testDate.day, testDate.hour, testDate.minute).toLocaleString("en-US", {timeZone: "America/New_York"});
 	}
 
-	let compareLockTime = new Date(lockTime).toLocaleString("en-US", {timeZone: "America/New_York"});
+	let compareLockTime = new Date(lockTime).toLocaleString("en-US", {timeZone: "America/New_York", hour12: false});
 
+	console.log(compareLockTime);
+	console.log(easternNowTime);
 
 	//AFTER WEEK 2: GET RID OF THIS CHECK THAT ALLOWS PEOPLE TO SUBMIT THEIR PICKS
 	if($("#select_week_dropdown").val() === '1') {
 		return false;
 	}
+
+	console.log(compareLockTime < easternNowTime)
 
 	if(compareLockTime < easternNowTime) {
 		return true;
