@@ -359,12 +359,10 @@ const getGuts = async (weekGames) => {
 
 	weekGames.forEach(g => {
 
-		
-
 		guts += TR_OPEN + 
-			getTeamCard(g.awayTeam, g.awayLine, isGameLocked(g.date, g.time)) +
+			getTeamCard(g.awayTeam, g.awayLine, isGameLockedWithId(g.date, g.time, g.id)) +
 			TD_OPEN + "@" + TD_CLOSE + 
-			getTeamCard(g.homeTeam, g.homeLine, isGameLocked(g.date, g.time)) +
+			getTeamCard(g.homeTeam, g.homeLine, isGameLockedWithId(g.date, g.time, g.id)) +
 			TD_OPEN + g.date + TD_CLOSE +
 			TD_OPEN + g.time + TD_CLOSE +
 			TD_OPEN + (g.final ? "FINAL: " : "") +
@@ -376,6 +374,20 @@ const getGuts = async (weekGames) => {
 	return guts;
 }
 
+const isGameLockedWithId = (gameDate, gameTime, gameId) => {
+
+	//steelers-titans 2020 week 4 - covid game - may not play
+	let lockedId = 56810;
+
+	if(gameId == lockedId) {
+		
+		return true;
+	} else {
+		
+		return isGameLocked(gameDate, gameTime);
+	}
+}
+
 const isGameLocked = (gameDate, gameTime) => {
 	sleep(250);
 	let nowDate = new Date();
@@ -384,27 +396,22 @@ const isGameLocked = (gameDate, gameTime) => {
 
 	let lockTime = null;
 
-	lockTime = new Date(gameStart.getTime() - (30 * 60000))
+	lockTime = new Date(gameStart.getTime() - (30 * 60000)).getTime();
 
 	let easternNowTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York", hour12: false})
+
 
 	if(togglz.testingDate) {
 		easternNowTime = new Date(testDate.year, testDate.month, testDate.day, testDate.hour, testDate.minute).toLocaleString("en-US", {timeZone: "America/New_York"});
 	}
 
-	let compareLockTime = new Date(lockTime).toLocaleString("en-US", {timeZone: "America/New_York", hour12: false});
+	let convertedLockTime = new Date(lockTime).toLocaleString("en-US", {timeZone: "America/New_York", hour12: false});
+	
+	let convertedLockTimeCompare = new Date(convertedLockTime).getTime();
+	
+	let easternNowTimeCompare = new Date(easternNowTime).getTime();
 
-	console.log(compareLockTime);
-	console.log(easternNowTime);
-
-	//AFTER WEEK 2: GET RID OF THIS CHECK THAT ALLOWS PEOPLE TO SUBMIT THEIR PICKS
-	if($("#select_week_dropdown").val() === '1') {
-		return false;
-	}
-
-	console.log(compareLockTime < easternNowTime)
-
-	if(compareLockTime < easternNowTime) {
+	if(convertedLockTimeCompare < easternNowTimeCompare) {
 		return true;
 	} else {
 		return false;
@@ -579,9 +586,7 @@ const validatePicks = async () => {
 		let pickedAlready2 = currentPicksSubmitted.pick_2;
 		let pickedAlready3 = currentPicksSubmitted.pick_3;
 
-		//AFTER WEEK 2: GET RID OF THIS SELECTED WEEK
-
-		if(togglz.lockPicks || selectedWeek === '2') {
+		if(togglz.lockPicks) {
 			if(isGameLocked(pickedAlready1.date, pickedAlready1.time)) {
 				lockedPicks.push(pickedAlready1);
 			}
