@@ -377,7 +377,7 @@ const getGuts = async (weekGames) => {
 const isGameLockedWithId = (gameDate, gameTime, gameId) => {
 
 	//steelers-titans 2020 week 4 - covid game - may not play
-	let lockedId = 56810;
+	let lockedId = 1;
 
 	if(gameId == lockedId) {
 		
