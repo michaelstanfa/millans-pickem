@@ -202,9 +202,9 @@ const loadPicksIfSelected = async (week) => {
 				let p2 = await picks.pick_2;
 				let p3 = await picks.pick_3;
 
-				let first_pick = getTeamCardForCurrentPicks(p1.team, p1.team, p1.line, isGameLocked(p1.date, p1.time));
-				let second_pick = getTeamCardForCurrentPicks(p2.team, p2.team, p2.line, isGameLocked(p2.date, p2.time));
-				let third_pick = getTeamCardForCurrentPicks(p3.team, p3.team, p3.line, isGameLocked(p3.date, p3.time));
+				let first_pick = getTeamCardForCurrentPicks(p1.team, p1.team, p1.line, isGameLocked(p1.date, p1.time, p1.line));
+				let second_pick = getTeamCardForCurrentPicks(p2.team, p2.team, p2.line, isGameLocked(p2.date, p2.time, p1.line));
+				let third_pick = getTeamCardForCurrentPicks(p3.team, p3.team, p3.line, isGameLocked(p3.date, p3.time, p1.line));
 
 				let alreadyPickedHTML = "";
 
@@ -360,9 +360,9 @@ const getGuts = async (weekGames) => {
 	weekGames.forEach(g => {
 
 		guts += TR_OPEN + 
-			getTeamCard(g.awayTeam, g.awayLine, isGameLockedWithId(g.date, g.time, g.id)) +
+			getTeamCard(g.awayTeam, g.awayLine, isGameLockedWithId(g.date, g.time, g.id, g.awayLine)) +
 			TD_OPEN + "@" + TD_CLOSE + 
-			getTeamCard(g.homeTeam, g.homeLine, isGameLockedWithId(g.date, g.time, g.id)) +
+			getTeamCard(g.homeTeam, g.homeLine, isGameLockedWithId(g.date, g.time, g.id, g.homeLine)) +
 			TD_OPEN + g.date + TD_CLOSE +
 			TD_OPEN + g.time + TD_CLOSE +
 			TD_OPEN + (g.final ? "FINAL: " : "") +
@@ -374,7 +374,7 @@ const getGuts = async (weekGames) => {
 	return guts;
 }
 
-const isGameLockedWithId = (gameDate, gameTime, gameId) => {
+const isGameLockedWithId = (gameDate, gameTime, gameId, line) => {
 
 	//steelers-titans 2020 week 4 - covid game - may not play
 	let lockedId = 1;
@@ -384,12 +384,18 @@ const isGameLockedWithId = (gameDate, gameTime, gameId) => {
 		return true;
 	} else {
 		
-		return isGameLocked(gameDate, gameTime);
+		return isGameLocked(gameDate, gameTime, line);
 	}
 }
 
-const isGameLocked = (gameDate, gameTime) => {
+const isGameLocked = (gameDate, gameTime, line) => {
+	
 	sleep(250);
+	
+	if(line === 0) {
+		return true;
+	}
+	
 	let nowDate = new Date();
 
 	let gameStart = convertTimeForComputerReadable(gameDate, gameTime);
@@ -587,15 +593,15 @@ const validatePicks = async () => {
 		let pickedAlready3 = currentPicksSubmitted.pick_3;
 
 		if(togglz.lockPicks) {
-			if(isGameLocked(pickedAlready1.date, pickedAlready1.time)) {
+			if(isGameLocked(pickedAlready1.date, pickedAlready1.time, pickedAlready1.away_team.line)) {
 				lockedPicks.push(pickedAlready1);
 			}
 
-			if(isGameLocked(pickedAlready2.date, pickedAlready2.time)) {
+			if(isGameLocked(pickedAlready2.date, pickedAlready2.time, pickedAlready2.away_team.line)) {
 				lockedPicks.push(pickedAlready2);
 			}
 
-			if(isGameLocked(pickedAlready3.date, pickedAlready3.time)) {
+			if(isGameLocked(pickedAlready3.date, pickedAlready3.time, pickedAlready3.away_team.line)) {
 				lockedPicks.push(pickedAlready3);
 			}
 		}
