@@ -392,7 +392,7 @@ const isGameLocked = (gameDate, gameTime, line) => {
 	
 	sleep(250);
 	
-	if(line === 0) {
+	if(line === 0 || line === '0') {
 		return true;
 	}
 	
