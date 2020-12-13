@@ -593,15 +593,15 @@ const validatePicks = async () => {
 		let pickedAlready3 = currentPicksSubmitted.pick_3;
 
 		if(togglz.lockPicks) {
-			if(isGameLocked(pickedAlready1.date, pickedAlready1.time, pickedAlready1.away_team.line)) {
+			if(isGameLocked(pickedAlready1.date, pickedAlready1.time, pickedAlready1.line)) {
 				lockedPicks.push(pickedAlready1);
 			}
 
-			if(isGameLocked(pickedAlready2.date, pickedAlready2.time, pickedAlready2.away_team.line)) {
+			if(isGameLocked(pickedAlready2.date, pickedAlready2.time, pickedAlready2.line)) {
 				lockedPicks.push(pickedAlready2);
 			}
 
-			if(isGameLocked(pickedAlready3.date, pickedAlready3.time, pickedAlready3.away_team.line)) {
+			if(isGameLocked(pickedAlready3.date, pickedAlready3.time, pickedAlready3.line)) {
 				lockedPicks.push(pickedAlready3);
 			}
 		}
