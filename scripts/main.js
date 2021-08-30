@@ -774,7 +774,7 @@ const loadStandings = async () => {
 	users.get().then(function(result) {
 		standingsTable = TABLE_OPEN;
 		standingsTable += "<tr><th>Name</th><th>Wins</th><th>-</th><th>Losses</th>"
-		result.docs.forEach(doc => console.log(doc));
+
 		let userList = [];
 		result.forEach(async function(u) {
 			
@@ -792,7 +792,7 @@ const loadStandings = async () => {
 			standingsTableContent = "";
 
 			userList.forEach(u => {
-				console.log(u);
+
 				standingsTableContent += TR_OPEN +
 										TD_OPEN + u.name + TD_CLOSE +
 										
