@@ -117,7 +117,7 @@ const getTeamCardForCurrentPicks = (abbreviation, display, line, locked) => {
 }
 
 async function retrieveSched() {
-	year = "2020";
+	year = "2021";
 	return $.ajax
 	({
 		type: "GET",
@@ -181,12 +181,12 @@ const loadPicksIfSelected = async (week) => {
 	let currentUser = await firebase.auth().currentUser;
 
 	if(null == currentUser) {
-		sleep(250);
+		sleep(300);
 		let currentUser = await firebase.auth().currentUser;
 	}
 
 	if(undefined != gameWeek) {
-		await usersCollection.doc(currentUser.uid).collection('seasons').doc('202021').collection('weeks').doc(gameWeek).get().then(
+		await usersCollection.doc(currentUser.uid).collection('seasons').doc(firebaseYear).collection('weeks').doc(gameWeek).get().then(
 			
 		async function(doc) {
 
@@ -244,7 +244,7 @@ const fetchUserPicksWithIdAndWeek = async (week, userId) => {
 	let usersCollection = await fs.collection('users');
 
 	if(undefined != week) {
-		return await usersCollection.doc(userId).collection('seasons').doc('202021').collection('weeks').doc(week).get().then(
+		return await usersCollection.doc(userId).collection('seasons').doc(firebaseYear).collection('weeks').doc(week).get().then(
 			
 		async function(doc) {
 
@@ -260,7 +260,7 @@ const fetchUserWinsWithId = async (userId) => {
 	let fs = firebase.firestore();	
 	let usersCollection = await fs.collection('users');
 
-	return await usersCollection.doc(userId).collection('seasons').doc('202021').get().then(
+	return await usersCollection.doc(userId).collection('seasons').doc(firebaseYear).get().then(
 
 		async function(doc) {
 			return doc.data().wins;
@@ -274,7 +274,7 @@ const fetchUserLossesWithId = async (userId) => {
 	let fs = firebase.firestore();	
 	let usersCollection = await fs.collection('users');
 
-	return await usersCollection.doc(userId).collection('seasons').doc('202021').get().then(function(doc) {
+	return await usersCollection.doc(userId).collection('seasons').doc(firebaseYear).get().then(function(doc) {
 		return doc.data().losses;
 	});
 
@@ -678,7 +678,7 @@ const submitApprovedPicks = async () => {
 		alert("Weird... we don't see you in our system. Contact Ryan Millan or Michael Stanfa NOW. And maybe email your picks to Millan. We'll get this figured out, pal.");
 	} else {
 
-		let thisYear = '202021'
+		let thisYear = firebaseYear
 
 		let gameWeek = await getGameWeek();
 
@@ -736,27 +736,82 @@ const submitApprovedPicks = async () => {
 
 }
 
+function UserRecord(name, wins, losses) {
+	this.name = name;
+	this.wins = wins;
+	this.losses = losses;
+}
+
+const getUserWinsLosses = async (u) => {
+	let wins = await fetchUserWinsWithId(u.id);
+	let losses = await fetchUserLossesWithId(u.id);
+	let name = u.data().name;
+
+	return new UserRecord(name, wins, losses);
+
+}
+
+const getAllUsers = async (users) => {
+	allUsers = [];
+	sortedUsers = await new Promise((resolve, reject) => {
+
+		users.forEach(async (u) => {
+			allUsers.push(await getUserWinsLosses(u));
+			allUsers.sort((a, b) => (a.wins < b.wins) ? 1: -1)
+		});
+		resolve(allUsers);
+	})
+	return sortedUsers;
+
+}
 
 const loadStandings = async () => {
 	let fs = firebase.firestore();
-	let users = await fs.collection('users');
+	let users = fs.collection('users');
+
+	let standingsTable;
+
 	users.get().then(function(result) {
-			standingsTable = TABLE_OPEN;
-			standingsTable += "<tr><th>Name</th><th>Wins</th><th>-</th><th>Losses</th>"
-			let html = result.forEach(async function(u) {
-				let wins = await fetchUserWinsWithId(u.id);
-				let losses = await fetchUserLossesWithId(u.id);
+		standingsTable = TABLE_OPEN;
+		standingsTable += "<tr><th>Name</th><th>Wins</th><th>-</th><th>Losses</th>"
+		result.docs.forEach(doc => console.log(doc));
+		let userList = [];
+		result.forEach(async function(u) {
+			
+			let user = {
+				name: u.data().name,
+				wins: await fetchUserWinsWithId(u.id),
+				losses: await fetchUserLossesWithId(u.id)
+			};
+		
+			userList.push(user);
+			userList.sort((a, b) => (a.wins > b.wins) ? -1 : 1);
+			
+			console.log(userList);
 
-				standingsTable += TR_OPEN +
-						TD_OPEN + u.data().name + TD_CLOSE +
-						
-						TD_OPEN + wins + TD_CLOSE +
-						TD_OPEN + " - " + TD_CLOSE +
-						TD_OPEN + losses + TD_CLOSE +
-						TR_CLOSE
+			$("#standings_html").html(standingsTable);
 
-				$("#standings_html").html(standingsTable);
+			standingsTableContent = "";
+
+			userList.forEach(u => {
+				console.log(u);
+				standingsTableContent += TR_OPEN +
+										TD_OPEN + u.name + TD_CLOSE +
+										
+										TD_OPEN + u.wins + TD_CLOSE +
+										TD_OPEN + " - " + TD_CLOSE +
+										TD_OPEN + u.losses + TD_CLOSE +
+										TR_CLOSE
+				$("#standings_html").html(standingsTable + standingsTableContent + TABLE_CLOSE)
+
+			})
 				
-			});				
-		});
+		});		
+			
+	});
+
+
+
+	
+
 }

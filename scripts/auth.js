@@ -17,7 +17,7 @@ function Season(season) {
   this.season = season;
 }
 
-function s_202021(picks, paid) {
+function s_202122(picks, paid) {
   this.picks = picks,
   this.paid = paid;
 }
@@ -85,9 +85,6 @@ async function setUser() {
 
     if(user) {
 
-      let wins = 0;
-      let losses = 0;
-
       wins = await getUserWins(user);
       losses = await getUserLosses(user);
 
@@ -96,33 +93,34 @@ async function setUser() {
       $("#login_html").attr("hidden", true);
       await showAdminLink(user);
       await displayPicksHTML(user);
-      await hideLoginButton()
+      await hideLoginButton();
     }
 
   })
 
 }
 
-const getUserWins = async () => {
-  let user = firebase.auth().currentUser;
+const getUserWins = async (user) => {
+
+  // let user = firebase.auth().currentUser;
   let fs = firebase.firestore();
   let usersCollection = fs.collection('users');
 
   let data = await new Promise(function(resolve, reject) {
-    resolve(usersCollection.doc(user.uid).collection('seasons').doc('202021').get());
+    resolve(usersCollection.doc(user.uid).collection('seasons').doc('202122').get());
   });
   
   return data.data().wins;
 
 }
 
-const getUserLosses = async () => {
-  let user = firebase.auth().currentUser;
+const getUserLosses = async (user) => {
+  // let user = firebase.auth().currentUser;
   let fs = firebase.firestore();
   let usersCollection = fs.collection('users');
 
   let data = await new Promise(function(resolve, reject) {
-    resolve(usersCollection.doc(user.uid).collection('seasons').doc('202021').get());
+    resolve(usersCollection.doc(user.uid).collection('seasons').doc('202122').get());
   });
   
   return data.data().losses;
@@ -197,7 +195,7 @@ const calculateRecords = async () => {
             totalLosses += 1;
           }
 
-          let userSeason = usersCollection.doc(user.id).collection('seasons').doc('202021');
+          let userSeason = usersCollection.doc(user.id).collection('seasons').doc('202122');
 
           let userUpdate = {};
           userUpdate['wins'] = totalWins;
@@ -362,9 +360,9 @@ async function onSignUp(firstSignUp) {
     }
   );
 
-  let year = 202021
+  let year = 202122
 
-  let newSeason = new Season(new s_202021(year, false));
+  let newSeason = new Season(new s_202122(year, false));
 
   let newUserData = new UserData(user.displayName, user.email, user.photoURL, newSeason, false);
 
@@ -431,3 +429,31 @@ function signOut() {
     // An error happened.
   });
 }
+
+
+const setupUserProfilesForYear = async () => {
+
+	let fs = firebase.firestore();
+  
+	let usersCollection = await fs.collection('users');
+
+  usersCollection.get().then(function(result) {
+
+		result.forEach(function(u) {
+
+      if(usersCollection.doc(u.id).collection('seasons').doc('202122')) {
+
+          let userUpdate = {
+            'wins': 0,
+            'losses': 0,
+            'paid': false
+          }
+
+          usersCollection.doc(u.id).collection('seasons').doc('202122').set(userUpdate);
+
+        }      
+    });
+  });
+  
+  
+  }
