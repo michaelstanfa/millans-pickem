@@ -786,8 +786,6 @@ const loadStandings = async () => {
 		
 			userList.push(user);
 			userList.sort((a, b) => (a.wins > b.wins) ? -1 : 1);
-			
-			console.log(userList);
 
 			$("#standings_html").html(standingsTable);
 
