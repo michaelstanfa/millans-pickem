@@ -185,42 +185,46 @@ const loadPicksIfSelected = async (week) => {
 		let currentUser = await firebase.auth().currentUser;
 	}
 
-	if(undefined != gameWeek) {
-		await usersCollection.doc(currentUser.uid).collection('seasons').doc(firebaseYear).collection('weeks').doc(gameWeek).get().then(
-			
-		async function(doc) {
+	if(null != currentUser) {
 
-			let picks = await doc.data();
+		if(undefined != gameWeek) {
+			await usersCollection.doc(currentUser.uid).collection('seasons').doc(firebaseYear).collection('weeks').doc(gameWeek).get().then(
+				
+			async function(doc) {
 
-			if(null == picks) {
-				$("#current_user_picks").html("You haven't made your picks yet.");
-			} else {
+				let picks = await doc.data();
 
-				let label = TD_OPEN + "Current Picks: " + TD_CLOSE;
+				if(null == picks) {
+					$("#current_user_picks").html("You haven't made your picks yet.");
+				} else {
 
-				let p1 = await picks.pick_1;
-				let p2 = await picks.pick_2;
-				let p3 = await picks.pick_3;
+					let label = TD_OPEN + "Current Picks: " + TD_CLOSE;
 
-				let first_pick = getTeamCardForCurrentPicks(p1.team, p1.team, p1.line, isGameLocked(p1.date, p1.time, p1.line));
-				let second_pick = getTeamCardForCurrentPicks(p2.team, p2.team, p2.line, isGameLocked(p2.date, p2.time, p1.line));
-				let third_pick = getTeamCardForCurrentPicks(p3.team, p3.team, p3.line, isGameLocked(p3.date, p3.time, p1.line));
+					let p1 = await picks.pick_1;
+					let p2 = await picks.pick_2;
+					let p3 = await picks.pick_3;
 
-				let alreadyPickedHTML = "";
+					let first_pick = getTeamCardForCurrentPicks(p1.team, p1.team, p1.line, isGameLocked(p1.date, p1.time, p1.line));
+					let second_pick = getTeamCardForCurrentPicks(p2.team, p2.team, p2.line, isGameLocked(p2.date, p2.time, p1.line));
+					let third_pick = getTeamCardForCurrentPicks(p3.team, p3.team, p3.line, isGameLocked(p3.date, p3.time, p1.line));
 
-				alreadyPickedHTML = 
-						TABLE_OPEN +
-						TR_OPEN +
-						label +
-						first_pick +
-						second_pick +
-						third_pick +
-						TR_CLOSE +
-						TABLE_CLOSE;
+					let alreadyPickedHTML = "";
 
-				$("#current_user_picks").html(alreadyPickedHTML);
-			}
-		});
+					alreadyPickedHTML = 
+							TABLE_OPEN +
+							TR_OPEN +
+							label +
+							first_pick +
+							second_pick +
+							third_pick +
+							TR_CLOSE +
+							TABLE_CLOSE;
+
+					$("#current_user_picks").html(alreadyPickedHTML);
+				}
+			});
+		}
+		
 	}
 }
 

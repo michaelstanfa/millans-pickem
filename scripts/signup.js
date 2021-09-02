@@ -18,14 +18,14 @@ const buildUserInFirestore = async () => {
 					name: currentUser.displayName,
 					email: currentUser.email,
 					photoURL: currentUser.photoURL,
-					admin: false
+					admin: false,
+					approved: false
 				});
 
-				let thisYear = '202021';
+				let thisYear = '202122';
 
 				await usersCollection.doc(currentUser.uid).collection('seasons').doc(thisYear).set(
 					{
-						paid: false,
 						wins: 0,
 						losses: 0
 					}

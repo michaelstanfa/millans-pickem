@@ -74,8 +74,6 @@ const displayAdminHTML = (display) => {
     
     $("#admin_access_only").attr("hidden", false);
   }
-
-
   
 }
 
@@ -92,8 +90,17 @@ async function setUser() {
       $("#user_record").html("(" + wins + "-" + losses + ")");
       $("#login_html").attr("hidden", true);
       await showAdminLink(user);
-      await displayPicksHTML(user);
+      let approved = await isUserApproved(user);
+
+      if(approved) {       
+       
+        await displayPicksHTML(user);
+      } else {
+        $("#user_not_approved").attr("hidden", false);
+      }
+
       await hideLoginButton();
+      
     }
 
   })
@@ -260,6 +267,22 @@ function hideLoginButton() {
 
 }
 
+const isUserApproved = async (user) => {
+    let fs = firebase.firestore();
+
+    let usersCollection = await fs.collection('users');
+
+    return usersCollection.doc(user.uid).get().then(async function(data){
+      
+      if(null != data.data() && data.data().approved) {
+        return data.data().approved;
+
+      } else {
+        return false;
+      }
+    });
+}
+
 const showAdminLink = async (user) => {
 
     let fs = firebase.firestore();
@@ -345,7 +368,7 @@ function isUserEqual(googleUser, firebaseUser) {
 }
 
 async function onSignUp(firstSignUp) {
-
+  console.log("first sign up??");
   let result = await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION).then(
     function() {
 
@@ -445,8 +468,7 @@ const setupUserProfilesForYear = async () => {
 
           let userUpdate = {
             'wins': 0,
-            'losses': 0,
-            'paid': false
+            'losses': 0
           }
 
           usersCollection.doc(u.id).collection('seasons').doc('202122').set(userUpdate);
