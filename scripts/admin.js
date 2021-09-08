@@ -171,7 +171,7 @@ const loadUsers = async () => {
 
 	let usersTable = TABLE_OPEN;
 
-	usersTable += "<tr><th>Name<th>Email</th><th>Admin</th><th>Pick 1</th><th>Pick 2</th><th>Pick 3</th></tr>";
+	usersTable += "<tr><th>Name<th>Email</th><th>Admin</th><th>Approved</th><th>Pick 1</th><th>Pick 2</th><th>Pick 3</th></tr>";
 
 	users.get().then(function(result) {
 
@@ -191,6 +191,7 @@ const loadUsers = async () => {
 					TD_OPEN + u.data().name + TD_CLOSE +
 					TD_OPEN + u.data().email + TD_CLOSE +
 					TD_OPEN + u.data().admin + TD_CLOSE +
+					TD_OPEN + u.data().approved + TD_CLOSE +
 					TD_OPEN + getProperAbbr(result.pick_1.team) + " " + result.pick_1.line + TD_CLOSE +
 					TD_OPEN + getProperAbbr(result.pick_2.team) + " " + result.pick_2.line + TD_CLOSE +
 					TD_OPEN + getProperAbbr(result.pick_3.team) + " " + result.pick_3.line +  TD_CLOSE +
@@ -200,6 +201,7 @@ const loadUsers = async () => {
 					TD_OPEN + u.data().name + TD_CLOSE +
 					TD_OPEN + u.data().email + TD_CLOSE +
 					TD_OPEN + u.data().admin + TD_CLOSE +
+					TD_OPEN + u.data().approved + TD_CLOSE +
 					TD_OPEN + "NO PICK" + TD_CLOSE +
 					TD_OPEN + "NO PICK" + TD_CLOSE +
 					TD_OPEN + "NO PICK" + TD_CLOSE +

@@ -452,30 +452,3 @@ function signOut() {
     // An error happened.
   });
 }
-
-
-const setupUserProfilesForYear = async () => {
-
-	let fs = firebase.firestore();
-  
-	let usersCollection = await fs.collection('users');
-
-  usersCollection.get().then(function(result) {
-
-		result.forEach(function(u) {
-
-      if(usersCollection.doc(u.id).collection('seasons').doc('202122')) {
-
-          let userUpdate = {
-            'wins': 0,
-            'losses': 0
-          }
-
-          usersCollection.doc(u.id).collection('seasons').doc('202122').set(userUpdate);
-
-        }      
-    });
-  });
-  
-  
-  }
