@@ -100,10 +100,11 @@ const getTeamCardForAdmin = (abbreviation, display) => {
 
 
 const getTeamCardUsingString = (abbreviation, display, line, clickable) => {
+	display = (display === 'LA' ? 'LAR' : display)
 	if(clickable) {
 		return '<td class="team_option" abbr=' + abbreviation + ' onclick=selectThisCard(this)>' + display + prettyPrintTheLine(line) + TD_CLOSE;
 	}
-	return '<td class="team_option" abbr=' + abbreviation + '>' + (display === 'LA' ? 'LAR' : display) + prettyPrintTheLine(line) + TD_CLOSE;
+	return '<td bgcolor= "#C0C0C0" class="team_option" abbr=' + abbreviation + '>' + display + prettyPrintTheLine(line) + TD_CLOSE;
 
 }
 
@@ -162,10 +163,6 @@ const loadSpecificWeekMatchups = async (week) => {
 	} else {
 		invalidateSubmitButton(week);	
 	}
-
-	
-
-	
 
 }
 
