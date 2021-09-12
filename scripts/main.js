@@ -400,32 +400,26 @@ const isGameLocked = (gameDate, gameTime, line) => {
 		return true;
 	}
 	
-	let nowDate = new Date();
+	let easternNowTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York", hour12: false});
 
 	let gameStart = convertTimeForComputerReadable(gameDate, gameTime);
-
 	let lockTime = null;
 
-	lockTime = new Date(gameStart.getTime() - (30 * 60000)).getTime();
+	//-5 during daylight savings; either -6 or -4 when we're not in daylight savings
+	let timeZoneHourLock = (gameStart.getTimezoneOffset() / 60) - 4
 
-	let easternNowTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York", hour12: false})
-
+	lockTime = new Date(gameStart.getTime() - (((timeZoneHourLock * 60) + 30) * 60000)).getTime();
 
 	if(togglz.testingDate) {
 		easternNowTime = new Date(testDate.year, testDate.month, testDate.day, testDate.hour, testDate.minute).toLocaleString("en-US", {timeZone: "America/New_York"});
 	}
 
-	let convertedLockTime = new Date(lockTime).toLocaleString("en-US", {timeZone: "America/New_York", hour12: false});
-	
-	let convertedLockTimeCompare = new Date(convertedLockTime).getTime();
-	
-	let easternNowTimeCompare = new Date(easternNowTime).getTime();
+	let convertedLockTime = new Date(lockTime);
 
-	if(convertedLockTimeCompare < easternNowTimeCompare) {
-		return true;
-	} else {
-		return false;
-	}
+	let timeNow = new Date();
+
+	return convertedLockTime < timeNow;
+
 	
 }
 
