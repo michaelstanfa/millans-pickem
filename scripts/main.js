@@ -100,6 +100,7 @@ const getTeamCardForAdmin = (abbreviation, display) => {
 
 
 const getTeamCardUsingString = (abbreviation, display, line, clickable) => {
+	("GET TEAM CARD USING STRING")
 	display = (display === 'LA' ? 'LAR' : display)
 	if(clickable) {
 		return '<td class="team_option" abbr=' + abbreviation + ' onclick=selectThisCard(this)>' + display + prettyPrintTheLine(line) + TD_CLOSE;
@@ -108,10 +109,18 @@ const getTeamCardUsingString = (abbreviation, display, line, clickable) => {
 
 }
 
-const getTeamCardForCurrentPicks = (abbreviation, display, line, locked) => {
+const getTeamCardForCurrentPicks = (abbreviation, display, line, locked, status) => {
 	let bgcolor = "#FFFFFF";
 	if(locked) {
 		bgcolor = "#C0C0C0";
+	}
+
+	if(status == "win") {
+		bgoclor = "#90EE90"
+	}
+
+	if(status == "loss") {
+		bgoclor = "#FF5858"
 	}
 
 	return '<td bgcolor="' + bgcolor + '" class="team_option" abbr=' + abbreviation + '>' + (display === 'LA' ? 'LAR' : display) + prettyPrintTheLine(line) + TD_CLOSE;	
@@ -179,7 +188,7 @@ const loadPicksIfSelected = async (week) => {
 
 	if(null == currentUser) {
 		sleep(300);
-		let currentUser = await firebase.auth().currentUser;
+		currentUser = await firebase.auth().currentUser;
 	}
 
 	if(null != currentUser) {
@@ -312,6 +321,8 @@ const populateWeeklySchedule = async (thisWeek) => {
 				"<th>Score</th>";
 
 	await sleep(500);
+
+	
 
 	let data = await getGuts(thisWeek);
 
@@ -519,9 +530,9 @@ const loadData = async () => {
 					
 					$("#select_week_dropdown").val(result);
 					$("#select_week_dropdown_admin").val(result);	
-					await loadSpecificWeekMatchups(result);
-
 					await loadPicksIfSelected(result);
+					await loadSpecificWeekMatchups(result);
+					
 				},
 				error => {
 					console.log(error);

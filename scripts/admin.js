@@ -171,7 +171,7 @@ const loadUsers = async () => {
 
 	let usersTable = TABLE_OPEN;
 
-	usersTable += "<tr><th>Name<th>Email</th><th>Admin</th><th>Approved</th><th>Pick 1</th><th>Pick 2</th><th>Pick 3</th></tr>";
+	usersTable += "<tr><th>Name</th><th>ID</th><th>Email</th><th>Admin</th><th>Approved</th><th>Pick 1</th><th>Pick 2</th><th>Pick 3</th></tr>";
 
 	users.get().then(function(result) {
 
@@ -189,6 +189,7 @@ const loadUsers = async () => {
 					
 					usersTable += TR_OPEN +
 					TD_OPEN + u.data().name + TD_CLOSE +
+					TD_OPEN + u.id + TD_CLOSE +
 					TD_OPEN + u.data().email + TD_CLOSE +
 					TD_OPEN + u.data().admin + TD_CLOSE +
 					TD_OPEN + u.data().approved + TD_CLOSE +
@@ -199,6 +200,7 @@ const loadUsers = async () => {
 				} else {
 					usersTable += TR_OPEN +
 					TD_OPEN + u.data().name + TD_CLOSE +
+					TD_OPEN + u.id + TD_CLOSE +
 					TD_OPEN + u.data().email + TD_CLOSE +
 					TD_OPEN + u.data().admin + TD_CLOSE +
 					TD_OPEN + u.data().approved + TD_CLOSE +
