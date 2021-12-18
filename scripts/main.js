@@ -419,7 +419,7 @@ const getGuts = async (weekGames) => {
 		guts += TR_OPEN + 
 			getTeamCard(g.awayTeam, g.awayLine, isGameLockedWithId(date, time, g.id, g.awayLine)) +
 			TD_OPEN + "@" + TD_CLOSE + 
-			getTeamCard(g.homeTeam, g.homeLine, isGameLockedWithId(date, date, g.id, g.homeLine)) +
+			getTeamCard(g.homeTeam, g.homeLine, isGameLockedWithId(date, time, g.id, g.homeLine)) +
 			TD_OPEN + date + TD_CLOSE +
 			TD_OPEN + time + TD_CLOSE +
 			TD_OPEN + (g.final ? "FINAL: " : "") +
@@ -742,8 +742,6 @@ const submitApprovedPicks = async () => {
 		let secondPick =Object.entries(submittingPicks)[1][1]; 
 		let thirdPick =Object.entries(submittingPicks)[2][1]; 
 
-		console.log(firstPick);
-
 		let pick_1 = {
 			'team': firstPick.team,
 			'against': firstPick.against,
@@ -774,7 +772,7 @@ const submitApprovedPicks = async () => {
 			'week': gameWeek
 		}
 
-		await usersCollection.doc(currentUser.uid).collection('seasons').doc(thisYear).collection('weeks').doc(gameWeek).set(
+		await usersCollection.doc(currentUser.uid).collection('seasons').doc(thisYear).collection('weeks').doc(gameWeek.toString()).set(
 			{
 				pick_1: pick_1,
 				pick_2: pick_2,
