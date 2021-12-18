@@ -332,10 +332,10 @@ const populateWeeklySchedule = async (thisWeek) => {
 		if(postponded_game_ids.includes(w.id)) {
 
 			let info = await getGameTimeFromFirebase(fs, await getGameWeek(), w.id);
-			console.log(w)
+			
 			w.date = info.date;
 			w.time = info.time
-			console.log(w)
+			
 		};
 
 	})
@@ -384,14 +384,10 @@ const getGameTimeFromFirebase = async (fs, thisWeekNumber, gameId) => {
 	let linesCollection = fs.collection('lines');
 	let year = linesCollection.doc(config.year);
 	let week = year.collection('week');
-	console.log(thisWeekNumber)
-	console.log(thisWeekNumber.toString())
+
 	let weekInfo = await week.doc(thisWeekNumber.toString()).get()
 	
 	gameInQuestion = weekInfo.get('game')[gameId]
-	console.log(gameInQuestion)
-	console.log(gameInQuestion['date'])
-	console.log(gameInQuestion['time'])
 
 	let obj = {
 		date: gameInQuestion['date'],
@@ -420,9 +416,6 @@ const getGuts = async (weekGames) => {
 		let time = g.time;
 		let date = g.date;
 	
-		let obj;
-		
-
 		guts += TR_OPEN + 
 			getTeamCard(g.awayTeam, g.awayLine, isGameLockedWithId(date, time, g.id, g.awayLine)) +
 			TD_OPEN + "@" + TD_CLOSE + 
@@ -435,7 +428,6 @@ const getGuts = async (weekGames) => {
 
 	});
 
-	console.log(guts)
 	return guts;
 }
 
