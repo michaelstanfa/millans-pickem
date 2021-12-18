@@ -1,5 +1,5 @@
 togglz = {
-	disableOtherWeekSubmissions: false,
+	disableOtherWeekSubmissions: true,
 	testingDate: false,
 	lockPicks: true
 }
@@ -10,4 +10,14 @@ testDate = {
 	day: 12,
 	hour: 12,
 	minute: 30
+}
+
+postponded_game_ids = [
+	"65114", //202122 week 15 washington philly
+	"65116", // 202122 week 15 las vegas cleveland
+	"65113" //202122 week 15 la rams seattle
+]
+
+config = {
+	year: '202122'
 }

@@ -9,7 +9,7 @@ const getGameWeek = async () => {
 
 	let days_since_start = (now.getTime() - final_day_of_week_zero.getTime()) / (1000 * 60 * 60 *24);	
 
-	if(Math.ceil(days_since_start / 7) > 17) {
+	if(Math.ceil(days_since_start / 7) > 18) {
 		return 1;
 	} else if(days_since_start < 0) {
 		return 1;

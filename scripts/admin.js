@@ -20,13 +20,32 @@ async function retrieveSched() {
 
 }
 
+const getGameTimeFromFirebase = (fs, gameId) => {
+
+	let linesCollection = fs.collection('lines');
+	let year = linesCollection.doc(config.year);
+	let week = year.collection('week');
+	let game = week.doc(gameId)
+	console.log(game)
+
+}
+
 const loadMatchupsForLineSetting = (week) => {
+
+	
+	let fs = firebase.firestore();	
+	
+
 	if(week != "select") {
 		games = [];
 		weekGames = schedule.fullgameschedule.gameentry.filter(e => e.week == week);
 		let i = 0;
+		let time = g.time;
+		if (postponded_game_ids.includes(g.id)) {
+			time = getGameTimeFromFirebase(fs, g.id)
+		}
 		weekGames.forEach(g => {
-			games[i] = new Game(g.id, g.awayTeam, g.homeTeam, g.date, g.time, getLine(week, g.awayTeam), getLine(week, g.homeTeam));
+			games[i] = new Game(g.id, g.awayTeam, g.homeTeam, g.date, time, getLine(week, g.awayTeam), getLine(week, g.homeTeam));
 			i++;
 		})
 
@@ -38,6 +57,8 @@ const loadMatchupsForLineSetting = (week) => {
 }
 
 async function loadMatchupsForScoreSetting(week) {
+
+	//set time based on firebase not based on anything else
 	if(week != "select") {
 		games = [];
 		weekGames = schedule.fullgameschedule.gameentry.filter(e => e.week == week);
@@ -260,15 +281,15 @@ const populateWeeklyScheduleForLines = async (thisWeek) => {
 
 				data += TR_OPEN + 
 					getTeamCardForAdmin(
-										getProperAbbr(g.awayTeam.Abbreviation), 
-										(g.awayTeam.Name === "Football Team" ? g.awayTeam.City : g.awayTeam.Name)
-										) +
+						getProperAbbr(g.awayTeam.Abbreviation), 
+						(g.awayTeam.Name === "Football Team" ? g.awayTeam.City : g.awayTeam.Name)
+					) +
 					TD_OPEN + "<input class = 'line' id='" + g.id + "_" + g.awayTeam.Abbreviation + "_line'" + " gameId='" + g.id + "' abbr='" + g.awayTeam.Abbreviation + "' nickname='" + g.awayTeam.Name + "' homeAway='AWAY' oninput='changeThisLine(" + g.id + "," + "\"" + g.id + "_" + g.homeTeam.Abbreviation + "_line" + "\"" + ", this.value, \"away\")' type='number' step='1' size='4' value='" + g.awayLine + "'>" + TD_CLOSE +
 					TD_OPEN + "@" + TD_CLOSE + 
 					getTeamCardForAdmin(
-										getProperAbbr(g.homeTeam.Abbreviation), 
-										(g.homeTeam.Name === "Football Team" ? g.homeTeam.City : g.homeTeam.Name)
-										) +
+						getProperAbbr(g.homeTeam.Abbreviation), 
+						(g.homeTeam.Name === "Football Team" ? g.homeTeam.City : g.homeTeam.Name)
+					) +
 					TD_OPEN + "<input class = 'line' id='" + g.id + "_" + g.homeTeam.Abbreviation + "_line'" + " gameId='" + g.id + "' abbr='" + g.homeTeam.Abbreviation + "' nickname='" + g.homeTeam.Name + "' homeAway='HOME' oninput='changeThisLine(" + g.id + "," + "\"" + g.id + "_" + g.awayTeam.Abbreviation + "_line" + "\"" + ", this.value, \"home\")' type='number' step='1' size='4' value='" + g.homeLine + "'>" + TD_CLOSE +
 					TD_OPEN + g.date + TD_CLOSE +
 					TD_OPEN + g.time + TD_CLOSE +

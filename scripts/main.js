@@ -127,6 +127,7 @@ const getTeamCardForCurrentPicks = (abbreviation, display, line, locked, status)
 }
 
 async function retrieveSched() {
+	alert(btoa(creds.id + ":" + creds.secret))
 	year = "2021";
 	return $.ajax
 	({
@@ -297,6 +298,8 @@ const loadWeekGames = async (weekGames, week) => {
 		i = 0;
 		weekGames.forEach(async (g) => {
 
+			
+
 			let awayLine = await getLine(g.week, g.id, "away_team");
 			let homeLine = await getLine(g.week, g.id, "home_team");
 			let final = await getFinal(g.week, g.id);
@@ -313,6 +316,8 @@ const loadWeekGames = async (weekGames, week) => {
 
 const populateWeeklySchedule = async (thisWeek) => {
 	
+	let fs = firebase.firestore()
+
 	let header ="<th>Away</th>" +
 				"<th></th>" +
 				"<th>Home</th>" +
@@ -322,9 +327,20 @@ const populateWeeklySchedule = async (thisWeek) => {
 
 	await sleep(500);
 
-	
+	await thisWeek.forEach(async w => {
+		
+		if(postponded_game_ids.includes(w.id)) {
 
-	let data = await getGuts(thisWeek);
+			let info = await getGameTimeFromFirebase(fs, await getGameWeek(), w.id);
+			console.log(w)
+			w.date = info.date;
+			w.time = info.time
+			console.log(w)
+		};
+
+	})
+
+	let data = await getGuts(thisWeek)
 
 	let table = TABLE_OPEN + header + data + TABLE_CLOSE;
 
@@ -363,26 +379,63 @@ const getScore = async (week, id, homeOrAway) => {
 
 }
 
+const getGameTimeFromFirebase = async (fs, thisWeekNumber, gameId) => {
+
+	let linesCollection = fs.collection('lines');
+	let year = linesCollection.doc(config.year);
+	let week = year.collection('week');
+	console.log(thisWeekNumber)
+	console.log(thisWeekNumber.toString())
+	let weekInfo = await week.doc(thisWeekNumber.toString()).get()
+	
+	gameInQuestion = weekInfo.get('game')[gameId]
+	console.log(gameInQuestion)
+	console.log(gameInQuestion['date'])
+	console.log(gameInQuestion['time'])
+
+	let obj = {
+		date: gameInQuestion['date'],
+		time: gameInQuestion['time']
+	}
+
+	return obj
+
+	// usersCollection.doc(currentUser.uid).collection('seasons').doc(firebaseYear).collection('weeks').doc(gameWeek).get().then(
+	
+	
+}
+
 const getGuts = async (weekGames) => {
 
+
+	let thisWeekNumber = await getGameWeek()
 	await sleep(1250);
 
 	let guts = "";
 
-	weekGames.forEach(g => {
+	let fs = firebase.firestore();
+
+	weekGames.forEach(async(g) => {
+
+		let time = g.time;
+		let date = g.date;
+	
+		let obj;
+		
 
 		guts += TR_OPEN + 
-			getTeamCard(g.awayTeam, g.awayLine, isGameLockedWithId(g.date, g.time, g.id, g.awayLine)) +
+			getTeamCard(g.awayTeam, g.awayLine, isGameLockedWithId(date, time, g.id, g.awayLine)) +
 			TD_OPEN + "@" + TD_CLOSE + 
-			getTeamCard(g.homeTeam, g.homeLine, isGameLockedWithId(g.date, g.time, g.id, g.homeLine)) +
-			TD_OPEN + g.date + TD_CLOSE +
-			TD_OPEN + g.time + TD_CLOSE +
+			getTeamCard(g.homeTeam, g.homeLine, isGameLockedWithId(date, date, g.id, g.homeLine)) +
+			TD_OPEN + date + TD_CLOSE +
+			TD_OPEN + time + TD_CLOSE +
 			TD_OPEN + (g.final ? "FINAL: " : "") +
 			getProperAbbr(g.awayTeam.Abbreviation) + " " + g.awayScore + " - " + g.homeScore + " " + getProperAbbr(g.homeTeam.Abbreviation) + TD_CLOSE +
 		TR_CLOSE;
+
 	});
 
-
+	console.log(guts)
 	return guts;
 }
 
@@ -572,8 +625,9 @@ const getPickInfoFromAbbr = (abbr) => {
 const validatePicks = async () => {
 
 	let selectedWeek = $("#select_week_dropdown").val();
+	let gameWeek = await getGameWeek();
 
-	if(selectedWeek != getGameWeek() && togglz.disableOtherWeekSubmissions) {
+	if(selectedWeek != gameWeek && togglz.disableOtherWeekSubmissions) {
 		alert("Failed to submit. Wrong week.");
 	}
 

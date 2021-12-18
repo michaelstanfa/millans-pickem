@@ -1,7 +1,7 @@
 how to run this locally:
 
 1) terminal
-2) python -m http.server 8000
+2) python3 -m http.server 8000
 
 
 # PICKEM
