@@ -127,7 +127,7 @@ const getTeamCardForCurrentPicks = (abbreviation, display, line, locked, status)
 }
 
 async function retrieveSched() {
-	alert(btoa(creds.id + ":" + creds.secret))
+	
 	year = "2021";
 	return $.ajax
 	({
