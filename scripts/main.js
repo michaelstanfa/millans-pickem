@@ -469,7 +469,7 @@ const isGameLocked = (gameDate, gameTime, line) => {
 	//-5 when we're out of out daylight savings; -4 when we're in it
 	let timeZoneHourLock = (gameStart.getTimezoneOffset() / 60) - 5
 	
-	lockTime = new Date(gameStart.getTime() - (((timeZoneHourLock * 60) + 10) * 60000)).getTime();
+	lockTime = new Date(gameStart.getTime() - (((timeZoneHourLock * 60) + 30) * 60000)).getTime();
 
 	if(togglz.testingDate) {
 		easternNowTime = new Date(testDate.year, testDate.month, testDate.day, testDate.hour, testDate.minute).toLocaleString("en-US", {timeZone: "America/New_York"});
