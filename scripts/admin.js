@@ -20,16 +20,6 @@ async function retrieveSched() {
 
 }
 
-const getGameTimeFromFirebase = (fs, gameId) => {
-
-	let linesCollection = fs.collection('lines');
-	let year = linesCollection.doc(config.year);
-	let week = year.collection('week');
-	let game = week.doc(gameId)
-	console.log(game)
-
-}
-
 const loadMatchupsForLineSetting = (week) => {
 
 	
