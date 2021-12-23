@@ -20,26 +20,31 @@ async function retrieveSched() {
 
 }
 
-const loadMatchupsForLineSetting = (week) => {
+const loadMatchupsForLineSetting = async (week) => {
 
-	
 	let fs = firebase.firestore();	
 	
-
 	if(week != "select") {
 		games = [];
 		weekGames = schedule.fullgameschedule.gameentry.filter(e => e.week == week);
 		let i = 0;
-		let time = g.time;
-		if (postponded_game_ids.includes(g.id)) {
-			time = getGameTimeFromFirebase(fs, g.id)
-		}
-		weekGames.forEach(g => {
-			games[i] = new Game(g.id, g.awayTeam, g.homeTeam, g.date, time, getLine(week, g.awayTeam), getLine(week, g.homeTeam));
+
+		await weekGames.forEach(g => {
+
+			let time = g.time;
+			let date = g.date;
+			if (postponded_game_ids.includes(g.id)) {
+				obj = getGameTimeFromFirebase(fs, g.id)
+				time = obj.time
+				date = obj.date
+			}
+
+			games[i] = new Game(g.id, g.awayTeam, g.homeTeam, date, time, getLine(week, g.awayTeam), getLine(week, g.homeTeam));
 			i++;
 		})
 
 		thisWeek = new Week(week, games);
+
 		populateWeeklyScheduleForLines(thisWeek);
 	} else {
 		$("#this_week_games_admin").html("");

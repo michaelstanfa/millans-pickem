@@ -567,7 +567,7 @@ const loadData = async () => {
 			schedule = result;
 
 			let gameWeek = new Promise(async function(resolve, reject) {
-			 	resolve(getGameWeek());
+			 	resolve(await getGameWeek());
 			});
 
 			gameWeek.then(
