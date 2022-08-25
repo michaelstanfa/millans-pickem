@@ -13,11 +13,12 @@ testDate = {
 }
 
 postponded_game_ids = [
-	"65114", //202122 week 15 washington philly
-	"65116", // 202122 week 15 las vegas cleveland
-	"65113" //202122 week 15 la rams seattle
+	"65114", //202223 week 15 washington philly
+	"65116", // 202223 week 15 las vegas cleveland
+	"65113" //202223 week 15 la rams seattle
 ]
 
 config = {
-	year: '202122'
+	// year: '202122'
+	year: '202223'
 }

@@ -128,7 +128,7 @@ const getTeamCardForCurrentPicks = (abbreviation, display, line, locked, status)
 
 async function retrieveSched() {
 	
-	year = "2021";
+	year = "2022";
 	return $.ajax
 	({
 		type: "GET",
