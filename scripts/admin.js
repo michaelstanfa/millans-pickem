@@ -85,6 +85,14 @@ const changeThisLine = (gameId, idToChange, line, side) => {
 
 }
 
+const showConfig = () => {
+	$(".config").attr("hidden", false)
+}
+
+const hideConfig = () => {
+	$(".config").attr("hidden", true)
+}
+
 const showLines = () => {
 	$("#admin_set_scores").attr("hidden", true);
 	$("#admin_set_lines").attr("hidden", false);
@@ -177,6 +185,37 @@ const populateWeeklyScheduleForScores = async (thisWeek) => {
 
 }
 
+const changeAdmin = async (id) => {
+	let fs = firebase.firestore();
+	let usersCollection = fs.collection('users');
+	console.log(id)
+	result = await usersCollection.doc(id).get().then(function(doc) {
+		return doc.data().admin
+		
+	})
+	await usersCollection.doc(id).update(
+		{
+			admin: !result
+		}
+	);
+}
+
+const changeApproval = async (id) => {
+
+	let fs = firebase.firestore();
+	let usersCollection = fs.collection('users');
+	console.log(id)
+	result = await usersCollection.doc(id).get().then(function(doc) {
+		return doc.data().approved
+		
+	})
+	await usersCollection.doc(id).update(
+		{
+			approved: !result
+		}
+	);
+}	
+
 const loadUsers = async () => {
 
 	let week = $("#select_week_dropdown_admin").val();
@@ -187,11 +226,11 @@ const loadUsers = async () => {
 
 	let usersTable = TABLE_OPEN;
 
-	usersTable += "<tr><th>Name</th><th>ID</th><th>Email</th><th>Admin</th><th>Approved</th><th>Pick 1</th><th>Pick 2</th><th>Pick 3</th></tr>";
-
+	usersTable += "<tr><th>Name</th><th class='config' hidden>ID</th><th class='config' hidden>Email</th><th class='config' hidden>Admin</th><th class='config' hidden>Approved</th><th>Pick 1</th><th>Pick 2</th><th>Pick 3</th></tr>";
+	TD_OPEN_CONFIG = "<td class='config' hidden>"
 	users.get().then(function(result) {
 
-		$("#lines_or_scores_label").html("Users (" + result.size + ")");
+		$("#lines_or_scores_label").html("Users (" + result.size + ") <button onClick='showConfig()' class='btn btn-success'>Show Config</button><button onClick='hideConfig()' class='btn btn-danger'>Hide Config</button>");
 		
 		result.forEach(function(u) {
 			
@@ -205,10 +244,10 @@ const loadUsers = async () => {
 					
 					usersTable += TR_OPEN +
 					TD_OPEN + u.data().name + TD_CLOSE +
-					TD_OPEN + u.id + TD_CLOSE +
-					TD_OPEN + u.data().email + TD_CLOSE +
-					TD_OPEN + u.data().admin + TD_CLOSE +
-					TD_OPEN + u.data().approved + TD_CLOSE +
+					TD_OPEN_CONFIG + u.id + TD_CLOSE +
+					TD_OPEN_CONFIG + u.data().email + TD_CLOSE +
+					TD_OPEN_CONFIG + u.data().admin + `<button class = 'btn btn-primary' onClick='changeAdmin("${u.id}")'>change status</button>` + TD_CLOSE +
+					TD_OPEN_CONFIG + u.data().approved  + `<button class = 'btn btn-primary' onClick='changeApproval("${u.id}")'>approve/deny</button>` + TD_CLOSE +
 					TD_OPEN + getProperAbbr(result.pick_1.team) + " " + result.pick_1.line + TD_CLOSE +
 					TD_OPEN + getProperAbbr(result.pick_2.team) + " " + result.pick_2.line + TD_CLOSE +
 					TD_OPEN + getProperAbbr(result.pick_3.team) + " " + result.pick_3.line +  TD_CLOSE +
@@ -216,10 +255,10 @@ const loadUsers = async () => {
 				} else {
 					usersTable += TR_OPEN +
 					TD_OPEN + u.data().name + TD_CLOSE +
-					TD_OPEN + u.id + TD_CLOSE +
-					TD_OPEN + u.data().email + TD_CLOSE +
-					TD_OPEN + u.data().admin + TD_CLOSE +
-					TD_OPEN + u.data().approved + TD_CLOSE +
+					TD_OPEN_CONFIG + u.id + TD_CLOSE +
+					TD_OPEN_CONFIG + u.data().email + TD_CLOSE +
+					TD_OPEN_CONFIG + u.data().admin + `<button class = 'btn btn-primary' onClick='changeAdmin("${u.id}")'>change status</button>` + TD_CLOSE +
+					TD_OPEN_CONFIG + u.data().approved  + `<button class = 'btn btn-primary' onClick='changeApproval("${u.id}")'>approve/deny</button>` + TD_CLOSE +
 					TD_OPEN + "NO PICK" + TD_CLOSE +
 					TD_OPEN + "NO PICK" + TD_CLOSE +
 					TD_OPEN + "NO PICK" + TD_CLOSE +
@@ -305,7 +344,6 @@ const populateWeeklyScheduleForLines = async (thisWeek) => {
 		});
 	
 }
-
 
 const setScores = () => {
 	let scores = [ ...$(".score")];

@@ -15,3 +15,5 @@ changes to make annually:
 -update the year in the lines doc that connects to firebase (201920, 202021, etc)
 
 --after 2020 week 2, //AFTER WEEK 2: search for that and get rid of stuff
+
+-- weekly pick games are queried from msf each time the page loads. no need to pre-populate the weeks.
