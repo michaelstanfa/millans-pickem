@@ -19,6 +19,8 @@ var TD_CLOSE = "</td>";
 var DIV_OPEN = "<div>";
 var DIV_CLOSE = "</div>";
 
+var GAME_WEEK;
+
 const getFirestore = async () => {
 	if(!fs){
 		fs = firebase.firestore();	
@@ -181,6 +183,8 @@ const loadPicksIfSelected = async (week) => {
 	sleep(1000);
 
 	let gameWeek = $("#select_week_dropdown").val();
+
+	GAME_WEEK = gameWeek
 
 	let fs = firebase.firestore();
 	let usersCollection = await fs.collection('users');
@@ -458,25 +462,53 @@ const isGameLocked = (gameDate, gameTime, line) => {
 	let gameStart = convertTimeForComputerReadable(gameDate, gameTime);
 	let lockTime = null;
 
-	//-5 when we're out of out daylight savings; -4 when we're in it
-	let timeZoneHourLock = (gameStart.getTimezoneOffset() / 60) - 5
-	
-	lockTime = new Date(gameStart.getTime() - (((timeZoneHourLock * 60) + 30) * 60000)).getTime();
+	let timeNow = new Date();
 
+	//-5 when we're out of out daylight savings; -4 when we're in it
+	let timeZoneHourLock = (gameStart.getTimezoneOffset() / 60) - 4
+
+	if(gameStart.getDay() == 4) {
+
+		lockTime = new Date(gameStart.getTime() - (((timeZoneHourLock * 60) + 30) * 60000)).getTime()
+		console.log(`lockTime: ${new Date(lockTime)}`)
+
+	} else {
+
+		//sunday before NFL started: 9 / 4 / 2022
+
+		let sundayZero = new Date(2022, 8, 4)
+		let thisSunday = new Date()
+
+		thisSunday.setDate(sundayZero.getDate() + (7 * GAME_WEEK))
+		let thisSundayGameTime = convertTimeForComputerReadable(`${thisSunday.getFullYear()}-${thisSunday.getMonth() + 1}-${thisSunday.getDate()}`, '1:00PM');
+
+		lockTime = new Date(thisSundayGameTime.getTime() - (((timeZoneHourLock * 60) + 30) * 60000)).getTime();
+
+
+	} 
+	
 	if(togglz.testingDate) {
 		easternNowTime = new Date(testDate.year, testDate.month, testDate.day, testDate.hour, testDate.minute).toLocaleString("en-US", {timeZone: "America/New_York"});
 	}
 
+	
 	let convertedLockTime = new Date(lockTime);
 
-	let timeNow = new Date();
-
+	console.log(convertedLockTime < timeNow)
+	console.log(`converted lock time: ${convertedLockTime}`)
+	console.log(`time now: ${timeNow}`)
 	return convertedLockTime < timeNow;
-
 	
 }
 
-const convertTimeForComputerReadable = (date, time) => {
+/**
+ * 
+ * @param {*} date 
+ * @param {*} time 
+ * @param {*} tz time zone, if you're passing this in it's likely America/New_York 
+ * @returns 
+ */
+const convertTimeForComputerReadable = (date, time, tz = null) => {
 	
 	let am_pm = time.substring(time.length - 2);
 	time = time.substring(0, time.length - 2);
@@ -492,9 +524,14 @@ const convertTimeForComputerReadable = (date, time) => {
 	let month = parseInt(date[1] - 1);
 	let day = parseInt(date[2]);
 
-	let gameStart = new Date(year, month, day, hours, minutes);
+	if(tz){
 
-	return gameStart;
+		return new Date(year, month, day, hours, minutes).toLocaleString("en-US", {timeZone: tz, hour12: false});
+
+	}
+	
+
+	return new Date(year, month, day, hours, minutes);
 
 }
 

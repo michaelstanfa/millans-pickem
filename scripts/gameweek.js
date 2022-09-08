@@ -8,7 +8,6 @@ const getGameWeek = async () => {
 	now.setHours(0,0,0,0);
 
 	let days_since_start = (now.getTime() - final_day_of_week_zero.getTime()) / (1000 * 60 * 60 *24);	
-	console.log(days_since_start)
 
 	if(Math.ceil(days_since_start / 7) > 18) {
 		return 1;
