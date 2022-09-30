@@ -461,16 +461,15 @@ const isGameLocked = (gameDate, gameTime, line) => {
 
 	let gameStart = convertTimeForComputerReadable(gameDate, gameTime);
 	let lockTime = null;
-
 	let timeNow = new Date();
 
 	//-5 when we're out of out daylight savings; -4 when we're in it
 	let timeZoneHourLock = (gameStart.getTimezoneOffset() / 60) - 4
 
-	if(gameStart.getDay() == 4) {
+
+	if(gameStart.getDay() == 4 ) {
 
 		lockTime = new Date(gameStart.getTime() - (((timeZoneHourLock * 60) + 30) * 60000)).getTime()
-		console.log(`lockTime: ${new Date(lockTime)}`)
 
 	} else {
 
@@ -482,8 +481,12 @@ const isGameLocked = (gameDate, gameTime, line) => {
 		thisSunday.setDate(sundayZero.getDate() + (7 * GAME_WEEK))
 		let thisSundayGameTime = convertTimeForComputerReadable(`${thisSunday.getFullYear()}-${thisSunday.getMonth() + 1}-${thisSunday.getDate()}`, '1:00PM');
 
-		lockTime = new Date(thisSundayGameTime.getTime() - (((timeZoneHourLock * 60) + 30) * 60000)).getTime();
-
+		let thisSundayActualTime = convertTimeForComputerReadable(gameDate, gameTime)
+		let actualLockTime = new Date(new Date(thisSundayActualTime.getTime() - (((timeZoneHourLock * 60) + 30) * 60000)).getTime());
+all
+		lockTime = new Date(thisSundayGameTime.getTime() - (((timeZoneHourLock * 60) + 30) * 60000)).getTime();		if (actualLockTime < lockTime) {
+			lockTime = actualLockTime
+		}
 
 	} 
 	
@@ -491,12 +494,8 @@ const isGameLocked = (gameDate, gameTime, line) => {
 		easternNowTime = new Date(testDate.year, testDate.month, testDate.day, testDate.hour, testDate.minute).toLocaleString("en-US", {timeZone: "America/New_York"});
 	}
 
-	
 	let convertedLockTime = new Date(lockTime);
 
-	console.log(convertedLockTime < timeNow)
-	console.log(`converted lock time: ${convertedLockTime}`)
-	console.log(`time now: ${timeNow}`)
 	return convertedLockTime < timeNow;
 	
 }
