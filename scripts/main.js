@@ -483,7 +483,6 @@ const isGameLocked = (gameDate, gameTime, line) => {
 
 		let thisSundayActualTime = convertTimeForComputerReadable(gameDate, gameTime)
 		let actualLockTime = new Date(new Date(thisSundayActualTime.getTime() - (((timeZoneHourLock * 60) + 30) * 60000)).getTime());
-all
 		lockTime = new Date(thisSundayGameTime.getTime() - (((timeZoneHourLock * 60) + 30) * 60000)).getTime();		if (actualLockTime < lockTime) {
 			lockTime = actualLockTime
 		}
