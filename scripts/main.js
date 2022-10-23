@@ -479,11 +479,15 @@ const isGameLocked = (gameDate, gameTime, line) => {
 		let thisSunday = new Date()
 
 		thisSunday.setDate(sundayZero.getDate() + (7 * GAME_WEEK))
-		let thisSundayGameTime = convertTimeForComputerReadable(`${thisSunday.getFullYear()}-${thisSunday.getMonth() + 1}-${thisSunday.getDate()}`, '1:00PM');
+		let thisSundayGameTime = convertTimeForComputerReadable(`${thisSunday.getFullYear()}-${thisSunday.getMonth()}-${thisSunday.getDate() + 1	}`, '1:00PM');
 
 		let thisSundayActualTime = convertTimeForComputerReadable(gameDate, gameTime)
 		let actualLockTime = new Date(new Date(thisSundayActualTime.getTime() - (((timeZoneHourLock * 60) + 30) * 60000)).getTime());
-		lockTime = new Date(thisSundayGameTime.getTime() - (((timeZoneHourLock * 60) + 30) * 60000)).getTime();
+		// console.log(`actual lock time ${actualLockTime}`)
+		// console.log(`thisSundayGameTime ${thisSundayGameTime}`)
+		lockTime = new Date(new Date(thisSundayGameTime.getTime() - (((timeZoneHourLock * 60) + 30) * 60000)).getTime());
+		// console.log(`lockTime ${lockTime}`)
+
 		if (actualLockTime < lockTime) {
 			lockTime = actualLockTime
 		}
