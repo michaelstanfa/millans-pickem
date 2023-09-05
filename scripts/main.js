@@ -92,7 +92,8 @@ const selectThisCard = (card) => {
 
 const getTeamCard = (team, line, locked) => {
 
-	return getTeamCardUsingString(team.Abbreviation, (team.Abbreviation != "WAS" ? team.Name : team.City), line, !locked)
+	// return getTeamCardUsingString(team.Abbreviation, (team.Abbreviation != "WAS" ? team.Name : team.City), line, !locked)
+	return getTeamCardUsingString(team.Abbreviation, team.Name, line, !locked)
 
 }
 
