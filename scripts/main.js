@@ -130,7 +130,7 @@ const getTeamCardForCurrentPicks = (abbreviation, display, line, locked, status)
 
 async function retrieveSched() {
 	
-	year = "2022";
+	year = "2023";
 	return $.ajax
 	({
 		type: "GET",
@@ -464,7 +464,7 @@ const isGameLocked = (gameDate, gameTime, line) => {
 	let timeNow = new Date();
 
 	//-5 when we're out of out daylight savings; -4 when we're in it
-	let timeZoneHourLock = (gameStart.getTimezoneOffset() / 60) - 5
+	let timeZoneHourLock = (gameStart.getTimezoneOffset() / 60) - 4
 
 
 	if(gameStart.getDay() == 4 ) {
@@ -474,32 +474,43 @@ const isGameLocked = (gameDate, gameTime, line) => {
 	} else {
 
 		//sunday before NFL started: 9 / 4 / 2022
+		// sunday before nfl started: 9 3/ 2022
 
-		let sundayZero = new Date(2022, 8, 4)
+		let sundayZero = new Date(2023, 8, 3)
+
 		let thisSunday = new Date()
 
 		thisSunday.setDate(sundayZero.getDate() + (7 * GAME_WEEK))
-		let thisSundayGameTime = convertTimeForComputerReadable(`${thisSunday.getFullYear()}-${thisSunday.getMonth()}-${thisSunday.getDate() + 1	}`, '1:00PM');
+
+		// console.log(thisSunday.getFullYear())
+		// console.log(thisSunday.getMonth())
+		// console.log(thisSunday.getDate())
+
+		// issue here with the month. wtf
+		let thisSundayGameTime = convertTimeForComputerReadable(`${thisSunday.getFullYear()}-${thisSunday.getMonth() + 1}-${thisSunday.getDate()}`, '1:00PM');
+
+		// console.log(thisSundayGameTime)
 
 		let thisSundayActualTime = convertTimeForComputerReadable(gameDate, gameTime)
 		let actualLockTime = new Date(new Date(thisSundayActualTime.getTime() - (((timeZoneHourLock * 60) + 30) * 60000)).getTime());
-		// console.log(`actual lock time ${actualLockTime}`)
-		// console.log(`thisSundayGameTime ${thisSundayGameTime}`)
+		// console.log(actualLockTime)
 		lockTime = new Date(new Date(thisSundayGameTime.getTime() - (((timeZoneHourLock * 60) + 30) * 60000)).getTime());
-		// console.log(`lockTime ${lockTime}`)
 
 		if (actualLockTime < lockTime) {
 			lockTime = actualLockTime
 		}	
 
 	} 
+
+	// console.log(`lockTime: ${lockTime}`)
 	
 	if(togglz.testingDate) {
 		easternNowTime = new Date(testDate.year, testDate.month, testDate.day, testDate.hour, testDate.minute).toLocaleString("en-US", {timeZone: "America/New_York"});
 	}
 
 	let convertedLockTime = new Date(lockTime);
-
+	// console.log(`convertedLocktTime: ${convertedLockTime}`)
+	// console.log(`timeNow: ${timeNow}`)
 	return convertedLockTime < timeNow;
 	
 }

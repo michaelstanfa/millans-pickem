@@ -1,9 +1,8 @@
 const getGameWeek = async () => {
 
 	//monday of the first game week of the szn
-	let final_day_of_week_zero = new Date("09/05/2022");
+	let final_day_of_week_zero = new Date("09/04/2023");
 
-	// let final_day = new Date("01/09/2022");
 	let now = new Date();
 	now.setHours(0,0,0,0);
 

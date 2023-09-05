@@ -1,5 +1,5 @@
 async function retrieveSched() {
-	let year = "2022";
+	let year = "2023";
 	return $.ajax
 	({
 		type: "GET",
@@ -381,7 +381,7 @@ const setScores = () => {
 	
 	let linesCollection = fs.collection('lines');
 	
-	let year = linesCollection.doc('202223');
+	let year = linesCollection.doc('202324');
 
 	let week = year.collection('week');
 
@@ -469,7 +469,7 @@ const reviewLines = async () => {
 	let fs = firebase.firestore();
 	let linesCollection = fs.collection('lines');
 	
-	let year = linesCollection.doc('202223');
+	let year = linesCollection.doc('202324');
 
 	let week = year.collection('week');
 

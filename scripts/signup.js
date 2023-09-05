@@ -22,7 +22,7 @@ const buildUserInFirestore = async () => {
 					approved: false
 				});
 
-				let thisYear = '202223';
+				let thisYear = '202324';
 
 				await usersCollection.doc(currentUser.uid).collection('seasons').doc(thisYear).set(
 					{

@@ -17,7 +17,7 @@ function Season(season) {
   this.season = season;
 }
 
-function s_202223(picks, paid) {
+function s_202324(picks, paid) {
   this.picks = picks,
   this.paid = paid;
 }
@@ -114,7 +114,7 @@ const getUserWins = async (user) => {
   let usersCollection = fs.collection('users');
 
   let data = await new Promise(function(resolve, reject) {
-    resolve(usersCollection.doc(user.uid).collection('seasons').doc('202223').get());
+    resolve(usersCollection.doc(user.uid).collection('seasons').doc('202324').get());
   });
   
   return data.data().wins;
@@ -127,7 +127,7 @@ const getUserLosses = async (user) => {
   let usersCollection = fs.collection('users');
 
   let data = await new Promise(function(resolve, reject) {
-    resolve(usersCollection.doc(user.uid).collection('seasons').doc('202223').get());
+    resolve(usersCollection.doc(user.uid).collection('seasons').doc('202324').get());
   });
   
   return data.data().losses;
@@ -202,7 +202,7 @@ const calculateRecords = async () => {
             totalLosses += 1;
           }
 
-          let userSeason = usersCollection.doc(user.id).collection('seasons').doc('202223');
+          let userSeason = usersCollection.doc(user.id).collection('seasons').doc('202324');
 
           let userUpdate = {};
           userUpdate['wins'] = totalWins;
@@ -383,9 +383,9 @@ async function onSignUp(firstSignUp) {
     }
   );
 
-  let year = 202223
+  let year = 202324
 
-  let newSeason = new Season(new s_202223(year, false));
+  let newSeason = new Season(new s_202324(year, false));
 
   let newUserData = new UserData(user.displayName, user.email, user.photoURL, newSeason, false);
 

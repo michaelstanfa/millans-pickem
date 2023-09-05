@@ -1,4 +1,4 @@
-let firebaseYear = "202223"
+let firebaseYear = "202324"
 
 const getThisYearLinesFromFirebase = async () => {
 //gotta check to see if the lines for this week have been loaded yet
