@@ -465,7 +465,7 @@ const isGameLocked = (gameDate, gameTime, line) => {
 	let timeNow = new Date();
 
 	//-5 when we're out of out daylight savings; -4 when we're in it
-	let timeZoneHourLock = (gameStart.getTimezoneOffset() / 60) - 4
+	let timeZoneHourLock = (gameStart.getTimezoneOffset() / 60) - 5
 
 
 	if(gameStart.getDay() == 4 ) {
